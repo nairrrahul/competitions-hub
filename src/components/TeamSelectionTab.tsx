@@ -139,21 +139,25 @@ const TeamSelectionTab = forwardRef<{ getCurrentTeamData: () => TeamData | null 
     }
   }, [manualTeams, presetType, initialData]);
 
-  // Initialize team slots when confederation groups count changes (only if no initial data)
+  // Initialize team slots when confederation groups count changes (only if no initial data or switching to confederation with different data)
   useEffect(() => {
-    if (presetType === 'confederation' && (!initialData || initialData.presetType !== 'confederation' || initialData.selectedConfederation !== selectedConfederation)) {
-      // Get all teams from the selected confederation
-      const confederationTeams = Object.entries(nationInfo)
-        .filter(([_, nationData]) => nationData.confederationID === selectedConfederation)
-        .map(([teamName, nationData]) => ({
-          id: `confed-${teamName}`,
-          name: teamName,
-          flagCode: nationData.flagCode,
-          isSelected: true // All teams enabled by default
-        }));
-      
-      // Show ALL teams from the confederation (not limited by group count)
-      setTeamSlots(confederationTeams);
+    if (presetType === 'confederation') {
+      // If we have initial data for confederation, use it
+      if (initialData && initialData.presetType === 'confederation' && initialData.selectedConfederation === selectedConfederation) {
+        setTeamSlots(initialData.teamSlots);
+      } else if (!initialData || initialData.presetType !== 'confederation' || initialData.selectedConfederation !== selectedConfederation) {
+        // Only create fresh data if we don't have matching initial data
+        const confederationTeams = Object.entries(nationInfo)
+          .filter(([_, nationData]) => nationData.confederationID === selectedConfederation)
+          .map(([teamName, nationData]) => ({
+            id: `confed-${teamName}`,
+            name: teamName,
+            flagCode: nationData.flagCode,
+            isSelected: true // All teams enabled by default
+          }));
+        
+        setTeamSlots(confederationTeams);
+      }
     }
   }, [presetType, selectedConfederation, initialData]);
 

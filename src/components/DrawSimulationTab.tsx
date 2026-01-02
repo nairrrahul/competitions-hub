@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import nationInfo from '../config/nation_info.json';
 import groupPresets from '../config/group_presets.json';
 
@@ -32,6 +32,34 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulatedGroups, setSimulatedGroups] = useState<{ [key: string]: (TeamSlot | null)[] }>({});
   const [simulationComplete, setSimulationComplete] = useState(false);
+  
+  // State for calculated teams and pots (to reset properly when teamData changes)
+  const [sortedTeams, setSortedTeams] = useState<TeamSlot[]>([]);
+  const [pots, setPots] = useState<{ [key: string]: TeamSlot[] }>({});
+
+  // Recalculate sorted teams and pots when teamData changes
+  useEffect(() => {
+    if (teamData) {
+      const displayTeams = getDisplayTeams();
+      const numberOfGroups = getNumberOfGroups();
+      const newSortedTeams = sortTeamsByRanking(displayTeams);
+      const newPots = allocateTeamsToPots(newSortedTeams, numberOfGroups);
+      
+      setSortedTeams(newSortedTeams);
+      setPots(newPots);
+      
+      // Reset simulation state when teamData changes
+      setSimulatedGroups({});
+      setSimulationComplete(false);
+      setIsSimulating(false);
+    } else {
+      setSortedTeams([]);
+      setPots({});
+      setSimulatedGroups({});
+      setSimulationComplete(false);
+      setIsSimulating(false);
+    }
+  }, [teamData]);
 
   // Get number of groups based on preset type
   const getNumberOfGroups = (): number => {
@@ -342,13 +370,9 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
     }
   };
 
-  // Calculate pots for display
-  const displayTeams = getDisplayTeams();
-  const numberOfGroups = getNumberOfGroups();
-  const sortedTeams = sortTeamsByRanking(displayTeams);
-  const pots = allocateTeamsToPots(sortedTeams, numberOfGroups);
-
   // Calculate group structure based on pots
+  const numberOfGroups = getNumberOfGroups();
+  const displayTeams = getDisplayTeams();
   const calculateGroupStructure = (): { [key: string]: number } => {
     const groups: { [key: string]: number } = {};
     const potKeys = Object.keys(pots);
