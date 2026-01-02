@@ -196,7 +196,7 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
         setTimeout(() => {
           potIndex = 0;
           processNextPot();
-        }, 1000); // Delay before starting first pot
+        }, 0); // Delay before starting first pot
         return;
       }
 
