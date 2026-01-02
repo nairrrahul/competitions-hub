@@ -124,9 +124,9 @@ const TeamSelectionTab = forwardRef<{ getCurrentTeamData: () => TeamData | null 
     onMoveToDrawSimulator(teamData);
   };
 
-  // Initialize team slots when manual teams count changes
+  // Initialize team slots when manual teams count changes (only if no initial data)
   useEffect(() => {
-    if (presetType === 'manual') {
+    if (presetType === 'manual' && (!initialData || initialData.presetType !== 'manual' || initialData.manualTeams !== manualTeams)) {
       const newSlots: TeamSlot[] = [];
       for (let i = 0; i < manualTeams; i++) {
         newSlots.push({
@@ -137,11 +137,11 @@ const TeamSelectionTab = forwardRef<{ getCurrentTeamData: () => TeamData | null 
       }
       setTeamSlots(newSlots);
     }
-  }, [manualTeams, presetType]);
+  }, [manualTeams, presetType, initialData]);
 
-  // Initialize team slots when confederation groups count changes
+  // Initialize team slots when confederation groups count changes (only if no initial data)
   useEffect(() => {
-    if (presetType === 'confederation') {
+    if (presetType === 'confederation' && (!initialData || initialData.presetType !== 'confederation' || initialData.selectedConfederation !== selectedConfederation)) {
       // Get all teams from the selected confederation
       const confederationTeams = Object.entries(nationInfo)
         .filter(([_, nationData]) => nationData.confederationID === selectedConfederation)
@@ -155,11 +155,11 @@ const TeamSelectionTab = forwardRef<{ getCurrentTeamData: () => TeamData | null 
       // Show ALL teams from the confederation (not limited by group count)
       setTeamSlots(confederationTeams);
     }
-  }, [presetType, selectedConfederation]);
+  }, [presetType, selectedConfederation, initialData]);
 
-  // Initialize team slots for competition presets
+  // Initialize team slots for competition presets (only if no initial data)
   useEffect(() => {
-    if (presetType === 'competition' && selectedCompetition) {
+    if (presetType === 'competition' && selectedCompetition && (!initialData || initialData.presetType !== 'competition' || initialData.selectedCompetition !== selectedCompetition)) {
       const competition = drawPresets[selectedCompetition as keyof typeof drawPresets];
       if (!competition) return;
 
@@ -196,7 +196,7 @@ const TeamSelectionTab = forwardRef<{ getCurrentTeamData: () => TeamData | null 
 
       setTeamSlots(newSlots);
     }
-  }, [selectedCompetition, presetType]);
+  }, [selectedCompetition, presetType, initialData]);
 
   // Filter teams for autocomplete
   const filterTeams = (input: string, currentSlotId: string): string[] => {
