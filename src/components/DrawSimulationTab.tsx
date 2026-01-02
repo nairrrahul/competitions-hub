@@ -27,6 +27,11 @@ interface DrawSimulationTabProps {
 const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
   // State for collapsible pots (all expanded by default)
   const [expandedPots, setExpandedPots] = useState<{ [key: string]: boolean }>({});
+  
+  // State for simulation
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simulatedGroups, setSimulatedGroups] = useState<{ [key: string]: (TeamSlot | null)[] }>({});
+  const [simulationComplete, setSimulationComplete] = useState(false);
 
   // Get number of groups based on preset type
   const getNumberOfGroups = (): number => {
@@ -127,6 +132,156 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
     setExpandedPots(prev => ({ ...prev, [potKey]: !prev[potKey] }));
   };
 
+  // Get host group assignments based on number of hosts
+  const getHostGroupAssignments = (numHosts: number): string[] => {
+    const availableGroups = Object.keys(calculateGroupStructure());
+    
+    switch (numHosts) {
+      case 1:
+        return ['A'];
+      case 2:
+        return ['A', 'B'];
+      case 3:
+        return ['A', 'B', availableGroups.includes('D') ? 'D' : 'C'];
+      case 4:
+        return ['A', 'B', 'D', availableGroups.includes('F') ? 'F' : 'C'];
+      case 5:
+        return ['A', 'B', 'D', availableGroups.includes('I') ? 'I' : 'C'];
+      case 6:
+        return [
+          'A', 'B', 'D', 
+          availableGroups.includes('I') ? 'I' : 'C',
+          availableGroups.includes('J') ? 'J' : 'E'
+        ];
+      default:
+        return [];
+    }
+  };
+
+  // Shuffle array randomly
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // Main simulation function
+  const simulateDraw = () => {
+    // Reset if already simulating
+    if (simulationComplete) {
+      setSimulatedGroups({});
+      setSimulationComplete(false);
+    }
+
+    setIsSimulating(true);
+    const groups: { [key: string]: (TeamSlot | null)[] } = {};
+    const groupStructure = calculateGroupStructure();
+    
+    // Initialize empty groups with null placeholders for each position
+    Object.keys(groupStructure).forEach(groupName => {
+      groups[groupName] = Array(groupStructure[groupName]).fill(null);
+    });
+
+    // Assign hosts first (they go to position 0)
+    const hosts = sortedTeams.filter(team => team.isHost);
+    const hostAssignments = getHostGroupAssignments(hosts.length);
+    
+    let hostIndex = 0;
+    const assignNextHost = () => {
+      if (hostIndex >= hosts.length || hostIndex >= hostAssignments.length) {
+        // Start processing pots after all hosts are assigned
+        setTimeout(() => {
+          potIndex = 0;
+          processNextPot();
+        }, 1000); // Delay before starting first pot
+        return;
+      }
+
+      const host = hosts[hostIndex];
+      const groupName = hostAssignments[hostIndex];
+      
+      // Find first available position in the group
+      const firstNullIndex = groups[groupName].findIndex(team => team === null);
+      if (firstNullIndex !== -1) {
+        groups[groupName][firstNullIndex] = host;
+      }
+
+      setSimulatedGroups({ ...groups });
+      hostIndex++;
+      setTimeout(assignNextHost, 30); // Delay before assigning next host
+    };
+
+    // Start assigning hosts
+    setTimeout(assignNextHost, 500);
+
+    // Process pots one by one
+    const potKeys = Object.keys(pots);
+    let potIndex = 0;
+
+    const processNextPot = () => {
+      if (potIndex >= potKeys.length) {
+        setSimulationComplete(true);
+        setIsSimulating(false);
+        return;
+      }
+
+      const potKey = potKeys[potIndex];
+      const potTeams = pots[potKey].filter(team => !team.isHost); // Exclude hosts already assigned
+      const shuffledTeams = shuffleArray(potTeams);
+      
+      // Get groups that need teams from this pot
+      const groupsNeedingTeams: string[] = [];
+      
+      if (shuffledTeams.length >= numberOfGroups) {
+        // Full pot: all groups get one team
+        Object.keys(groups).forEach(groupName => {
+          if (groups[groupName].some(team => team === null)) {
+            groupsNeedingTeams.push(groupName);
+          }
+        });
+      } else {
+        // Partial pot: last K groups
+        const groupNames = Object.keys(groups);
+        const startIndex = numberOfGroups - shuffledTeams.length;
+        
+        for (let i = 0; i < shuffledTeams.length; i++) {
+          const groupName = groupNames[startIndex + i];
+          if (groups[groupName].some(team => team === null)) {
+            groupsNeedingTeams.push(groupName);
+          }
+        }
+      }
+
+      let teamInPotIndex = 0;
+
+      const assignNextTeamInPot = () => {
+        if (teamInPotIndex >= shuffledTeams.length || teamInPotIndex >= groupsNeedingTeams.length) {
+          potIndex++;
+          setTimeout(processNextPot, 1000); // Delay before processing next pot
+          return;
+        }
+
+        const team = shuffledTeams[teamInPotIndex];
+        const groupName = groupsNeedingTeams[teamInPotIndex];
+        
+        // Find the next available position (this maintains pot order)
+        const nextNullIndex = groups[groupName].findIndex(t => t === null);
+        if (nextNullIndex !== -1) {
+          groups[groupName][nextNullIndex] = team;
+        }
+
+        setSimulatedGroups({ ...groups });
+        teamInPotIndex++;
+        setTimeout(assignNextTeamInPot, 30); // Delay before assigning next team in pot
+      };
+
+      assignNextTeamInPot(); // Start assigning teams for the current pot
+    };
+  };
+
   // Check if a team is a playoff team (only applicable for competition mode)
   const isPlayoffTeam = (team: TeamSlot): boolean => {
     if (teamData?.presetType !== 'competition') return false;
@@ -205,23 +360,25 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
     return groups;
   };
 
-  // Generate placeholder groups
-  const generatePlaceholderGroups = () => {
+  // Generate groups for display (either placeholder or simulated)
+  const generateDisplayGroups = () => {
     const groupStructure = calculateGroupStructure();
     const groupNames = Object.keys(groupStructure);
     
     return groupNames.map(groupName => ({
       name: groupName,
-      teams: Array(groupStructure[groupName]).fill(null), // Placeholder null teams
+      teams: (isSimulating || simulationComplete) && simulatedGroups[groupName] 
+        ? simulatedGroups[groupName] 
+        : Array(groupStructure[groupName]).fill(null),
       maxTeams: Math.max(...Object.values(groupStructure))
     }));
   };
 
-  const placeholderGroups = generatePlaceholderGroups();
+  const displayGroups = generateDisplayGroups();
 
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen">
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full">
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
@@ -232,18 +389,23 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
             className={`font-bold py-3 px-8 rounded-lg transition-colors ${
               teamData?.presetType === 'competition' && teamData?.selectedCompetition === 'World Cup'
                 ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                : isSimulating
+                ? 'bg-yellow-600 text-white'
+                : simulationComplete
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
                 : 'bg-green-600 hover:bg-green-700 text-white'
             }`}
             disabled={teamData?.presetType === 'competition' && teamData?.selectedCompetition === 'World Cup'}
+            onClick={simulateDraw}
           >
-            Simulate
+            {isSimulating ? 'Simulating...' : simulationComplete ? 'Restart' : 'Simulate'}
           </button>
         </div>
 
         {/* Main Content Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 w-full">
           {/* Pots Section */}
-          <div className="bg-gray-800 rounded-lg border border-gray-700">
+          <div className="bg-gray-800 rounded-lg border border-gray-700 flex-shrink-0 w-120">
             <div className="bg-gray-750 px-4 py-3 border-b border-gray-700">
               <h2 className="text-xl font-semibold text-green-400">Pots</h2>
             </div>
@@ -311,16 +473,16 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
           </div>
 
           {/* Groups Section */}
-          <div className="bg-gray-800 rounded-lg border border-gray-700">
+          <div className="bg-gray-800 rounded-lg border border-gray-700 flex-grow min-w-0">
             <div className="bg-gray-750 px-4 py-3 border-b border-gray-700">
               <h2 className="text-xl font-semibold text-green-400">Groups</h2>
             </div>
             <div className="p-4">
               <div className="space-y-4">
-                {placeholderGroups.length > 0 ? (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {placeholderGroups.map((group) => (
-                      <div key={group.name} className="border border-gray-600 rounded-lg overflow-hidden">
+                {displayGroups.length > 0 ? (
+                  <div className="flex flex-wrap gap-4">
+                    {displayGroups.map((group) => (
+                      <div key={group.name} className="border border-gray-600 rounded-lg overflow-hidden flex-shrink-0 w-80">
                         {/* Group Header */}
                         <div className="bg-gray-700 px-4 py-3 border-b border-gray-600">
                           <h3 className="font-semibold text-green-400">Group {group.name}</h3>
@@ -329,7 +491,8 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
                         {/* Group Teams */}
                         <div className="p-3 space-y-2">
                           {Array.from({ length: group.maxTeams }).map((_, index) => {
-                            const hasTeam = index < group.teams.length;
+                            const hasTeam = index < group.teams.length && group.teams[index] !== null;
+                            const team = hasTeam ? group.teams[index] : null;
                             return (
                               <div 
                                 key={index} 
@@ -337,13 +500,13 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
                                   hasTeam ? 'bg-gray-700' : 'bg-gray-800'
                                 }`}
                               >
-                                {hasTeam ? (
+                                {hasTeam && team ? (
                                   <>
                                     {/* Flag Box */}
                                     <div className="relative w-7 h-5 overflow-hidden rounded flex items-center justify-center bg-gray-600">
-                                      {group.teams[index]?.flagCode && (
+                                      {team.flagCode && (
                                         <span
-                                          className={`fi fi-${group.teams[index].flagCode} absolute inset-0`}
+                                          className={`fi fi-${team.flagCode} absolute inset-0`}
                                           style={{
                                             fontSize: '1.5rem',
                                             lineHeight: '1',
@@ -351,11 +514,11 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
                                         ></span>
                                       )}
                                     </div>
-                                    <span className="text-white font-medium">{group.teams[index]?.name}</span>
-                                    {group.teams[index]?.isHost && (
+                                    <span className="text-white font-medium">{team.name}</span>
+                                    {team.isHost && (
                                       <span className="ml-auto text-xs bg-yellow-600 text-white px-2 py-1 rounded">HOST</span>
                                     )}
-                                    {isPlayoffTeam(group.teams[index]) && (
+                                    {isPlayoffTeam(team) && (
                                       <span className="text-xs bg-red-700 text-white px-2 py-1 rounded">PLAYOFF</span>
                                     )}
                                   </>
