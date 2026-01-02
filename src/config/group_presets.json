@@ -1,0 +1,18 @@
+{
+    "World Cup": {
+    	"numGroups": 12,
+    	"numTotalThrough": 32
+    },
+    "EUROs": {
+    	"numGroups": 6,
+    	"numTotalThrough": 16
+    },
+    "AFCON": {
+    	"numGroups": 6,
+    	"numTotalThrough": 16
+    },
+    "Copa America": {
+    	"numGroups": 4,
+    	"numTotalThrough": 8
+    }
+}

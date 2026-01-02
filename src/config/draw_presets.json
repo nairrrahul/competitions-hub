@@ -1,0 +1,36 @@
+{
+    "World Cup": {
+        "numIntlPlayoff": 2,
+        "numEUROPlayoff": 4,
+        "confederations": {
+            "UEFA": 12,
+            "AFC": 8,
+            "OFC": 1,
+            "CAF": 9,
+            "CONMEBOL": 6,
+            "CONCACAF": 6
+        }
+    },
+    "EUROs": {
+        "numIntlPlayoff": 0,
+        "numEUROPlayoff": 3,
+        "confederations": {
+            "UEFA": 21
+        }
+    },
+    "AFCON": {
+        "numEUROPlayoff": 0,
+        "numIntlPlayoff": 0,
+        "confederations": {
+            "CAF": 24
+        }
+    },
+    "Copa America": {
+        "numEUROPlayoff": 0,
+        "numIntlPlayoff": 0,
+        "confederations": {
+            "CONMEBOL": 10,
+            "CONCACAF": 6
+        }
+    }
+}
