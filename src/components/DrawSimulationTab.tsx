@@ -243,14 +243,40 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
           }
         });
       } else {
-        // Partial pot: last K groups
-        const groupNames = Object.keys(groups);
-        const startIndex = numberOfGroups - shuffledTeams.length;
+        // Partial pot: assign to groups that don't have hosts from this pot
+        const potHosts = pots[potKey].filter(team => team.isHost);
+        const hostGroups = new Set<string>();
         
-        for (let i = 0; i < shuffledTeams.length; i++) {
-          const groupName = groupNames[startIndex + i];
-          if (groups[groupName].some(team => team === null)) {
-            groupsNeedingTeams.push(groupName);
+        // Find which groups have hosts from this pot
+        potHosts.forEach(host => {
+          Object.keys(groups).forEach(groupName => {
+            if (groups[groupName].some(team => team?.id === host.id)) {
+              hostGroups.add(groupName);
+            }
+          });
+        });
+        
+        // Get groups that don't have hosts from this pot and still need teams
+        const availableGroups = Object.keys(groups).filter(groupName => 
+          !hostGroups.has(groupName) && groups[groupName].some(team => team === null)
+        );
+        
+        // If we need more groups than available, take from the end
+        const groupsNeeded = shuffledTeams.length;
+        if (availableGroups.length >= groupsNeeded) {
+          // Take the first available groups
+          groupsNeedingTeams.push(...availableGroups.slice(0, groupsNeeded));
+        } else {
+          // Take all available groups, then fill from the end
+          groupsNeedingTeams.push(...availableGroups);
+          const remainingNeeded = groupsNeeded - availableGroups.length;
+          const allGroups = Object.keys(groups);
+          const startIndex = numberOfGroups - remainingNeeded;
+          for (let i = startIndex; i < numberOfGroups; i++) {
+            const groupName = allGroups[i];
+            if (!groupsNeedingTeams.includes(groupName) && groups[groupName].some(team => team === null)) {
+              groupsNeedingTeams.push(groupName);
+            }
           }
         }
       }
