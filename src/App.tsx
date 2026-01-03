@@ -1,111 +1,18 @@
-import { useState, useRef } from 'react'
-import TeamSelectionTab from './components/TeamSelectionTab'
-import DrawSimulationTab from './components/DrawSimulationTab'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import HomePage from './components/HomePage'
+import DrawMaker from './components/DrawMaker'
 import './App.css'
 
-// Types for team data
-interface TeamSlot {
-  id: string;
-  name: string;
-  flagCode: string;
-  isSelected?: boolean;
-  isHost?: boolean;
-}
-
-interface TeamData {
-  presetType: 'manual' | 'confederation' | 'competition';
-  selectedCompetition: string;
-  selectedConfederation: string;
-  manualTeams: number;
-  manualGroups: number;
-  confederationGroups: number;
-  teamSlots: TeamSlot[];
-}
-
 function App() {
-  const [activeTab, setActiveTab] = useState<'team-selection' | 'draw-simulation'>('team-selection')
-  const [teamData, setTeamData] = useState<TeamData | null>(null)
-  const [canAccessDrawSimulator, setCanAccessDrawSimulator] = useState(false)
-  const teamSelectionRef = useRef<{ getCurrentTeamData: () => TeamData | null }>(null)
-
-  const handleMoveToDrawSimulator = (data: TeamData) => {
-    setTeamData(data)
-    setCanAccessDrawSimulator(true)
-    setActiveTab('draw-simulation')
-  }
-
-  const handleValidationUpdate = (canAccess: boolean) => {
-    setCanAccessDrawSimulator(canAccess)
-  }
-
-  // Get current team data and navigate when Draw Simulator tab is clicked
-  const handleTabNavigation = () => {
-    if (canAccessDrawSimulator && teamSelectionRef.current) {
-      const currentData = teamSelectionRef.current.getCurrentTeamData()
-      if (currentData) {
-        handleMoveToDrawSimulator(currentData)
-      }
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Navigation Header */}
-      <header className="bg-gray-800 border-b border-gray-700 w-full">
-        <div className="w-full px-6">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-green-400">Draw Maker</h1>
-              <span className="ml-3 text-sm text-gray-400">Soccer Competition Draw Simulator</span>
-            </div>
-            
-            {/* Tab Navigation */}
-            <nav className="flex space-x-1">
-              <button
-                onClick={() => setActiveTab('team-selection')}
-                className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
-                  activeTab === 'team-selection'
-                    ? 'bg-gray-900 text-green-400 border-b-2 border-green-400'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                }`}
-              >
-                Team Selection
-              </button>
-              <button
-                onClick={handleTabNavigation}
-                className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
-                  canAccessDrawSimulator
-                    ? activeTab === 'draw-simulation'
-                      ? 'bg-gray-900 text-green-400 border-b-2 border-green-400'
-                      : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                    : 'text-gray-400 cursor-not-allowed'
-                }`}
-                disabled={!canAccessDrawSimulator}
-              >
-                Draw Simulator
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main>
-        {activeTab === 'team-selection' && (
-          <TeamSelectionTab 
-            ref={teamSelectionRef}
-            onMoveToDrawSimulator={handleMoveToDrawSimulator}
-            onValidationUpdate={handleValidationUpdate}
-            initialData={teamData}
-          />
-        )}
-        {activeTab === 'draw-simulation' && (
-          <DrawSimulationTab 
-            teamData={teamData}
-          />
-        )}
-      </main>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/index.html" element={<Navigate to="/" replace />} />
+        <Route path="/draw-maker" element={<DrawMaker />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
