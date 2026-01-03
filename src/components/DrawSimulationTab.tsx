@@ -526,6 +526,56 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
     return permutations;
   };
 
+  // Export groups to JSON file
+  const exportGroups = () => {
+    if (!simulationComplete || Object.keys(simulatedGroups).length === 0) {
+      return;
+    }
+
+    // Convert groups to the required format
+    const exportData: { [key: string]: string[] } = {};
+    
+    Object.keys(simulatedGroups).forEach(groupName => {
+      const teams = simulatedGroups[groupName];
+      const teamNames: string[] = [];
+      
+      teams.forEach(team => {
+        if (team) {
+          teamNames.push(team.name);
+        }
+      });
+      
+      exportData[groupName] = teamNames;
+    });
+
+    // Generate timestamp in YYYYMMDDHHMMSS format
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const timestamp = `${year}${month}${day}${hours}${minutes}${seconds}`;
+
+    // Get competition name for filename
+    const competitionName = teamData?.selectedCompetition || 'draw';
+    const filename = `${timestamp}-${competitionName}.json`;
+
+    // Create and download JSON file
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   // Get team confederation from nation info
   const getTeamConfederation = (team: TeamSlot): string => {
     const nationData = nationInfo[team.name as keyof typeof nationInfo];
@@ -677,18 +727,28 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
             <h1 className="text-3xl font-bold text-green-400 mb-2">Draw Simulation</h1>
             <p className="text-gray-400">Simulate the competition draw</p>
           </div>
-          <button 
-            className={`font-bold py-3 px-8 rounded-lg transition-colors ${
-              isSimulating
-                ? 'bg-yellow-600 text-white'
-                : simulationComplete
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-green-600 hover:bg-green-700 text-white'
-            }`}
-            onClick={simulateDraw}
-          >
-            {isSimulating ? 'Simulating...' : simulationComplete ? 'Restart' : 'Simulate'}
-          </button>
+          <div className="flex gap-3">
+            {simulationComplete && teamData?.presetType === 'competition' && (
+              <button 
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+                onClick={exportGroups}
+              >
+                Export
+              </button>
+            )}
+            <button 
+              className={`font-bold py-3 px-8 rounded-lg transition-colors ${
+                isSimulating
+                  ? 'bg-yellow-600 text-white'
+                  : simulationComplete
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-green-600 hover:bg-green-700 text-white'
+              }`}
+              onClick={simulateDraw}
+            >
+              {isSimulating ? 'Simulating...' : simulationComplete ? 'Restart' : 'Simulate'}
+            </button>
+          </div>
         </div>
 
         {/* Main Content Area */}

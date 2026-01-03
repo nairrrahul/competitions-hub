@@ -14,5 +14,17 @@
     "Copa America": {
     	"numGroups": 4,
     	"numTotalThrough": 8
+    },
+    "Gold Cup": {
+        "numGroups": 4,
+        "numTotalThrough": 8
+    },
+    "OFC Nations Cup": {
+        "numGroups": 2,
+        "numTotalThrough": 4
+    },
+    "AFC Asian Cup": {
+        "numGroups": 6,
+        "numTotalThrough": 16
     }
 }

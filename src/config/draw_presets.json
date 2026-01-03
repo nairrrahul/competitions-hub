@@ -32,5 +32,26 @@
             "CONMEBOL": 10,
             "CONCACAF": 6
         }
+    },
+    "Gold Cup": {
+        "numEUROPlayoff": 0,
+        "numIntlPlayoff": 0,
+        "confederations": {
+            "CONCACAF": 16
+        }
+    },
+    "OFC Nations Cup": {
+        "numEUROPlayoff": 0,
+        "numIntlPlayoff": 0,
+        "confederations": {
+            "OFC": 8
+        }
+    },
+    "AFC Asian Cup": {
+        "numEUROPlayoff": 0,
+        "numIntlPlayoff": 0,
+        "confederations": {
+            "AFC": 24
+        }
     }
 }
