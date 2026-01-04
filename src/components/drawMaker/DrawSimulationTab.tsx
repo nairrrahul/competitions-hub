@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import nationInfo from '../config/nation_info.json';
-import groupPresets from '../config/group_presets.json';
+import nationInfo from '../../config/nation_info.json';
+import groupPresets from '../../config/group_presets.json';
 
 interface TeamSlot {
   id: string;

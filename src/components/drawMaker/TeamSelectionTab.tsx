@@ -1,6 +1,6 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import drawPresets from '../config/draw_presets.json';
-import nationInfo from '../config/nation_info.json';
+import drawPresets from '../../config/draw_presets.json';
+import nationInfo from '../../config/nation_info.json';
 
 type PresetType = 'manual' | 'confederation' | 'competition';
 type Confederation = 'AFC' | 'CAF' | 'OFC' | 'UEFA' | 'CONCACAF' | 'CONMEBOL';

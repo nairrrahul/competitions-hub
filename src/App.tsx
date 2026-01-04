@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import HomePage from './components/HomePage'
-import DrawMaker from './components/DrawMaker'
-import CompetitionSimulator from './components/CompetitionSimulator'
+import HomePage from './pages/HomePage'
+import DrawMaker from './pages/DrawMaker'
+import CompetitionSimulator from './pages/CompetitionSimulator'
 import './App.css'
 
 function App() {

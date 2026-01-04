@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import TeamSelectionTab from './TeamSelectionTab'
-import DrawSimulationTab from './DrawSimulationTab'
+import TeamSelectionTab from '../components/drawMaker/TeamSelectionTab'
+import DrawSimulationTab from '../components/drawMaker/DrawSimulationTab'
 
 // Types for team data
 interface TeamSlot {
