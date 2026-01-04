@@ -10,7 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/index.html" element={<Navigate to="/" replace />} />
-        <Route path="/competitions-hub" element={<DrawMaker />} />
+        <Route path="/draw-maker" element={<DrawMaker />} />
         <Route path="/competition-simulator" element={<CompetitionSimulator />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
