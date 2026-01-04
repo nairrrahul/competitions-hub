@@ -1,5 +1,4 @@
 import React from 'react';
-import nationInfo from '../../config/nation_info.json';
 import { GroupStageMatchScheduler, supportsGroupStage, shouldUseHomeAway, getTotalMatchdays } from '../../utils/SchedulerUtils';
 import type { CompetitionSchedule } from '../../utils/SchedulerUtils';
 import TeamsView from './TeamsView';

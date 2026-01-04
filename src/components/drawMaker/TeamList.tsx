@@ -2,6 +2,7 @@ import React from 'react';
 import nationInfo from '../../config/nation_info.json';
 import drawPresets from '../../config/draw_presets.json';
 import { type TeamSlot } from '../../types/DrawMakerTypes';
+import CountryCell from './CountryCell';
 
 type PresetType = 'manual' | 'confederation' | 'competition';
 type Confederation = 'AFC' | 'CAF' | 'OFC' | 'UEFA' | 'CONCACAF' | 'CONMEBOL';
@@ -244,7 +245,7 @@ const TeamList: React.FC<TeamListProps> = ({
       });
       
       // Add confederation sections
-      Object.entries(competition.confederations).forEach(([confed, count]) => {
+      Object.entries(competition.confederations).forEach(([confed, _]) => {
         const sectionSlots = slotsBySection[confed] || [];
         sections.push({ title: confed, teams: sectionSlots });
       });
@@ -297,89 +298,18 @@ const TeamList: React.FC<TeamListProps> = ({
                 {columns.map((column, colIndex) => (
                   <div key={colIndex} className="flex flex-col gap-2 min-w-0">
                     {column.map((team) => (
-                      <div key={team.id} className={`flex items-center gap-2 p-2 relative rounded bg-gray-700`} 
-                           onContextMenu={(e) => {
-                             e.preventDefault();
-                             if (presetType === 'competition' || presetType === 'manual') {
-                               toggleHost(team.id);
-                             }
-                           }}>
-                        {/* Flag Box with rectangular mask */}
-                        <div className="relative w-7 h-5 overflow-hidden rounded flex items-center justify-center bg-gray-600">
-                          {team.flagCode && (
-                            <span
-                              className={`fi fi-${team.flagCode} absolute inset-0`}
-                              style={{
-                                fontSize: '1.5rem',
-                                lineHeight: '1',
-                                transform: 'scale(1.2)',
-                              }}
-                            />
-                          )}
-                        </div>
-                        
-                        {/* Team Name Input or Display */}
-                        {presetType === 'confederation' ? (
-                          // Locked display for confederation mode
-                          <div className="flex-1 text-white text-sm px-2 py-1">
-                            {team.name}
-                          </div>
-                        ) : (
-                          // Editable input for manual/competition modes
-                          <div className="flex-1 relative">
-                            <input
-                              type="text"
-                              value={team.name}
-                              onChange={(e) => presetType === 'competition' ? handleCompetitionTeamChange(team.id, e.target.value) : handleTeamNameChange(team.id, e.target.value)}
-                              placeholder="Team name"
-                              className="w-full bg-gray-600 text-white px-2 py-1 rounded text-sm min-w-0"
-                            />
-                           
-                            {/* Autocomplete Dropdown */}
-                            {autocompleteStates[team.id]?.isOpen && (
-                              <div className="absolute top-full left-0 right-0 bg-gray-700 border border-gray-600 rounded mt-1 max-h-40 overflow-y-auto z-10">
-                                {autocompleteStates[team.id].filteredTeams.map((teamName) => (
-                                  <div
-                                    key={teamName}
-                                    className="px-2 py-1 hover:bg-gray-600 cursor-pointer text-sm"
-                                    onClick={() => selectTeam(team.id, teamName)}
-                                  >
-                                    {teamName}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        
-                        {/* Host Overlay for Competition and Manual Modes */}
-                        {(presetType === 'competition' || presetType === 'manual') && team.isHost && (
-                          <div 
-                            className="absolute inset-0 rounded pointer-events-none"
-                            style={{
-                              backgroundColor: 'rgba(255, 215, 0, 0.2)' // gold with 20% opacity
-                            }}
-                          ></div>
-                        )}
-                        
-                        {/* Deselection Overlay for Confederation Mode */}
-                        {presetType === 'confederation' && !team.isSelected && (
-                          <div 
-                            className="absolute inset-0 rounded"
-                            style={{
-                              backgroundColor: 'rgba(239, 68, 68, 0.3)' // red-500 with 30% opacity
-                            }}
-                          ></div>
-                        )}
-                        
-                        {/* Remove/Toggle Button */}
-                        <button 
-                          onClick={() => presetType === 'confederation' ? toggleTeamSelection(team.id) : clearTeam(team.id)}
-                          className="text-red-400 hover:text-red-300 text-sm font-bold flex-shrink-0 relative z-20"
-                        >
-                          ×
-                        </button>
-                      </div>
+                      <CountryCell
+                        key={team.id}
+                        team={team}
+                        presetType={presetType}
+                        autocompleteState={autocompleteStates[team.id] || { isOpen: false, filteredTeams: [], selectedIndex: 0 }}
+                        onTeamNameChange={handleTeamNameChange}
+                        onCompetitionTeamChange={handleCompetitionTeamChange}
+                        onSelectTeam={selectTeam}
+                        onToggleTeamSelection={toggleTeamSelection}
+                        onClearTeam={clearTeam}
+                        onToggleHost={toggleHost}
+                      />
                     ))}
                   </div>
                 ))}

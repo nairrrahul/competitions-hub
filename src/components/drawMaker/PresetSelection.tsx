@@ -1,6 +1,5 @@
 import React from 'react';
 import drawPresets from '../../config/draw_presets.json';
-import { type TeamData } from '../../types/DrawMakerTypes';
 
 type PresetType = 'manual' | 'confederation' | 'competition';
 type Confederation = 'AFC' | 'CAF' | 'OFC' | 'UEFA' | 'CONCACAF' | 'CONMEBOL';

@@ -1,5 +1,4 @@
 import React from 'react';
-import nationInfo from '../../config/nation_info.json';
 import { getMatchesByMatchday } from '../../utils/SchedulerUtils';
 import type { CompetitionSchedule } from '../../utils/SchedulerUtils';
 import MatchDisplay from './MatchDisplay';
