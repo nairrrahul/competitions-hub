@@ -16,10 +16,12 @@ export interface CompetitionSchedule {
  * Generates a round-robin schedule for a group of teams
  * @param teams Array of team names
  * @param homeAway Boolean indicating if home-and-away format should be used
+ * @param offset Group-based offset parameter for shifting matchdays
  * @returns Object with matchdays as keys and arrays of matches as values
  */
-export function leagueScheduler(teams: string[], homeAway: boolean): GroupMatchSchedule {
-  const matches: GroupMatchSchedule = {};
+export function leagueScheduler(teams: string[], homeAway: boolean, offset: number = 0): GroupMatchSchedule {
+
+  let matches: GroupMatchSchedule = {};
   let modifiedTeams = [...teams];
 
   // Add dummy team if odd number of teams
@@ -27,47 +29,51 @@ export function leagueScheduler(teams: string[], homeAway: boolean): GroupMatchS
     modifiedTeams.push("X");
   }
 
-  let iterations = modifiedTeams.length - 1;
+  let baseIterations = modifiedTeams.length - 1;
   
-  if (homeAway) {
-    iterations *= 2;
-  }
-
-  for (let i = 0; i < iterations; i++) {
-    if (i < modifiedTeams.length - 1) { 
-      const matchups: Match[] = [];
-      for (let j = 0; j < Math.floor(modifiedTeams.length / 2); j++) {
-        const team1 = modifiedTeams[j];
-        const team2 = modifiedTeams[modifiedTeams.length - 1 - j];
-        if (team1 !== "X" && team2 !== "X") {
-          matchups.push({
-            homeTeam: team1,
-            awayTeam: team2
-          });
-        }
+  // First, generate base matchdays (single round-robin)
+  const baseMatchdays: Match[][] = [];
+  for (let i = 0; i < baseIterations; i++) {
+    const matchups: Match[] = [];
+    for (let j = 0; j < Math.floor(modifiedTeams.length / 2); j++) {
+      const team1 = modifiedTeams[j];
+      const team2 = modifiedTeams[modifiedTeams.length - 1 - j];
+      if (team1 !== "X" && team2 !== "X") {
+        matchups.push({
+          homeTeam: team1,
+          awayTeam: team2
+        });
       }
-      matches[i + 1] = matchups; // Matchdays are 1-indexed
-      const cycleOut = modifiedTeams.pop()!;
-      modifiedTeams.splice(1, 0, cycleOut);
-    } else {
-      // For home-away, reverse the fixtures from the first half
-      const firstHalfMatchday = i - modifiedTeams.length + 2;
-      matches[i + 1] = matches[firstHalfMatchday].map(({ homeTeam, awayTeam }) => ({
-        homeTeam: awayTeam,
-        awayTeam: homeTeam
-      }));
     }
+    baseMatchdays.push(matchups);
+    const cycleOut = modifiedTeams.pop()!;
+    modifiedTeams.splice(1, 0, cycleOut);
   }
 
-  // Flip home and away teams for all even matchdays
-  Object.keys(matches).forEach(matchday => {
-    const matchdayNum = parseInt(matchday);
-    if (matchdayNum % 2 === 0) {
-      matches[matchdayNum] = matches[matchdayNum].map(({ homeTeam, awayTeam }) => ({
+  // Apply offset to shift matchdays
+  const totalMatchdays = baseMatchdays.length;
+  const shiftedMatchdays: Match[][] = [];
+  for (let i = 0; i < totalMatchdays; i++) {
+    const shiftedIndex = (i + offset) % totalMatchdays;
+    shiftedMatchdays.push(baseMatchdays[shiftedIndex]);
+  }
+
+  // Handle home-away duplication if needed
+  let allMatchdays: Match[][] = [...shiftedMatchdays];
+  if (homeAway) {
+    // Add reversed fixtures for home-away format
+    shiftedMatchdays.forEach(matchday => {
+      const reversedMatches = matchday.map(({ homeTeam, awayTeam }) => ({
         homeTeam: awayTeam,
         awayTeam: homeTeam
       }));
-    }
+      allMatchdays.push(reversedMatches);
+    });
+  }
+
+  // Convert to final matches object with 1-indexed matchdays
+  allMatchdays.forEach((matchday, index) => {
+    matches[index + 1] = matchday;
   });
 
   return matches;
@@ -84,10 +90,16 @@ export function GroupStageMatchScheduler(
   isHA: boolean = false
 ): CompetitionSchedule {
   const schedule: CompetitionSchedule = {};
-
-  Object.keys(groups).forEach(groupName => {
+  
+  // Get sorted group names to determine group numbers
+  const sortedGroupNames = Object.keys(groups).sort();
+  
+  sortedGroupNames.forEach((groupName, groupIndex) => {
     const teams = groups[groupName];
-    schedule[groupName] = leagueScheduler(teams, isHA);
+    const groupOffset = teams.length - 1; // GROUPOFFSET = number of teams in group - 1
+    const calculatedOffset = (groupIndex + 1) % groupOffset; // GROUPNUM % GROUPOFFSET
+    
+    schedule[groupName] = leagueScheduler(teams, isHA, calculatedOffset);
   });
 
   return schedule;
