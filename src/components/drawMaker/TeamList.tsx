@@ -1,17 +1,11 @@
 import React from 'react';
 import nationInfo from '../../config/nation_info.json';
 import drawPresets from '../../config/draw_presets.json';
+import { type TeamSlot } from '../../types/DrawMakerTypes';
 
 type PresetType = 'manual' | 'confederation' | 'competition';
 type Confederation = 'AFC' | 'CAF' | 'OFC' | 'UEFA' | 'CONCACAF' | 'CONMEBOL';
 
-interface TeamSlot {
-  id: string;
-  name: string;
-  flagCode: string;
-  isSelected?: boolean; // For confederation mode
-  isHost?: boolean; // For competition mode
-}
 
 interface TeamListProps {
   presetType: PresetType;

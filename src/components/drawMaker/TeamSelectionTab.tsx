@@ -3,27 +3,11 @@ import drawPresets from '../../config/draw_presets.json';
 import nationInfo from '../../config/nation_info.json';
 import PresetSelection from './PresetSelection';
 import TeamList from './TeamList';
+import { type TeamSlot, type TeamData } from '../../types/DrawMakerTypes';
 
 type PresetType = 'manual' | 'confederation' | 'competition';
 type Confederation = 'AFC' | 'CAF' | 'OFC' | 'UEFA' | 'CONCACAF' | 'CONMEBOL';
 
-interface TeamSlot {
-  id: string;
-  name: string;
-  flagCode: string;
-  isSelected?: boolean; // For confederation mode
-  isHost?: boolean; // For competition mode
-}
-
-interface TeamData {
-  presetType: 'manual' | 'confederation' | 'competition';
-  selectedCompetition: string;
-  selectedConfederation: string;
-  manualTeams: number;
-  manualGroups: number;
-  confederationGroups: number;
-  teamSlots: TeamSlot[];
-}
 
 interface TeamSelectionTabProps {
   onMoveToDrawSimulator: (data: TeamData) => void;
