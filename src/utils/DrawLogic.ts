@@ -20,12 +20,27 @@ export const getTeamConfederation = (team: TeamSlot): string => {
   return nationData?.confederationID || '';
 };
 
-export const getHostGroupAssignments = (numHosts: number): string[] => {
-  const assignments: string[] = [];
-  for (let i = 0; i < numHosts; i++) {
-    assignments.push(String.fromCharCode(65 + i)); // A, B, C, ...
+export const getHostGroupAssignments = (numHosts: number, availableGroups: string[]): string[] => {
+  switch (numHosts) {
+    case 1:
+      return ['A'];
+    case 2:
+      return ['A', 'B'];
+    case 3:
+      return ['A', 'B', availableGroups.includes('D') ? 'D' : 'C'];
+    case 4:
+      return ['A', 'B', 'D', availableGroups.includes('F') ? 'F' : 'C'];
+    case 5:
+      return ['A', 'B', 'D', 'F', availableGroups.includes('I') ? 'I' : 'C'];
+    case 6:
+      return [
+        'A', 'B', 'D', 'F',
+        availableGroups.includes('I') ? 'I' : 'C',
+        availableGroups.includes('J') ? 'J' : 'E'
+      ];
+    default:
+      return [];
   }
-  return assignments;
 };
 
 // World Cup draw with backtracking and confederation constraints
@@ -43,7 +58,8 @@ export const performWorldCupDraw = (
   
   // Step 1: Assign hosts first (no restrictions)
   const hosts = sortedTeams.filter(team => team.isHost);
-  const hostAssignments = getHostGroupAssignments(hosts.length);
+  const availableGroups = Object.keys(groups);
+  const hostAssignments = getHostGroupAssignments(hosts.length, availableGroups);
   
   hosts.forEach((host: TeamSlot, index: number) => {
     if (index < hostAssignments.length) {
@@ -105,7 +121,8 @@ export const performStandardDraw = (
   
   // Assign hosts first
   const hosts = sortedTeams.filter(team => team.isHost);
-  const hostAssignments = getHostGroupAssignments(hosts.length);
+  const availableGroups = Object.keys(groups);
+  const hostAssignments = getHostGroupAssignments(hosts.length, availableGroups);
   
   hosts.forEach((host: TeamSlot, index: number) => {
     if (index < hostAssignments.length) {
