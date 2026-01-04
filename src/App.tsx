@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import HomePage from './components/HomePage'
 import DrawMaker from './components/DrawMaker'
+import CompetitionSimulator from './components/CompetitionSimulator'
 import './App.css'
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/index.html" element={<Navigate to="/" replace />} />
         <Route path="/draw-maker" element={<DrawMaker />} />
+        <Route path="/competition-simulator" element={<CompetitionSimulator />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

@@ -16,6 +16,13 @@ const HomePage: React.FC = () => {
       description: 'Soccer competition draw simulator',
       icon: '⚽',
       route: '/draw-maker'
+    },
+    {
+      id: 'competition-simulator',
+      name: 'Competition Simulator',
+      description: 'Competition management tool',
+      icon: '🏆',
+      route: '/competition-simulator'
     }
   ];
 

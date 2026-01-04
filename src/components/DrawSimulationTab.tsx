@@ -531,9 +531,24 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
     if (!simulationComplete || Object.keys(simulatedGroups).length === 0) {
       return;
     }
+    
+    // Get competition information
+    const competitionName = teamData?.selectedCompetition || 'draw';
+    const numThrough = groupPresets[competitionName as keyof typeof groupPresets]?.numTotalThrough || 0;
+    
+    // Count total teams
+    let totalTeams = 0;
+    Object.keys(simulatedGroups).forEach(groupName => {
+      const teams = simulatedGroups[groupName];
+      teams.forEach(team => {
+        if (team) {
+          totalTeams++;
+        }
+      });
+    });
 
     // Convert groups to the required format
-    const exportData: { [key: string]: string[] } = {};
+    const groups: { [key: string]: string[] } = {};
     
     Object.keys(simulatedGroups).forEach(groupName => {
       const teams = simulatedGroups[groupName];
@@ -545,8 +560,17 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
         }
       });
       
-      exportData[groupName] = teamNames;
+      groups[groupName] = teamNames;
     });
+
+    // Create export data structure
+    const exportData = {
+      compName: competitionName,
+      numTeams: totalTeams,
+      numThrough: numThrough,
+      compType: "GROUPKO",
+      groups: groups
+    };
 
     // Generate timestamp in YYYYMMDDHHMMSS format
     const now = new Date();
@@ -559,7 +583,6 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
     const timestamp = `${year}${month}${day}${hours}${minutes}${seconds}`;
 
     // Get competition name for filename
-    const competitionName = teamData?.selectedCompetition || 'draw';
     const filename = `${timestamp}-${competitionName}.json`;
 
     // Create and download JSON file
