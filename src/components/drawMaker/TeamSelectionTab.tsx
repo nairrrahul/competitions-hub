@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import drawPresets from '../../config/draw_presets.json';
 import nationInfo from '../../config/nation_info.json';
 import PresetSelection from './PresetSelection';
@@ -219,29 +219,6 @@ const TeamSelectionTab = forwardRef<{ getCurrentTeamData: () => TeamData | null 
       
       return true;
     });
-  };
-
-  // Handle team name change
-  const handleTeamNameChange = (slotId: string, value: string) => {
-    // Update team slot
-    setTeamSlots(prev => prev.map(slot => {
-      if (slot.id === slotId) {
-        const flagCode = value ? nationInfo[value as keyof typeof nationInfo]?.flagCode || '' : '';
-        return { ...slot, name: value, flagCode };
-      }
-      return slot;
-    }));
-
-    // Update autocomplete state
-    const filtered = filterTeams(value, slotId);
-    setAutocompleteStates(prev => ({
-      ...prev,
-      [slotId]: {
-        isOpen: filtered.length > 0,
-        filteredTeams: filtered,
-        selectedIndex: 0
-      }
-    }));
   };
 
   return (

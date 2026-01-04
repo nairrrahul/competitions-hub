@@ -9,8 +9,7 @@ import {
 } from '../../utils/DrawLogic';
 import {
   type TeamSlot,
-  type TeamData,
-  type DisplayGroup
+  type TeamData
 } from '../../types/DrawMakerTypes';
 
 
@@ -152,42 +151,6 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
   // Toggle pot expansion
   const togglePotExpansion = (potKey: string) => {
     setExpandedPots(prev => ({ ...prev, [potKey]: !prev[potKey] }));
-  };
-
-  // Get host group assignments based on number of hosts
-  const getHostGroupAssignments = (numHosts: number): string[] => {
-    const availableGroups = Object.keys(calculateGroupStructure());
-    
-    switch (numHosts) {
-      case 1:
-        return ['A'];
-      case 2:
-        return ['A', 'B'];
-      case 3:
-        return ['A', 'B', availableGroups.includes('D') ? 'D' : 'C'];
-      case 4:
-        return ['A', 'B', 'D', availableGroups.includes('F') ? 'F' : 'C'];
-      case 5:
-        return ['A', 'B', 'D', 'F', availableGroups.includes('I') ? 'I' : 'C'];
-      case 6:
-        return [
-          'A', 'B', 'D', 'F',
-          availableGroups.includes('I') ? 'I' : 'C',
-          availableGroups.includes('J') ? 'J' : 'E'
-        ];
-      default:
-        return [];
-    }
-  };
-
-  // Shuffle array randomly
-  const shuffleArray = <T,>(array: T[]): T[] => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
   };
 
   // Main simulation function
@@ -381,7 +344,7 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
 
   // Calculate group structure based on pots
   const numberOfGroups = getNumberOfGroups();
-  const displayTeams = getDisplayTeams();
+  //const displayTeams = getDisplayTeams();
   const calculateGroupStructure = (): { [key: string]: number } => {
     const groups: { [key: string]: number } = {};
     const potKeys = Object.keys(pots);
