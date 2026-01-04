@@ -11,11 +11,11 @@ interface App {
 const HomePage: React.FC = () => {
   const apps: App[] = [
     {
-      id: 'draw-maker',
-      name: 'Draw Maker',
-      description: 'Soccer competition draw simulator',
+      id: 'competitions-hub',
+      name: 'Competitions Hub',
+      description: 'Competition management platform',
       icon: '⚽',
-      route: '/draw-maker'
+      route: '/competitions-hub'
     },
     {
       id: 'competition-simulator',

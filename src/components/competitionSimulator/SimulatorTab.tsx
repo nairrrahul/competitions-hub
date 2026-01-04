@@ -12,8 +12,8 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData }) => {
           <h2 className="text-2xl font-bold text-green-400 mb-4">Simulator</h2>
           <p className="text-gray-400">
             {hasData 
-              ? "Simulator functionality will be implemented in the next phase."
-              : "Simulator functionality will be available after importing competition data."
+              ? "Under Construction."
+              : "Under Construction, but import first!"
             }
           </p>
         </div>

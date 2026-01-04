@@ -1,6 +1,6 @@
-# React + TypeScript + Vite
+# Competitions Hub
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive competition management platform featuring soccer draw simulators and competition organization tools.
 
 Currently, two official plugins are available:
 
