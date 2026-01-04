@@ -126,7 +126,7 @@ const CompetitionSimulator: React.FC = () => {
     const isExpanded = expandedGroups.has(groupName);
     
     return (
-      <div key={groupName} className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+      <div key={groupName} className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden w-full min-w-md max-w-xl">
         {/* Group Header */}
         <div 
           className="bg-gray-750 px-4 py-3 border-b border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors"
@@ -141,13 +141,13 @@ const CompetitionSimulator: React.FC = () => {
         </div>
         
         {/* Teams List */}
-        <div className="p-3 space-y-2">
+        <div className="p-4 space-y-2">
           {teams.map((teamName, index) => {
             const nationData = nationInfo[teamName as keyof typeof nationInfo];
             const flagCode = nationData?.flagCode;
             
             return (
-              <div key={index} className="flex items-center space-x-3 bg-gray-700 rounded p-2">
+              <div key={index} className="flex items-center space-x-3 bg-gray-700 rounded p-3">
                 {/* Flag Box with rectangular mask */}
                 <div className="relative w-7 h-5 overflow-hidden rounded flex items-center justify-center bg-gray-600">
                   {flagCode && (
@@ -170,17 +170,54 @@ const CompetitionSimulator: React.FC = () => {
         {isExpanded && Object.keys(groupSchedule).length > 0 && (
           <div className="border-t border-gray-700 bg-gray-750">
             <div className="p-3">
-              <h4 className="text-sm font-semibold text-gray-300 mb-3">Group Matches</h4>
+              <h4 className="text-sm font-semibold text-gray-300 mb-3 text-center">Group Matches</h4>
               {Object.keys(groupSchedule).sort((a, b) => parseInt(a) - parseInt(b)).map(matchday => (
                 <div key={matchday} className="mb-4">
-                  <h5 className="text-xs font-medium text-gray-400 mb-2">Matchday {matchday}</h5>
+                  <h5 className="text-xs font-medium text-gray-400 mb-2 text-center">Matchday {matchday}</h5>
                   <div className="space-y-1">
                     {groupSchedule[parseInt(matchday)].map((match: Match, matchIndex: number) => (
-                      <div key={matchIndex} className="flex items-center justify-between bg-gray-800 rounded p-2 text-sm">
+                      <div key={matchIndex} className="flex items-center justify-between bg-gray-800 rounded p-2 text-sm relative">
                         <div className="flex items-center space-x-2">
+                          {/* Home Team Flag */}
+                          <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
+                            {(() => {
+                              const nationData = nationInfo[match.homeTeam as keyof typeof nationInfo];
+                              const flagCode = nationData?.flagCode;
+                              return flagCode && (
+                                <span
+                                  className={`fi fi-${flagCode} absolute inset-0`}
+                                  style={{
+                                    fontSize: '1.2rem',
+                                    lineHeight: '1',
+                                  }}
+                                ></span>
+                              );
+                            })()}
+                          </div>
                           <span className="text-gray-300">{match.homeTeam}</span>
-                          <span className="text-gray-500">vs</span>
+                        </div>
+                        
+                        {/* Absolute Centered vs */}
+                        <span className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 font-medium">vs</span>
+                        
+                        <div className="flex items-center space-x-2">
                           <span className="text-gray-300">{match.awayTeam}</span>
+                          {/* Away Team Flag */}
+                          <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
+                            {(() => {
+                              const nationData = nationInfo[match.awayTeam as keyof typeof nationInfo];
+                              const flagCode = nationData?.flagCode;
+                              return flagCode && (
+                                <span
+                                  className={`fi fi-${flagCode} absolute inset-0`}
+                                  style={{
+                                    fontSize: '1.2rem',
+                                    lineHeight: '1',
+                                  }}
+                                ></span>
+                              );
+                            })()}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -200,9 +237,9 @@ const CompetitionSimulator: React.FC = () => {
     const groupNames = Object.keys(importedCompetition.groups).sort();
     
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="flex flex-wrap gap-4 p-4 justify-center">
         {groupNames.map(groupName => 
-          <div key={groupName} className="flex flex-col">
+          <div key={groupName} className="flex flex-col min-w-md max-w-xl">
             {renderGroup(groupName, importedCompetition.groups[groupName])}
           </div>
         )}
@@ -258,7 +295,7 @@ const CompetitionSimulator: React.FC = () => {
         </div>
 
         {/* Matches by Group */}
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {Object.keys(matchesByGroup).sort().map(groupName => (
             <div key={groupName} className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
               {/* Group Header */}
@@ -269,46 +306,49 @@ const CompetitionSimulator: React.FC = () => {
               {/* Matches List */}
               <div className="p-4 space-y-3">
                 {matchesByGroup[groupName].map((match, index) => (
-                  <div key={index} className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
-                    <div className="flex items-center space-x-3">
-                      {/* Home Team Flag */}
-                      <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
-                        {(() => {
-                          const nationData = nationInfo[match.homeTeam as keyof typeof nationInfo];
-                          const flagCode = nationData?.flagCode;
-                          return flagCode && (
-                            <span
-                              className={`fi fi-${flagCode} absolute inset-0`}
-                              style={{
-                                fontSize: '1.2rem',
-                                lineHeight: '1',
-                              }}
-                            ></span>
-                          );
-                        })()}
+                  <div key={index} className="bg-gray-700 rounded-lg p-3">
+                    <div className="flex items-center justify-between relative">
+                      {/* Home Team with Flag */}
+                      <div className="flex items-center space-x-3">
+                        <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
+                          {(() => {
+                            const nationData = nationInfo[match.homeTeam as keyof typeof nationInfo];
+                            const flagCode = nationData?.flagCode;
+                            return flagCode && (
+                              <span
+                                className={`fi fi-${flagCode} absolute inset-0`}
+                                style={{
+                                  fontSize: '1.2rem',
+                                  lineHeight: '1',
+                                }}
+                              ></span>
+                            );
+                          })()}
+                        </div>
+                        <span className="text-white font-medium">{match.homeTeam}</span>
                       </div>
-                      <span className="text-white font-medium">{match.homeTeam}</span>
-                    </div>
-                    
-                    <span className="text-gray-400 font-medium">vs</span>
-                    
-                    <div className="flex items-center space-x-3">
-                      <span className="text-white font-medium">{match.awayTeam}</span>
-                      {/* Away Team Flag */}
-                      <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
-                        {(() => {
-                          const nationData = nationInfo[match.awayTeam as keyof typeof nationInfo];
-                          const flagCode = nationData?.flagCode;
-                          return flagCode && (
-                            <span
-                              className={`fi fi-${flagCode} absolute inset-0`}
-                              style={{
-                                fontSize: '1.2rem',
-                                lineHeight: '1',
-                              }}
-                            ></span>
-                          );
-                        })()}
+                      
+                      {/* Absolute Centered VS */}
+                      <span className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-400 font-medium">vs</span>
+                      
+                      {/* Away Team with Flag */}
+                      <div className="flex items-center space-x-3">
+                        <span className="text-white font-medium">{match.awayTeam}</span>
+                        <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
+                          {(() => {
+                            const nationData = nationInfo[match.awayTeam as keyof typeof nationInfo];
+                            const flagCode = nationData?.flagCode;
+                            return flagCode && (
+                              <span
+                                className={`fi fi-${flagCode} absolute inset-0`}
+                                style={{
+                                  fontSize: '1.2rem',
+                                  lineHeight: '1',
+                                }}
+                              ></span>
+                            );
+                          })()}
+                        </div>
                       </div>
                     </div>
                   </div>

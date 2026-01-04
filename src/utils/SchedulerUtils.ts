@@ -58,6 +58,19 @@ export function leagueScheduler(teams: string[], homeAway: boolean, offset: numb
     shiftedMatchdays.push(baseMatchdays[shiftedIndex]);
   }
 
+  // Flip home and away in the first match of every even-numbered matchday
+  shiftedMatchdays.forEach((matchday, index) => {
+    const matchdayNumber = index + 1; // 1-indexed matchday number
+    if (matchdayNumber % 2 === 0 && matchday.length > 0) {
+      // Flip home and away for the first match only
+      const firstMatch = matchday[0];
+      matchday[0] = {
+        homeTeam: firstMatch.awayTeam,
+        awayTeam: firstMatch.homeTeam
+      };
+    }
+  });
+
   // Handle home-away duplication if needed
   let allMatchdays: Match[][] = [...shiftedMatchdays];
   if (homeAway) {
