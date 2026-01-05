@@ -67,7 +67,11 @@ const PresetSelection: React.FC<PresetSelectionProps> = ({
               <input
                 type="number"
                 value={manualGroups}
-                onChange={(e) => setManualGroups(Math.max(1, parseInt(e.target.value) || 1))}
+                onChange={(e) => {
+                  const newValue = Math.max(1, parseInt(e.target.value) || 1);
+                  setManualGroups(Math.min(newValue, manualTeams));
+                }}
+                max={manualTeams}
                 className="bg-gray-700 text-white px-2 py-1 rounded w-20"
               />
             </div>

@@ -15,8 +15,12 @@ interface TeamSelectionTabProps {
   initialData?: TeamData | null;
 }
 
-const TeamSelectionTab: React.FC<TeamSelectionTabProps> = forwardRef((props, ref) => {
-  const { onValidationUpdate, initialData } = props;
+interface TeamSelectionTabRef {
+  getCurrentTeamData: () => TeamData | null;
+}
+
+const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>((props, ref) => {
+  const { onMoveToDrawSimulator, onValidationUpdate, initialData } = props;
   const [presetType, setPresetType] = useState<PresetType>((initialData?.presetType as PresetType) || 'manual');
   const [selectedCompetition, setSelectedCompetition] = useState<string>(initialData?.selectedCompetition || '');
   const [selectedConfederation, setSelectedConfederation] = useState<Confederation>((initialData?.selectedConfederation as Confederation) || 'UEFA');
@@ -97,7 +101,7 @@ const TeamSelectionTab: React.FC<TeamSelectionTabProps> = forwardRef((props, ref
       }
       setTeamSlots(newSlots);
     }
-  }, [selectedCompetition, presetType, initialData]);
+  }, [manualTeams, selectedCompetition, presetType, initialData]);
 
   // Initialize team slots when confederation groups count changes (only if no initial data or switching to confederation with different data)
   useEffect(() => {

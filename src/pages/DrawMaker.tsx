@@ -102,6 +102,7 @@ const DrawMaker: React.FC = () => {
       <main>
         {activeTab === 'team-selection' && (
           <TeamSelectionTab 
+            ref={teamSelectionRef}
             onMoveToDrawSimulator={handleMoveToDrawSimulator}
             onValidationUpdate={handleValidationUpdate}
             initialData={teamData}
