@@ -1,10 +1,12 @@
 import { create } from 'zustand'
-import type { Player, PlayersData } from '../types/rosterManager'
+import type { Player, PlayersData, NationInfo } from '../types/rosterManager'
 import playersData from '../config/players.json'
+import nationInfo from '../config/nation_info.json'
 
 interface PlayersState {
   // Raw data
   playersData: PlayersData
+  nationInfo: NationInfo
   
   // Processed data structures
   allPlayers: Player[]
@@ -13,15 +15,19 @@ interface PlayersState {
   
   // Actions
   loadPlayersData: () => void
+  loadNationInfo: () => void
   getPlayerById: (id: string) => Player | undefined
   getPlayersByNation: (nation: string) => Player[]
   getPlayersByPosition: (position: string) => Player[]
   searchPlayers: (query: string) => Player[]
+  getNationFlagCode: (nation: string) => string
+  getAllNationalities: () => string[]
 }
 
-export const usePlayersStore = create<PlayersState>((set, get) => ({
+export const useGlobalStore = create<PlayersState>((set, get) => ({
   // Initialize with empty data
   playersData: {},
+  nationInfo: {},
   allPlayers: [],
   playersByNation: {},
   playersByPosition: {},
@@ -65,6 +71,12 @@ export const usePlayersStore = create<PlayersState>((set, get) => ({
     })
   },
   
+  // Load nation info data from JSON
+  loadNationInfo: () => {
+    const data = nationInfo as NationInfo
+    set({ nationInfo: data })
+  },
+  
   // Get player by unique identifier (you may need to add IDs to players)
   getPlayerById: (id: string) => {
     const { allPlayers } = get()
@@ -92,5 +104,18 @@ export const usePlayersStore = create<PlayersState>((set, get) => ({
       const fullName = `${player.firstName} ${player.lastName}`.toLowerCase()
       return fullName.includes(lowercaseQuery)
     })
+  },
+  
+  // Get nation flag code
+  getNationFlagCode: (nationName: string) => {
+    const { nationInfo } = get()
+    const nation = nationInfo[nationName]
+    return nation ? nation.flagCode : ''
+  },
+  
+  // Get all nationalities
+  getAllNationalities: () => {
+    const { nationInfo } = get()
+    return Object.keys(nationInfo).sort()
   }
 }))

@@ -1,6 +1,6 @@
 import React from 'react';
-import nationInfo from '../../config/nation_info.json';
 import GroupMatchesDisplay from './GroupMatchesDisplay';
+import { useGlobalStore } from '../../state/GlobalState';
 
 interface GroupDisplayContainerProps {
   groupName: string;
@@ -17,6 +17,8 @@ const GroupDisplayContainer: React.FC<GroupDisplayContainerProps> = ({
   isExpanded,
   onToggle
 }) => {
+  const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
+
   return (
     <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden w-full min-w-md max-w-xl">
       {/* Group Header */}
@@ -35,8 +37,7 @@ const GroupDisplayContainer: React.FC<GroupDisplayContainerProps> = ({
       {/* Teams List */}
       <div className="p-4 space-y-2">
         {teams.map((teamName, index) => {
-          const nationData = nationInfo[teamName as keyof typeof nationInfo];
-          const flagCode = nationData?.flagCode;
+          const flagCode = getNationFlagCode(teamName);
           
           return (
             <div key={index} className="flex items-center space-x-3 bg-gray-700 rounded p-3">

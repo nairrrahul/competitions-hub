@@ -1,5 +1,5 @@
 import React from 'react';
-import nationInfo from '../../config/nation_info.json';
+import { useGlobalStore } from '../../state/GlobalState';
 import type { Match } from '../../utils/SchedulerUtils';
 
 interface MatchDisplayProps {
@@ -8,20 +8,22 @@ interface MatchDisplayProps {
 }
 
 const MatchDisplay: React.FC<MatchDisplayProps> = ({ match, className = "flex items-center justify-between relative" }) => {
+  const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
+
   return (
     <div className={className}>
       {/* Home Team with Flag */}
       <div className="flex items-center space-x-3">
         <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
           {(() => {
-            const nationData = nationInfo[match.homeTeam as keyof typeof nationInfo];
-            const flagCode = nationData?.flagCode;
+            const flagCode = getNationFlagCode(match.homeTeam);
             return flagCode && (
               <span
                 className={`fi fi-${flagCode} absolute inset-0`}
                 style={{
                   fontSize: '1.2rem',
                   lineHeight: '1',
+                  transform: 'scale(1.2)',
                 }}
               ></span>
             );
@@ -38,14 +40,14 @@ const MatchDisplay: React.FC<MatchDisplayProps> = ({ match, className = "flex it
         <span className="text-white font-medium">{match.awayTeam}</span>
         <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
           {(() => {
-            const nationData = nationInfo[match.awayTeam as keyof typeof nationInfo];
-            const flagCode = nationData?.flagCode;
+            const flagCode = getNationFlagCode(match.awayTeam);
             return flagCode && (
               <span
                 className={`fi fi-${flagCode} absolute inset-0`}
                 style={{
                   fontSize: '1.2rem',
                   lineHeight: '1',
+                  transform: 'scale(1.2)',
                 }}
               ></span>
             );

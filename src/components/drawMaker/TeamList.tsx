@@ -1,6 +1,6 @@
-import React from 'react';
-import nationInfo from '../../config/nation_info.json';
+import React, { useEffect } from 'react';
 import drawPresets from '../../config/draw_presets.json';
+import { useGlobalStore } from '../../state/GlobalState';
 import { type TeamSlot } from '../../types/DrawMakerTypes';
 import CountryCell from './CountryCell';
 
@@ -27,8 +27,16 @@ const TeamList: React.FC<TeamListProps> = ({
   autocompleteStates,
   setAutocompleteStates
 }) => {
+  const getCountryFlagCode = useGlobalStore(state => state.getNationFlagCode);
+  const loadNationInfo = useGlobalStore(state => state.loadNationInfo);
+
+  // Load nation info data on component mount
+  useEffect(() => {
+    loadNationInfo();
+  }, [loadNationInfo]);
+  
   // Get all available team names for autocomplete
-  const allTeamNames = Object.keys(nationInfo);
+  const allTeamNames = useGlobalStore.getState().getAllNationalities();
 
   // Filter teams for autocomplete
   const filterTeams = (input: string, currentSlotId: string): string[] => {
@@ -83,12 +91,14 @@ const TeamList: React.FC<TeamListProps> = ({
       
       // Apply competition constraints
       if (presetType === 'competition' && allowedConfederations.length > 0) {
-        const nationData = nationInfo[team as keyof typeof nationInfo];
+        const nationInfo = useGlobalStore.getState().nationInfo;
+        const nationData = nationInfo[team];
         return nationData && allowedConfederations.includes(nationData.confederationID as Confederation);
       }
       
       if (presetType === 'competition' && excludeUEFA) {
-        const nationData = nationInfo[team as keyof typeof nationInfo];
+        const nationInfo = useGlobalStore.getState().nationInfo;
+        const nationData = nationInfo[team];
         return nationData && nationData.confederationID !== 'UEFA';
       }
       
@@ -97,11 +107,13 @@ const TeamList: React.FC<TeamListProps> = ({
   };
 
   // Handle team name change
+  const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
+  
   const handleTeamNameChange = (slotId: string, value: string) => {
     // Update team slot
     setTeamSlots(prev => prev.map(slot => {
       if (slot.id === slotId) {
-        const flagCode = value ? nationInfo[value as keyof typeof nationInfo]?.flagCode || '' : '';
+        const flagCode = value ? getNationFlagCode(value) : '';
         return { ...slot, name: value, flagCode };
       }
       return slot;
@@ -197,7 +209,7 @@ const TeamList: React.FC<TeamListProps> = ({
     // Always update the display value for typing experience
     setTeamSlots(prev => prev.map(slot => {
       if (slot.id === slotId) {
-        const flagCode = value && nationInfo[value as keyof typeof nationInfo]?.flagCode || '';
+        const flagCode = value ? getCountryFlagCode(value) : '';
         return { ...slot, name: value, flagCode };
       }
       return slot;

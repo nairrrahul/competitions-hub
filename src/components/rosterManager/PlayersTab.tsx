@@ -1,8 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
-import type { NationInfo } from '../../types/rosterManager'
 import { filterPlayers, getRatingColor, getPositionOptions, getAllPositions } from '../../utils/rosterManager'
-import { usePlayersStore } from '../../state/GlobalState'
-import nationInfo from '../../config/nation_info.json'
+import { useGlobalStore } from '../../state/GlobalState'
 
 const PlayersTab: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -14,14 +12,14 @@ const PlayersTab: React.FC = () => {
   const [isPositionDropdownOpen, setIsPositionDropdownOpen] = useState(false)
 
   // Get players data from global state
-  const allPlayers = usePlayersStore(state => state.allPlayers)
-  const playersByNation = usePlayersStore(state => state.playersByNation)
+  const allPlayers = useGlobalStore(state => state.allPlayers)
+  const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode)
 
   // Get all nationalities from global state
   const nationalities = useMemo(() => {
-    const nations = Object.keys(playersByNation).sort()
-    return ['All', ...nations]
-  }, [playersByNation])
+    const allNations = useGlobalStore.getState().getAllNationalities()
+    return ['All', ...allNations]
+  }, [])
 
   // Get position options
   const positionOptions = useMemo(() => {
@@ -40,14 +38,6 @@ const PlayersTab: React.FC = () => {
       selectedPositions
     )
   }, [allPlayers, searchTerm, selectedNationality, ageRange, overallRange, potentialRange, selectedPositions])
-
-  const getFlagCode = useMemo(() => {
-    const nationData = nationInfo as NationInfo
-    return (nationName: string): string => {
-      const nation = nationData[nationName]
-      return nation ? nation.flagCode : ''
-    }
-  }, [])
 
   // Optimized checkbox handlers
   const handlePositionToggle = useCallback((position: string, isChecked: boolean) => {
@@ -246,9 +236,9 @@ const PlayersTab: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-base text-white">
                     <div className="flex items-center space-x-2">
                       <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
-                        {getFlagCode(player.nationality) && (
+                        {getNationFlagCode(player.nationality) && (
                           <span
-                            className={`fi fi-${getFlagCode(player.nationality)} absolute inset-0`}
+                            className={`fi fi-${getNationFlagCode(player.nationality)} absolute inset-0`}
                             style={{
                               fontSize: '1rem',
                               lineHeight: '1',

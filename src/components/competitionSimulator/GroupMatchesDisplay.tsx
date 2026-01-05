@@ -1,5 +1,5 @@
 import React from 'react';
-import nationInfo from '../../config/nation_info.json';
+import { useGlobalStore } from '../../state/GlobalState';
 import type { Match } from '../../utils/SchedulerUtils';
 
 interface GroupMatchesDisplayProps {
@@ -8,6 +8,8 @@ interface GroupMatchesDisplayProps {
 }
 
 const GroupMatchesDisplay: React.FC<GroupMatchesDisplayProps> = ({ groupSchedule, isExpanded }) => {
+  const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
+
   if (!isExpanded || Object.keys(groupSchedule).length === 0) {
     return null;
   }
@@ -26,8 +28,7 @@ const GroupMatchesDisplay: React.FC<GroupMatchesDisplayProps> = ({ groupSchedule
                     {/* Home Team Flag */}
                     <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
                       {(() => {
-                        const nationData = nationInfo[match.homeTeam as keyof typeof nationInfo];
-                        const flagCode = nationData?.flagCode;
+                        const flagCode = getNationFlagCode(match.homeTeam);
                         return flagCode && (
                           <span
                             className={`fi fi-${flagCode} absolute inset-0`}
@@ -50,14 +51,14 @@ const GroupMatchesDisplay: React.FC<GroupMatchesDisplayProps> = ({ groupSchedule
                     {/* Away Team Flag */}
                     <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
                       {(() => {
-                        const nationData = nationInfo[match.awayTeam as keyof typeof nationInfo];
-                        const flagCode = nationData?.flagCode;
+                        const flagCode = getNationFlagCode(match.awayTeam);
                         return flagCode && (
                           <span
                             className={`fi fi-${flagCode} absolute inset-0`}
                             style={{
                               fontSize: '1.2rem',
                               lineHeight: '1',
+                              transform: 'scale(1.2)',
                             }}
                           ></span>
                         );

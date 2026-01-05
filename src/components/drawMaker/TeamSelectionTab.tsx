@@ -1,6 +1,6 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import drawPresets from '../../config/draw_presets.json';
-import nationInfo from '../../config/nation_info.json';
+import { useGlobalStore } from '../../state/GlobalState';
 import PresetSelection from './PresetSelection';
 import TeamList from './TeamList';
 import { type TeamSlot, type TeamData } from '../../types/DrawMakerTypes';
@@ -15,20 +15,30 @@ interface TeamSelectionTabProps {
   initialData?: TeamData | null;
 }
 
-const TeamSelectionTab = forwardRef<{ getCurrentTeamData: () => TeamData | null }, TeamSelectionTabProps>(({ onMoveToDrawSimulator, onValidationUpdate, initialData }, ref) => {
-  const [presetType, setPresetType] = useState<PresetType>(initialData?.presetType || 'manual');
+const TeamSelectionTab: React.FC<TeamSelectionTabProps> = forwardRef((props, ref) => {
+  const { onMoveToDrawSimulator, onValidationUpdate, initialData } = props;
+  const [presetType, setPresetType] = useState<PresetType>((initialData?.presetType as PresetType) || 'manual');
   const [selectedCompetition, setSelectedCompetition] = useState<string>(initialData?.selectedCompetition || '');
   const [selectedConfederation, setSelectedConfederation] = useState<Confederation>((initialData?.selectedConfederation as Confederation) || 'UEFA');
   const [manualTeams, setManualTeams] = useState<number>(initialData?.manualTeams || 16);
   const [manualGroups, setManualGroups] = useState<number>(initialData?.manualGroups || 4);
   const [confederationGroups, setConfederationGroups] = useState<number>(initialData?.confederationGroups || 4);
-  
+
+  // Get global state functions
+  const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
+  const loadNationInfo = useGlobalStore(state => state.loadNationInfo);
+
+  // Load nation info data on component mount
+  useEffect(() => {
+    loadNationInfo();
+  }, [loadNationInfo]);
+
   // Team management state
   const [teamSlots, setTeamSlots] = useState<TeamSlot[]>(initialData?.teamSlots || []);
   const [autocompleteStates, setAutocompleteStates] = useState<{ [key: string]: { isOpen: boolean; filteredTeams: string[]; selectedIndex: number } }>({});
-  
+
   // Get all available team names for autocomplete
-  const allTeamNames = Object.keys(nationInfo);
+  const allTeamNames = useGlobalStore.getState().getAllNationalities();
 
   // Update validation state whenever relevant data changes
   useEffect(() => {
@@ -99,12 +109,17 @@ const TeamSelectionTab = forwardRef<{ getCurrentTeamData: () => TeamData | null 
         setTeamSlots(initialData.teamSlots);
       } else if (!initialData || initialData.presetType !== 'confederation' || initialData.selectedConfederation !== selectedConfederation) {
         // Only create fresh data if we don't have matching initial data
-        const confederationTeams = Object.entries(nationInfo)
-          .filter(([_, nationData]) => nationData.confederationID === selectedConfederation)
-          .map(([teamName, nationData]) => ({
+        const allNationalities = useGlobalStore.getState().getAllNationalities();
+        const nationInfo = useGlobalStore.getState().nationInfo;
+        const confederationTeams = allNationalities
+          .filter(nation => {
+            const nationData = nationInfo[nation];
+            return nationData && nationData.confederationID === selectedConfederation;
+          })
+          .map((teamName, index) => ({
             id: `confed-${teamName}`,
             name: teamName,
-            flagCode: nationData.flagCode,
+            flagCode: getNationFlagCode(teamName),
             isSelected: true // All teams enabled by default
           }));
         
@@ -208,12 +223,14 @@ const TeamSelectionTab = forwardRef<{ getCurrentTeamData: () => TeamData | null 
       
       // Apply competition constraints
       if (presetType === 'competition' && allowedConfederations.length > 0) {
-        const nationData = nationInfo[team as keyof typeof nationInfo];
+        const nationInfo = useGlobalStore.getState().nationInfo;
+        const nationData = nationInfo[team];
         return nationData && allowedConfederations.includes(nationData.confederationID as Confederation);
       }
       
       if (presetType === 'competition' && excludeUEFA) {
-        const nationData = nationInfo[team as keyof typeof nationInfo];
+        const nationInfo = useGlobalStore.getState().nationInfo;
+        const nationData = nationInfo[team];
         return nationData && nationData.confederationID !== 'UEFA';
       }
       
