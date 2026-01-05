@@ -16,7 +16,7 @@ interface TeamSelectionTabProps {
 }
 
 const TeamSelectionTab: React.FC<TeamSelectionTabProps> = forwardRef((props, ref) => {
-  const { onMoveToDrawSimulator, onValidationUpdate, initialData } = props;
+  const { onValidationUpdate, initialData } = props;
   const [presetType, setPresetType] = useState<PresetType>((initialData?.presetType as PresetType) || 'manual');
   const [selectedCompetition, setSelectedCompetition] = useState<string>(initialData?.selectedCompetition || '');
   const [selectedConfederation, setSelectedConfederation] = useState<Confederation>((initialData?.selectedConfederation as Confederation) || 'UEFA');
@@ -37,8 +37,6 @@ const TeamSelectionTab: React.FC<TeamSelectionTabProps> = forwardRef((props, ref
   const [teamSlots, setTeamSlots] = useState<TeamSlot[]>(initialData?.teamSlots || []);
   const [autocompleteStates, setAutocompleteStates] = useState<{ [key: string]: { isOpen: boolean; filteredTeams: string[]; selectedIndex: number } }>({});
 
-  // Get all available team names for autocomplete
-  const allTeamNames = useGlobalStore.getState().getAllNationalities();
 
   // Update validation state whenever relevant data changes
   useEffect(() => {
@@ -116,7 +114,7 @@ const TeamSelectionTab: React.FC<TeamSelectionTabProps> = forwardRef((props, ref
             const nationData = nationInfo[nation];
             return nationData && nationData.confederationID === selectedConfederation;
           })
-          .map((teamName, index) => ({
+          .map((teamName) => ({
             id: `confed-${teamName}`,
             name: teamName,
             flagCode: getNationFlagCode(teamName),
@@ -169,74 +167,6 @@ const TeamSelectionTab: React.FC<TeamSelectionTabProps> = forwardRef((props, ref
     }
   }, [selectedCompetition, presetType, initialData]);
 
-  // Filter teams for autocomplete
-  const filterTeams = (input: string, currentSlotId: string): string[] => {
-    if (!input) return [];
-    console.log(input);
-    
-    // Get slot info for competition mode constraints
-    const slot = teamSlots.find(s => s.id === currentSlotId);
-    let allowedConfederations: Confederation[] = [];
-    let excludeUEFA = false;
-    
-    if (slot && presetType === 'competition') {
-      const parts = slot.id.split('-');
-      const sectionId = parts[0]; // e.g., "WorldCup" from "WorldCup-UEFA-0"
-      const slotConfederation = parts[1]; // e.g., "UEFA" from "WorldCup-UEFA-0"
-      
-      // Check if this is a playoff slot
-      const isIntlPlayoff = sectionId === 'intl';
-      const isUEFAPlayoff = sectionId === 'euro';
-      
-      if (isIntlPlayoff) {
-        // Intl Playoff: Only non-European nations
-        excludeUEFA = true;
-      } else if (isUEFAPlayoff) {
-        // UEFA Playoff: Only European nations
-        allowedConfederations = ['UEFA'];
-      } else if (slotConfederation) {
-        // Confederation slot: Only nations from this confederation
-        allowedConfederations = [slotConfederation as Confederation];
-      }
-    }
-    
-    // Get already selected team names
-    let selectedTeamNames: string[] = [];
-    if (presetType !== 'competition') {
-      // Manual mode: prevent duplicates
-      selectedTeamNames = teamSlots
-        .filter(slot => slot.id !== currentSlotId && slot.name)
-        .map(slot => slot.name.toLowerCase());
-    } else if (presetType === 'competition') {
-      // Competition mode: allow duplicates across different sections
-      selectedTeamNames = teamSlots
-        .filter(slot => slot.id !== currentSlotId && slot.name)
-        .map(slot => slot.name.toLowerCase());
-    }
-    
-    return allTeamNames.filter(team => {
-      const teamLower = team.toLowerCase();
-      const matchesInput = teamLower.includes(input.toLowerCase());
-      const notAlreadySelected = !selectedTeamNames.includes(teamLower);
-      
-      if (!matchesInput || !notAlreadySelected) return false;
-      
-      // Apply competition constraints
-      if (presetType === 'competition' && allowedConfederations.length > 0) {
-        const nationInfo = useGlobalStore.getState().nationInfo;
-        const nationData = nationInfo[team];
-        return nationData && allowedConfederations.includes(nationData.confederationID as Confederation);
-      }
-      
-      if (presetType === 'competition' && excludeUEFA) {
-        const nationInfo = useGlobalStore.getState().nationInfo;
-        const nationData = nationInfo[team];
-        return nationData && nationData.confederationID !== 'UEFA';
-      }
-      
-      return true;
-    });
-  };
 
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen w-full">

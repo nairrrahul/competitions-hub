@@ -34,7 +34,7 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   
   // Load players data from JSON
   loadPlayersData: () => {
-    const data = playersData as PlayersData
+    const data = playersData as unknown as PlayersData
     
     // Process all players
     const allPlayers: Player[] = []
