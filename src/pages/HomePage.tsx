@@ -23,6 +23,13 @@ const HomePage: React.FC = () => {
       description: 'Competition management tool',
       icon: '🏆',
       route: '/competition-simulator'
+    },
+    {
+      id: 'roster-manager',
+      name: 'Roster Manager',
+      description: 'Manage team rosters and player information',
+      icon: '👥',
+      route: '/roster-manager'
     }
   ];
 
