@@ -9,16 +9,95 @@ export const getRatingColor = (rating: number): { bg: string; text: string } => 
   return { bg: 'bg-red-700', text: 'text-white' }
 }
 
-export const getAllPositions = (): string[] => {
-  return ['GK', 'LB', 'RB', 'CB', 'LM', 'RM', 'CM', 'CAM', 'CDM', 'ST', 'RW', 'LW']
-}
-
 export const getPositionGroups = (): { [key: string]: string[] } => {
   return {
-    'GK': ['GK'],
-    'Defenders': ['LB', 'RB', 'CB'],
-    'Midfielders': ['LM', 'RM', 'CM', 'CAM', 'CDM'],
-    'Forwards': ['ST', 'RW', 'LW']
+    'Goalkeeper': ['GK'],
+    'Defenders': ['CB', 'LB', 'RB'],
+    'Midfielders': ['CDM', 'CM', 'CAM', 'LM', 'RM'],
+    'Forwards': ['ST', 'LW', 'RW'],
+  }
+}
+
+export const getAllPositions = (): string[] => {
+  const groups = getPositionGroups()
+  return Object.values(groups).flat()
+}
+
+export const getPositionOptions = (): { group: string; positions: string[] }[] => {
+  const groups = getPositionGroups()
+  return Object.entries(groups).map(([group, positions]) => ({
+    group,
+    positions
+  }))
+}
+
+export const getExpandedSelectedPositions = (selectedItems: string[]): string[] => {
+  const groups = getPositionGroups()
+  const expandedPositions: string[] = []
+  
+  selectedItems.forEach(item => {
+    if (groups[item]) {
+      // It's a group, add all positions in that group
+      expandedPositions.push(...groups[item])
+    } else {
+      // It's an individual position
+      expandedPositions.push(item)
+    }
+  })
+  
+  return [...new Set(expandedPositions)] // Remove duplicates
+}
+
+export const getSelectedPositionsFromExpanded = (expandedPositions: string[]): { groups: string[]; individuals: string[] } => {
+  const groups = getPositionGroups()
+  const selectedGroups: string[] = []
+  const selectedIndividuals: string[] = []
+  
+  Object.entries(groups).forEach(([groupName, positions]) => {
+    const allPositionsInGroupSelected = positions.every(pos => expandedPositions.includes(pos))
+    if (allPositionsInGroupSelected) {
+      selectedGroups.push(groupName)
+    } else {
+      // Add only the individually selected positions from this group
+      positions.forEach(pos => {
+        if (expandedPositions.includes(pos)) {
+          selectedIndividuals.push(pos)
+        }
+      })
+    }
+  })
+  
+  return { groups: selectedGroups, individuals: selectedIndividuals }
+}
+
+export const synchronizePositionSelection = (
+  changedItem: string, 
+  isChecked: boolean, 
+  currentSelection: string[]
+): string[] => {
+  const groups = getPositionGroups()
+  const expandedPositions = getExpandedSelectedPositions(currentSelection)
+  
+  if (groups[changedItem]) {
+    // It's a group being toggled
+    if (isChecked) {
+      // Add all positions in this group
+      const groupPositions = groups[changedItem]
+      return [...expandedPositions, ...groupPositions]
+    } else {
+      // Remove all positions in this group
+      const groupPositions = groups[changedItem]
+      return expandedPositions.filter(pos => !groupPositions.includes(pos))
+    }
+  } else {
+    // It's an individual position being toggled
+    if (isChecked) {
+      // Add this position
+      return [...expandedPositions, changedItem]
+    } else {
+      // Remove this position
+      return expandedPositions.filter(pos => pos !== changedItem)
+    }
   }
 }
 
@@ -29,9 +108,9 @@ export const filterPlayers = (
   ageRange: [number, number],
   overallRange: [number, number],
   potentialRange: [number, number],
-  selectedPosition: string
+  selectedPositions: string[]
 ): Player[] => {
-  return players.filter(player => {
+  const filtered = players.filter(player => {
     // Name filter
     const fullName = `${player.firstName} ${player.lastName}`.toLowerCase()
     if (searchTerm && !fullName.includes(searchTerm.toLowerCase())) {
@@ -59,23 +138,18 @@ export const filterPlayers = (
     }
 
     // Position filter
-    if (selectedPosition !== 'All') {
-      const positionGroups = getPositionGroups()
-      if (positionGroups[selectedPosition]) {
-        // It's a position group
-        if (!positionGroups[selectedPosition].includes(player.position)) {
-          return false
-        }
-      } else {
-        // It's an individual position
-        if (player.position !== selectedPosition) {
-          return false
-        }
+    if (selectedPositions.length > 0) {
+      const expandedPositions = getExpandedSelectedPositions(selectedPositions)
+      if (!expandedPositions.includes(player.position)) {
+        return false
       }
     }
 
     return true
   })
+  
+  // Sort by overall rating in descending order
+  return sortPlayersByOverall(filtered)
 }
 
 export const sortPlayersByOverall = (players: Player[]): Player[] => {

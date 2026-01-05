@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react'
-import type { Player, PlayersData, NationInfo } from '../../types/rosterManager'
-import { filterPlayers, sortPlayersByOverall, getRatingColor, getPositionGroups } from '../../utils/rosterManager'
-import playersData from '../../config/players.json'
+import { useState, useMemo, useCallback } from 'react'
+import type { NationInfo } from '../../types/rosterManager'
+import { filterPlayers, getRatingColor, getPositionOptions, getAllPositions } from '../../utils/rosterManager'
+import { usePlayersStore } from '../../state/GlobalState'
 import nationInfo from '../../config/nation_info.json'
 
 const PlayersTab: React.FC = () => {
@@ -10,32 +10,22 @@ const PlayersTab: React.FC = () => {
   const [ageRange, setAgeRange] = useState<[number, number]>([0, 99])
   const [overallRange, setOverallRange] = useState<[number, number]>([0, 99])
   const [potentialRange, setPotentialRange] = useState<[number, number]>([0, 99])
-  const [selectedPosition, setSelectedPosition] = useState('All')
+  const [selectedPositions, setSelectedPositions] = useState<string[]>(() => getAllPositions())
+  const [isPositionDropdownOpen, setIsPositionDropdownOpen] = useState(false)
 
-  // Process players data
-  const allPlayers = useMemo(() => {
-    const players: Player[] = []
-    Object.entries(playersData as PlayersData).forEach(([nation, data]) => {
-      data.players.forEach(player => {
-        players.push({
-          ...player,
-          nationality: nation
-        })
-      })
-    })
-    return sortPlayersByOverall(players)
-  }, [])
+  // Get players data from global state
+  const allPlayers = usePlayersStore(state => state.allPlayers)
+  const playersByNation = usePlayersStore(state => state.playersByNation)
 
-  // Get all nationalities
+  // Get all nationalities from global state
   const nationalities = useMemo(() => {
-    const nations = Object.keys(playersData as PlayersData).sort()
+    const nations = Object.keys(playersByNation).sort()
     return ['All', ...nations]
-  }, [])
+  }, [playersByNation])
 
   // Get position options
   const positionOptions = useMemo(() => {
-    const groups = getPositionGroups()
-    return ['All', ...Object.keys(groups)]
+    return getPositionOptions()
   }, [])
 
   // Filter players based on all criteria
@@ -47,14 +37,30 @@ const PlayersTab: React.FC = () => {
       ageRange,
       overallRange,
       potentialRange,
-      selectedPosition
+      selectedPositions
     )
-  }, [allPlayers, searchTerm, selectedNationality, ageRange, overallRange, potentialRange, selectedPosition])
+  }, [allPlayers, searchTerm, selectedNationality, ageRange, overallRange, potentialRange, selectedPositions])
 
-  const getFlagCode = (nationName: string): string => {
-    const nation = (nationInfo as NationInfo)[nationName]
-    return nation ? nation.flagCode : ''
-  }
+  const getFlagCode = useMemo(() => {
+    const nationData = nationInfo as NationInfo
+    return (nationName: string): string => {
+      const nation = nationData[nationName]
+      return nation ? nation.flagCode : ''
+    }
+  }, [])
+
+  // Optimized checkbox handlers
+  const handlePositionToggle = useCallback((position: string, isChecked: boolean) => {
+    setSelectedPositions(prev => 
+      isChecked 
+        ? [...prev, position]
+        : prev.filter(p => p !== position)
+    )
+  }, [])
+
+  const handleDropdownToggle = useCallback(() => {
+    setIsPositionDropdownOpen(prev => !prev)
+  }, [])
 
   return (
     <div>
@@ -175,17 +181,43 @@ const PlayersTab: React.FC = () => {
           </div>
 
           {/* Position */}
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium text-gray-300 mb-2">Positions</label>
-            <select
-              value={selectedPosition}
-              onChange={(e) => setSelectedPosition(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
+            <button
+              onClick={handleDropdownToggle}
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent text-left"
             >
-              {positionOptions.map(position => (
-                <option key={position} value={position}>{position}</option>
-              ))}
-            </select>
+              {selectedPositions.length === 0 ? 'All Positions' : `${selectedPositions.length} selected`}
+            </button>
+            
+            {/* Dropdown */}
+            {isPositionDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-gray-700 border border-gray-600 rounded-md max-h-60 overflow-y-auto">
+                {positionOptions.map(({ group, positions }) => (
+                  <div key={group} className="border-b border-gray-600 last:border-b-0">
+                    {/* Group header - separator only */}
+                    <div className="px-3 py-2 bg-gray-600">
+                      <span className="text-sm font-medium text-white">{group}</span>
+                    </div>
+                    
+                    {/* Individual positions */}
+                    {positions.map(position => (
+                      <div key={position} className="px-6 py-1">
+                        <label className="flex items-center text-sm text-gray-300">
+                          <input
+                            type="checkbox"
+                            checked={selectedPositions.includes(position)}
+                            onChange={(e) => handlePositionToggle(position, e.target.checked)}
+                            className="mr-2 rounded border-gray-500 bg-gray-600 text-green-400 focus:ring-green-400"
+                          />
+                          {position}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
