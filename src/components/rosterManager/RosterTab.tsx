@@ -7,7 +7,7 @@ const RosterTab: React.FC = () => {
   const [selectedNation, setSelectedNation] = useState<string>('')
   const [isSearching, setIsSearching] = useState<boolean>(false)
   
-  const { getAllNationalities, getSquad } = useGlobalStore()
+  const { getSquad } = useGlobalStore()
 
   const handleNationSelect = (nation: string) => {
     setSelectedNation(nation)
