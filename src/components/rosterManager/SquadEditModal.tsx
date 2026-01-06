@@ -113,6 +113,7 @@ const SquadEditModal: React.FC<SquadEditModalProps> = ({ squad, nation, onClose 
         player = editedSquad.starters.forwards[arrayIndex]
       }
       
+      // Select this starter and move to substitute selection mode
       setSwapStarter({ type: 'starter', position, arrayIndex, player })
       setSwapMode('substitute')
     }
@@ -133,18 +134,16 @@ const SquadEditModal: React.FC<SquadEditModalProps> = ({ squad, nation, onClose 
         player = editedSquad.substitutes.forwards[arrayIndex]
       }
       
-      // Check if substitute matches position constraint
-      if (swapStarter && player) {
+      // Only proceed if there's a player in this substitute slot
+      if (player) {
         const starterActualPosition = getActualPosition(swapStarter.position, swapStarter.arrayIndex)
         const substituteActualPosition = getActualPosition(position, arrayIndex)
         const eligiblePositions = getPositionConstraints(starterActualPosition)
         
+        // Check if this substitute is eligible for swap
         if (eligiblePositions.includes(substituteActualPosition)) {
           setSwapSubstitute({ type: 'substitute', position, arrayIndex, player })
           executeSwap()
-        } else {
-          // Position constraint not met - don't allow swap
-          return
         }
       }
     }
@@ -153,13 +152,13 @@ const SquadEditModal: React.FC<SquadEditModalProps> = ({ squad, nation, onClose 
   // Get actual position from array position and index
   const getActualPosition = (position: string, arrayIndex?: number): string => {
     if (position === 'defenders' && arrayIndex !== undefined) {
-      const defenderPositions = ['LB', 'CB', 'CB', 'RB'] // Index 0=LB (left), 1=CB, 2=CB, 3=RB (right)
+      const defenderPositions = ['RB', 'CB', 'CB', 'LB'] // Index 0=RB (right), 1=CB, 2=CB, 3=LB (left) - matches SquadView layout
       return defenderPositions[arrayIndex] || 'CB'
     } else if (position === 'midfielders' && arrayIndex !== undefined) {
       const midfielderPositions = ['CDM', 'CM', 'CAM'] // Based on SquadView layout
       return midfielderPositions[arrayIndex] || 'CM'
     } else if (position === 'forwards' && arrayIndex !== undefined) {
-      const forwardPositions = ['RW', 'LW', 'ST'] // Index 0=RW (right), 1=LW (left), 2=ST (center)
+      const forwardPositions = ['RW', 'LW', 'ST'] // Index 0=RW (right), 1=LW (left), 2=ST (center) - matches SquadView layout
       return forwardPositions[arrayIndex] || 'ST'
     } else if (position === 'gk') {
       return 'GK'
@@ -222,7 +221,7 @@ const SquadEditModal: React.FC<SquadEditModalProps> = ({ squad, nation, onClose 
       actualPosition = 'GK' // Ensure goalkeeper position is uppercase
     } else if (position === 'defenders' && arrayIndex !== undefined) {
       // Map defender array indices to actual positions based on formation layout
-      const defenderPositions = ['LB', 'CB', 'CB', 'RB'] // Index 0=LB (left), 1=CB, 2=CB, 3=RB (right)
+      const defenderPositions = ['RB', 'CB', 'CB', 'LB'] // Index 0=RB (right), 1=CB, 2=CB, 3=LB (left) - matches SquadView layout
       actualPosition = defenderPositions[arrayIndex] || 'CB'
     } else if (position === 'midfielders' && arrayIndex !== undefined) {
       // Map midfielder array indices to actual positions  
@@ -230,7 +229,7 @@ const SquadEditModal: React.FC<SquadEditModalProps> = ({ squad, nation, onClose 
       actualPosition = midfielderPositions[arrayIndex] || 'CM'
     } else if (position === 'forwards' && arrayIndex !== undefined) {
       // Map forward array indices to actual positions based on formation layout
-      const forwardPositions = ['RW', 'LW', 'ST'] // Index 0=RW (right), 1=LW (left), 2=ST (center)
+      const forwardPositions = ['RW', 'LW', 'ST'] // Index 0=RW (right), 1=LW (left), 2=ST (center) - matches SquadView layout
       actualPosition = forwardPositions[arrayIndex] || 'ST'
     }
     
@@ -266,12 +265,6 @@ const SquadEditModal: React.FC<SquadEditModalProps> = ({ squad, nation, onClose 
       ? getPositionConstraints(actualPosition)
       : getSubstitutePositionConstraints(actualPosition)
     
-    // Debug logging
-    console.log('Position clicked:', position, 'Array index:', arrayIndex)
-    console.log('Actual position for constraints:', actualPosition)
-    console.log('Type:', type)
-    console.log('Eligible positions:', eligiblePositions)
-    
     const available = allNationPlayers.filter(p => 
       !squadPlayerIds.includes(p.playerid) &&
       eligiblePositions.includes(p.position)
@@ -287,10 +280,6 @@ const SquadEditModal: React.FC<SquadEditModalProps> = ({ squad, nation, onClose 
       const nameB = `${b.firstName} ${b.lastName}`.toLowerCase()
       return nameA.localeCompare(nameB)
     })
-    
-    // Debug logging for filtered players
-    console.log('Available players count:', available.length)
-    console.log('First 5 available players:', available.slice(0, 5).map(p => `${p.firstName} ${p.lastName} (${p.position}) ID: ${p.playerid}`))
     
     setAvailablePlayers(available)
   }
@@ -470,11 +459,13 @@ const SquadEditModal: React.FC<SquadEditModalProps> = ({ squad, nation, onClose 
               {swapMode && (
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-gray-400">
-                    {swapMode === 'starter' ? 'Click a starter to select' : 'Click a matching substitute to swap'}
+                    {swapMode === 'starter' ? 'Click a starter to select' : 
+                     swapStarter ? `Click an eligible substitute to swap in (${getActualPosition(swapStarter.position, swapStarter.arrayIndex)} position)` : 
+                     'Click a matching substitute to swap'}
                   </span>
                   {swapStarter && (
                     <span className="text-blue-400 font-medium">
-                      Selected: {swapStarter.player?.player.firstName} {swapStarter.player?.player.lastName}
+                      Selected: {swapStarter.player?.player.firstName} {swapStarter.player?.player.lastName} ({getActualPosition(swapStarter.position, swapStarter.arrayIndex)})
                     </span>
                   )}
                   <button

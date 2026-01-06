@@ -21,10 +21,14 @@ interface PlayersState {
   playersByPosition: { [position: string]: Player[] }
   squads: { [nation: string]: Squad }
   
+  // Initialization state
+  isInitialized: boolean
+  
   // Actions
   loadPlayersData: () => void
   loadNationInfo: () => void
   generateSquads: () => void
+  initializeData: () => void
   revertToOriginalData: () => void
   updatePlayer: (playerId: number, updates: Partial<Player>) => void
   updateSquad: (nation: string, squad: Squad) => void
@@ -54,6 +58,9 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   playersByNation: {},
   playersByPosition: {},
   squads: {},
+  
+  // Initialization state
+  isInitialized: false,
   
   // Load players data from JSON
   loadPlayersData: () => {
@@ -111,6 +118,18 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
       originalSquads: { ...squads },
       squads 
     })
+  },
+  
+  // Initialize data only if not already initialized
+  initializeData: () => {
+    const { isInitialized } = get()
+    if (!isInitialized) {
+      get().loadPlayersData()
+      get().loadNationInfo()
+      get().generateSquads()
+      set({ isInitialized: true })
+      console.log("initialization run");
+    }
   },
   
   // Revert to original data

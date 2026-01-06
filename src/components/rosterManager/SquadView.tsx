@@ -1,6 +1,5 @@
 import type { Squad } from '../../types/rosterManager'
 import PlayerCard from './PlayerCard'
-import { getRatingColor } from '../../utils/rosterManager'
 import { useGlobalStore } from '../../state/GlobalState'
 import { useState } from 'react'
 import SquadEditModal from './SquadEditModal'
@@ -20,25 +19,11 @@ const SquadView: React.FC<SquadViewProps> = ({ squad, nation }) => {
         {/* Starters - Main Section */}
         <div className="flex-1">
           <div className="bg-gray-800 rounded-lg p-6 h-full">
-            <h3 className="text-xl font-bold text-green-400 mb-6">Starting XI</h3>
-            
-            <div className="flex items-center justify-center mb-8">
-              <h2 className="text-4xl font-bold text-white mr-3">{nation}</h2>
-              <div className="relative w-10 h-8 overflow-hidden rounded flex items-center justify-center bg-gray-600">
-                {getNationFlagCode(nation) && (
-                  <span
-                    className={`fi fi-${getNationFlagCode(nation)} absolute inset-0`}
-                    style={{
-                      fontSize: '1rem',
-                      lineHeight: '1',
-                      transform: 'scale(2.2)',
-                    }}
-                  />
-                )}
-              </div>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-green-400">Starting XI</h3>
               <button
                 onClick={() => setIsEditModalOpen(true)}
-                className="ml-4 p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                className="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
                 title="Edit Squad"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,6 +31,24 @@ const SquadView: React.FC<SquadViewProps> = ({ squad, nation }) => {
                 </svg>
                 Edit
               </button>
+            </div>
+            
+            <div className="flex items-center justify-center mb-8">
+              <div className="flex items-center">
+                <h2 className="text-4xl font-bold text-white mr-3">{nation}</h2>
+                <div className="relative w-10 h-8 overflow-hidden rounded flex items-center justify-center bg-gray-600">
+                  {getNationFlagCode(nation) && (
+                    <span
+                      className={`fi fi-${getNationFlagCode(nation)} absolute inset-0`}
+                      style={{
+                        fontSize: '1rem',
+                        lineHeight: '1',
+                        transform: 'scale(2.2)',
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
             
             {/* Formation Layout */}
