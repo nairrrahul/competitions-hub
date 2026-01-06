@@ -111,9 +111,12 @@ export const filterPlayers = (
   selectedPositions: string[]
 ): Player[] => {
   const filtered = players.filter(player => {
-    // Name filter
+    // Name filter - include firstName, lastName, and commonName
     const fullName = `${player.firstName} ${player.lastName}`.toLowerCase()
-    if (searchTerm && !fullName.includes(searchTerm.toLowerCase())) {
+    const commonName = player.commonName.toLowerCase()
+    const searchLower = searchTerm.toLowerCase()
+    
+    if (searchTerm && !fullName.includes(searchLower) && !commonName.includes(searchLower)) {
       return false
     }
 

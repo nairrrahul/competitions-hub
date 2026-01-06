@@ -1,6 +1,7 @@
 export interface Player {
   firstName: string
   lastName: string
+  commonName: string
   age: number
   overall: number
   potential: number

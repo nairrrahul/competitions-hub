@@ -230,8 +230,14 @@ const PlayersTab: React.FC = () => {
               {filteredPlayers.map((player, index) => (
                 <tr key={index} className="hover:bg-gray-750 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap text-base text-white">
-                    <span className="text-gray-300">{player.firstName} </span>
-                    <span className="font-bold text-lg">{player.lastName}</span>
+                    {player.commonName ? (
+                      <span className="font-bold text-lg">{player.commonName}</span>
+                    ) : (
+                      <>
+                        <span className="text-gray-300 text-lg">{player.firstName} </span>
+                        <span className="font-bold text-lg">{player.lastName}</span>
+                      </>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-base text-white">
                     <div className="flex items-center space-x-2">

@@ -102,7 +102,8 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     
     return allPlayers.filter(player => {
       const fullName = `${player.firstName} ${player.lastName}`.toLowerCase()
-      return fullName.includes(lowercaseQuery)
+      const commonName = player.commonName.toLowerCase()
+      return fullName.includes(lowercaseQuery) || commonName.includes(lowercaseQuery)
     })
   },
   
