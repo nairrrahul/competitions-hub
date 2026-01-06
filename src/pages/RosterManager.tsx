@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import PlayersTab from '../components/rosterManager/PlayersTab'
+import RosterTab from '../components/rosterManager/RosterTab'
 
 const RosterManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'players' | 'roster'>('players')
@@ -38,11 +39,11 @@ const RosterManager: React.FC = () => {
                 Players
               </button>
               <button
-                disabled
+                onClick={() => setActiveTab('roster')}
                 className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
                   activeTab === 'roster'
                     ? 'bg-gray-900 text-green-400 border-b-2 border-green-400'
-                    : 'text-gray-400 cursor-not-allowed'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 }`}
               >
                 Roster
@@ -56,6 +57,7 @@ const RosterManager: React.FC = () => {
       <main>
         <div className="p-6">
           {activeTab === 'players' && <PlayersTab />}
+          {activeTab === 'roster' && <RosterTab />}
         </div>
       </main>
     </div>

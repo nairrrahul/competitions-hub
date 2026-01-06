@@ -75,53 +75,58 @@ export const generateSquad = (nation: string, players: Player[]): Squad | null =
   }
 
   // Fill starter positions
+  const filledPositions: { [key: string]: number } = {}
+  
   for (const requirement of STARTER_POSITIONS) {
-    const bestPlayer = getBestPlayerForPosition(sortedPlayers, requirement.eligiblePositions, usedPlayers)
-    
-    if (!bestPlayer) {
-      console.warn(`Could not find player for ${requirement.position} in ${nation}`)
-      return null
-    }
+    for (let i = 0; i < requirement.count; i++) {
+      const bestPlayer = getBestPlayerForPosition(sortedPlayers, requirement.eligiblePositions, usedPlayers)
+      
+      if (!bestPlayer) {
+        console.warn(`Could not find player for ${requirement.position} (${i + 1}) in ${nation}`)
+        return null
+      }
 
-    const squadPlayer = createSquadPlayer(bestPlayer)
-    usedPlayers.add(`${bestPlayer.firstName}-${bestPlayer.lastName}-${bestPlayer.nationality}`)
+      const squadPlayer = createSquadPlayer(bestPlayer)
+      usedPlayers.add(`${bestPlayer.firstName}-${bestPlayer.lastName}-${bestPlayer.nationality}`)
 
-    // Assign to appropriate position in starters
-    switch (requirement.position) {
-      case 'GK':
-        starters.gk = squadPlayer
-        break
-      case 'RB':
-        starters.defenders[0] = squadPlayer
-        break
-      case 'CB':
-        if (!starters.defenders[1]) {
-          starters.defenders[1] = squadPlayer
-        } else {
-          starters.defenders[2] = squadPlayer
-        }
-        break
-      case 'LB':
-        starters.defenders[3] = squadPlayer
-        break
-      case 'CDM/CM':
-        starters.midfielders[0] = squadPlayer
-        break
-      case 'CAM/CM/CDM':
-        starters.midfielders[1] = squadPlayer
-        break
-      case 'CAM/CM':
-        starters.midfielders[2] = squadPlayer
-        break
-      case 'RW/RM':
-        starters.forwards[0] = squadPlayer
-        break
-      case 'LW/LM':
-        starters.forwards[1] = squadPlayer
-        break
-      case 'ST':
-        starters.forwards[2] = squadPlayer
-        break
+      // Assign to appropriate position in starters
+      switch (requirement.position) {
+        case 'GK':
+          starters.gk = squadPlayer
+          break
+        case 'RB':
+          starters.defenders[0] = squadPlayer
+          break
+        case 'CB':
+          if (!filledPositions['CB']) {
+            starters.defenders[1] = squadPlayer
+            filledPositions['CB'] = 1
+          } else {
+            starters.defenders[2] = squadPlayer
+          }
+          break
+        case 'LB':
+          starters.defenders[3] = squadPlayer
+          break
+        case 'CDM/CM':
+          starters.midfielders[0] = squadPlayer
+          break
+        case 'CAM/CM/CDM':
+          starters.midfielders[1] = squadPlayer
+          break
+        case 'CAM/CM':
+          starters.midfielders[2] = squadPlayer
+          break
+        case 'RW/RM':
+          starters.forwards[0] = squadPlayer
+          break
+        case 'LW/LM':
+          starters.forwards[1] = squadPlayer
+          break
+        case 'ST':
+          starters.forwards[2] = squadPlayer
+          break
+      }
     }
   }
 
