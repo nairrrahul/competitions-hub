@@ -20,7 +20,7 @@ interface TeamSelectionTabRef {
 }
 
 const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>((props, ref) => {
-  const { onMoveToDrawSimulator, onValidationUpdate, initialData } = props;
+  const { onValidationUpdate, initialData } = props;
   const [presetType, setPresetType] = useState<PresetType>((initialData?.presetType as PresetType) || 'manual');
   const [selectedCompetition, setSelectedCompetition] = useState<string>(initialData?.selectedCompetition || '');
   const [selectedConfederation, setSelectedConfederation] = useState<Confederation>((initialData?.selectedConfederation as Confederation) || 'UEFA');
