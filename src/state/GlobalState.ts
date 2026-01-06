@@ -1,7 +1,8 @@
 import { create } from 'zustand'
-import type { Player, PlayersData, NationInfo } from '../types/rosterManager'
+import type { Player, PlayersData, NationInfo, Squad } from '../types/rosterManager'
 import playersData from '../config/players.json'
 import nationInfo from '../config/nation_info.json'
+import { generateAllSquads, getPlayerAtPosition } from '../utils/squadGenerator'
 
 interface PlayersState {
   // Raw data
@@ -12,16 +13,20 @@ interface PlayersState {
   allPlayers: Player[]
   playersByNation: { [nation: string]: Player[] }
   playersByPosition: { [position: string]: Player[] }
+  squads: { [nation: string]: Squad }
   
   // Actions
   loadPlayersData: () => void
   loadNationInfo: () => void
+  generateSquads: () => void
   getPlayerById: (id: string) => Player | undefined
   getPlayersByNation: (nation: string) => Player[]
   getPlayersByPosition: (position: string) => Player[]
   searchPlayers: (query: string) => Player[]
   getNationFlagCode: (nation: string) => string
   getAllNationalities: () => string[]
+  getSquad: (nation: string) => Squad | undefined
+  getPlayerAtPosition: (nation: string, position: string) => any
 }
 
 export const useGlobalStore = create<PlayersState>((set, get) => ({
@@ -31,6 +36,7 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   allPlayers: [],
   playersByNation: {},
   playersByPosition: {},
+  squads: {},
   
   // Load players data from JSON
   loadPlayersData: () => {
@@ -77,6 +83,13 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     set({ nationInfo: data })
   },
   
+  // Generate squads for all nations
+  generateSquads: () => {
+    const { playersByNation } = get()
+    const squads = generateAllSquads(playersByNation)
+    set({ squads })
+  },
+  
   // Get player by unique identifier (you may need to add IDs to players)
   getPlayerById: (id: string) => {
     const { allPlayers } = get()
@@ -118,5 +131,19 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   getAllNationalities: () => {
     const { nationInfo } = get()
     return Object.keys(nationInfo).sort()
+  },
+  
+  // Get squad for a nation
+  getSquad: (nation: string) => {
+    const { squads } = get()
+    return squads[nation]
+  },
+  
+  // Get player at specific position in nation's squad
+  getPlayerAtPosition: (nation: string, position: string) => {
+    const { squads } = get()
+    const squad = squads[nation]
+    if (!squad) return null
+    return getPlayerAtPosition(squad, position)
   }
 }))

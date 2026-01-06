@@ -8,6 +8,7 @@ import { useGlobalStore } from './state/GlobalState'
 const store = useGlobalStore.getState()
 store.loadPlayersData()
 store.loadNationInfo()
+store.generateSquads()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
