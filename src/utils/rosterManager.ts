@@ -1,11 +1,11 @@
 import type { Player } from '../types/rosterManager'
 
 export const getRatingColor = (rating: number): { bg: string; text: string } => {
-  if (rating >= 91) return { bg: 'bg-green-700', text: 'text-white' }
-  if (rating >= 81) return { bg: 'bg-green-500', text: 'text-black' }
+  if (rating >= 91) return { bg: 'bg-teal-800', text: 'text-white' }
+  if (rating >= 81) return { bg: 'bg-emerald-600', text: 'text-white' }
   if (rating >= 71) return { bg: 'bg-green-400', text: 'text-black' }
   if (rating >= 61) return { bg: 'bg-yellow-500', text: 'text-black' }
-  if (rating >= 51) return { bg: 'bg-orange-500', text: 'text-white' }
+  if (rating >= 51) return { bg: 'bg-orange-600', text: 'text-white' }
   return { bg: 'bg-red-700', text: 'text-white' }
 }
 
