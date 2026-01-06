@@ -1,4 +1,5 @@
 export interface Player {
+  playerid: number
   firstName: string
   lastName: string
   commonName: string

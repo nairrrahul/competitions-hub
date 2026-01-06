@@ -9,7 +9,13 @@ interface PlayersState {
   playersData: PlayersData
   nationInfo: NationInfo
   
-  // Processed data structures
+  // Original data (read-only)
+  originalAllPlayers: Player[]
+  originalPlayersByNation: { [nation: string]: Player[] }
+  originalPlayersByPosition: { [position: string]: Player[] }
+  originalSquads: { [nation: string]: Squad }
+  
+  // Revisable data (editable)
   allPlayers: Player[]
   playersByNation: { [nation: string]: Player[] }
   playersByPosition: { [position: string]: Player[] }
@@ -19,7 +25,10 @@ interface PlayersState {
   loadPlayersData: () => void
   loadNationInfo: () => void
   generateSquads: () => void
-  getPlayerById: (id: string) => Player | undefined
+  revertToOriginalData: () => void
+  updatePlayer: (playerId: number, updates: Partial<Player>) => void
+  updateSquad: (nation: string, squad: Squad) => void
+  getPlayerById: (id: number) => Player | undefined
   getPlayersByNation: (nation: string) => Player[]
   getPlayersByPosition: (position: string) => Player[]
   searchPlayers: (query: string) => Player[]
@@ -33,6 +42,14 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   // Initialize with empty data
   playersData: {},
   nationInfo: {},
+  
+  // Original data (read-only)
+  originalAllPlayers: [],
+  originalPlayersByNation: {},
+  originalPlayersByPosition: {},
+  originalSquads: {},
+  
+  // Revisable data (editable)
   allPlayers: [],
   playersByNation: {},
   playersByPosition: {},
@@ -71,6 +88,9 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     
     set({
       playersData: data,
+      originalAllPlayers: [...allPlayers],
+      originalPlayersByNation: { ...playersByNation },
+      originalPlayersByPosition: { ...playersByPosition },
       allPlayers,
       playersByNation,
       playersByPosition
@@ -87,13 +107,67 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   generateSquads: () => {
     const { playersByNation } = get()
     const squads = generateAllSquads(playersByNation)
-    set({ squads })
+    set({ 
+      originalSquads: { ...squads },
+      squads 
+    })
   },
   
-  // Get player by unique identifier (you may need to add IDs to players)
-  getPlayerById: (id: string) => {
+  // Revert to original data
+  revertToOriginalData: () => {
+    const { originalAllPlayers, originalPlayersByNation, originalPlayersByPosition, originalSquads } = get()
+    set({
+      allPlayers: [...originalAllPlayers],
+      playersByNation: { ...originalPlayersByNation },
+      playersByPosition: { ...originalPlayersByPosition },
+      squads: { ...originalSquads }
+    })
+  },
+  
+  // Update a player
+  updatePlayer: (playerId: number, updates: Partial<Player>) => {
+    const { allPlayers, playersByNation, playersByPosition } = get()
+    const playerIndex = allPlayers.findIndex(p => p.playerid === playerId)
+    
+    if (playerIndex === -1) return
+    
+    const updatedPlayer = { ...allPlayers[playerIndex], ...updates }
+    const updatedAllPlayers = [...allPlayers]
+    updatedAllPlayers[playerIndex] = updatedPlayer
+    
+    // Update playersByNation
+    const updatedPlayersByNation = { ...playersByNation }
+    const nationPlayers = updatedPlayersByNation[updatedPlayer.nationality]?.map(p => 
+      p.playerid === playerId ? updatedPlayer : p
+    ) || []
+    updatedPlayersByNation[updatedPlayer.nationality] = nationPlayers
+    
+    // Update playersByPosition
+    const updatedPlayersByPosition = { ...playersByPosition }
+    const positionPlayers = updatedPlayersByPosition[updatedPlayer.position]?.map(p => 
+      p.playerid === playerId ? updatedPlayer : p
+    ) || []
+    updatedPlayersByPosition[updatedPlayer.position] = positionPlayers
+    
+    set({
+      allPlayers: updatedAllPlayers,
+      playersByNation: updatedPlayersByNation,
+      playersByPosition: updatedPlayersByPosition
+    })
+  },
+  
+  // Update a squad
+  updateSquad: (nation: string, squad: Squad) => {
+    const { squads } = get()
+    set({
+      squads: { ...squads, [nation]: squad }
+    })
+  },
+  
+  // Get player by unique identifier
+  getPlayerById: (id: number) => {
     const { allPlayers } = get()
-    return allPlayers.find(player => `${player.firstName}-${player.lastName}-${player.nationality}` === id)
+    return allPlayers.find(player => player.playerid === id)
   },
   
   // Get players by nationality
