@@ -6,7 +6,6 @@ import PlayerViewModal from './PlayerViewModal'
 import type { Player } from '../../types/rosterManager'
 
 const PlayersTab: React.FC = () => {
-  const { addPlayer } = useGlobalStore()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedNationality, setSelectedNationality] = useState('All')
@@ -296,6 +295,7 @@ const PlayersTab: React.FC = () => {
           player={null}
           isOpen={isAddPlayerModalOpen}
           onClose={handleAddPlayerModalClose}
+          prefillNationality={selectedNationality === 'All' ? '' : selectedNationality}
         />
       )}
     </div>

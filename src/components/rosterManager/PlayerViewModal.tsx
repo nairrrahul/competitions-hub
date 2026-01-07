@@ -8,9 +8,10 @@ interface PlayerViewModalProps {
   player: Player | null
   isOpen: boolean
   onClose: () => void
+  prefillNationality?: string
 }
 
-const PlayerViewModal: React.FC<PlayerViewModalProps> = ({ player, isOpen, onClose }) => {
+const PlayerViewModal: React.FC<PlayerViewModalProps> = ({ player, isOpen, onClose, prefillNationality }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [editedPlayer, setEditedPlayer] = useState<Player>(player || {
     playerid: 0,
@@ -21,7 +22,7 @@ const PlayerViewModal: React.FC<PlayerViewModalProps> = ({ player, isOpen, onClo
     overall: 50,
     potential: 50,
     position: 'CM',
-    nationality: ''
+    nationality: prefillNationality || ''
   })
   const updatePlayer = useGlobalStore(state => state.updatePlayer)
   const addPlayer = useGlobalStore(state => state.addPlayer)
@@ -37,14 +38,18 @@ const PlayerViewModal: React.FC<PlayerViewModalProps> = ({ player, isOpen, onClo
   // Set editing mode based on whether we're adding or editing
   useEffect(() => {
     if (player === null) {
-      // Add player mode - start in edit mode
+      // Add player mode - start in edit mode with pre-filled nationality
       setIsEditing(true)
+      setEditedPlayer(prev => ({
+        ...prev,
+        nationality: prefillNationality || ''
+      }))
     } else {
       // Edit player mode - start with player data
       setEditedPlayer(player)
       setIsEditing(false)
     }
-  }, [player, highestPlayerID, numPlayersAdded])
+  }, [player, highestPlayerID, numPlayersAdded, prefillNationality])
 
   if (!isOpen) return null
 
@@ -60,7 +65,7 @@ const PlayerViewModal: React.FC<PlayerViewModalProps> = ({ player, isOpen, onClo
         overall: 50,
         potential: 50,
         position: 'CM',
-        nationality: ''
+        nationality: prefillNationality || ''
       })
     }
     setIsEditing(!isEditing)

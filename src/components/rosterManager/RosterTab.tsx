@@ -6,8 +6,10 @@ import NationAutocomplete from './NationAutocomplete'
 const RosterTab: React.FC = () => {
   const [selectedNation, setSelectedNation] = useState<string>('')
   const [isSearching, setIsSearching] = useState<boolean>(false)
+  const [exportMode, setExportMode] = useState<'all' | 'selected'>('all')
+  const [selectedNations, setSelectedNations] = useState<string>('')
   
-  const { getSquad } = useGlobalStore()
+  const { getSquad, exportAllSquads, exportSelectedSquads } = useGlobalStore()
 
   const handleNationSelect = (nation: string) => {
     setSelectedNation(nation)
@@ -34,6 +36,76 @@ const RosterTab: React.FC = () => {
             onNationSelect={handleNationSelect}
             placeholder="Enter country name..."
           />
+          
+          {/* Export Options Panel */}
+          <div className="mt-8 bg-gray-800 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-green-400 mb-4">Export Options</h3>
+            
+            {/* Export Mode Selection */}
+            <div className="space-y-3 mb-6">
+              <label className="flex items-center text-gray-300 cursor-pointer">
+                <input
+                  type="radio"
+                  name="exportMode"
+                  value="all"
+                  checked={exportMode === 'all'}
+                  onChange={() => setExportMode('all')}
+                  className="mr-3 text-green-400 focus:ring-green-400"
+                />
+                <span>Export all squads</span>
+              </label>
+              
+              <label className="flex items-center text-gray-300 cursor-pointer">
+                <input
+                  type="radio"
+                  name="exportMode"
+                  value="selected"
+                  checked={exportMode === 'selected'}
+                  onChange={() => setExportMode('selected')}
+                  className="mr-3 text-green-400 focus:ring-green-400"
+                />
+                <span>Export selected squads</span>
+              </label>
+            </div>
+            
+            {/* Selected Nations Input (only show when "selected" mode is chosen) */}
+            {exportMode === 'selected' && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Enter nations (comma-separated):
+                </label>
+                <textarea
+                  value={selectedNations}
+                  onChange={(e) => setSelectedNations(e.target.value)}
+                  placeholder="e.g., Brazil, Argentina, France"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
+                  rows={3}
+                />
+              </div>
+            )}
+            
+            {/* Export Button */}
+            <button
+              onClick={() => {
+                if (exportMode === 'all') {
+                  exportAllSquads()
+                } else {
+                  const nations = selectedNations
+                    .split(',')
+                    .map(n => n.trim())
+                    .filter(n => n.length > 0)
+                  if (nations.length > 0) {
+                    exportSelectedSquads(nations)
+                  } else {
+                    alert('Please enter at least one nation to export')
+                  }
+                }
+              }}
+              className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
+            >
+              {exportMode === 'all' ? 'Full Export' : 'Export'}
+            </button>
+          </div>
         </div>
       </div>
     )

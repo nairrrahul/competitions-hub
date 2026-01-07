@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { Player, PlayersData, NationInfo, Squad } from '../types/rosterManager'
 import playersData from '../config/players.json'
 import nationInfo from '../config/nation_info.json'
-import { generateAllSquads, getPlayerAtPosition, getAllSquadPlayers, findPlayerInSquad, replacePlayerInSquad, getPositionConstraints, getSubstitutePositionConstraints } from '../utils/squadGenerator'
+import { generateAllSquads, generateSquad, getPlayerAtPosition, getAllSquadPlayers, findPlayerInSquad, replacePlayerInSquad, getPositionConstraints, getSubstitutePositionConstraints } from '../utils/squadGenerator'
 
 interface PlayersState {
   // Raw data
@@ -45,6 +45,10 @@ interface PlayersState {
   getAllNationalities: () => string[]
   getSquad: (nation: string) => Squad | undefined
   getPlayerAtPosition: (nation: string, position: string) => any
+  exportSquad: (nation: string) => void
+  refreshSquad: (nation: string) => void
+  exportAllSquads: () => void
+  exportSelectedSquads: (nations: string[]) => void
 }
 
 export const useGlobalStore = create<PlayersState>((set, get) => ({
@@ -390,5 +394,131 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     const squad = squads[nation]
     if (!squad) return null
     return getPlayerAtPosition(squad, position)
+  },
+  
+  // Export squad to JSON file
+  exportSquad: (nation: string) => {
+    const { squads } = get()
+    const squad = squads[nation]
+    if (!squad) return
+    
+    // Create filename with timestamp
+    const now = new Date()
+    const timestamp = now.getFullYear().toString() +
+                     (now.getMonth() + 1).toString().padStart(2, '0') +
+                     now.getDate().toString().padStart(2, '0') +
+                     now.getHours().toString().padStart(2, '0') +
+                     now.getMinutes().toString().padStart(2, '0') +
+                     now.getSeconds().toString().padStart(2, '0')
+    
+    const filename = `${nation}-${timestamp}.json`
+    
+    // Convert squad to JSON and create blob
+    const jsonData = JSON.stringify(squad, null, 2)
+    const blob = new Blob([jsonData], { type: 'application/json' })
+    
+    // Create download link and trigger download
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  },
+  
+  // Refresh squad for a nation
+  refreshSquad: (nation: string) => {
+    const { playersByNation } = get()
+    const nationPlayers = playersByNation[nation]
+    
+    if (!nationPlayers || nationPlayers.length < 19) {
+      console.warn(`Cannot refresh squad for ${nation}: ${nationPlayers?.length || 0} players available, need at least 19`)
+      return
+    }
+    
+    // Generate new squad using current player data
+    const newSquad = generateSquad(nation, nationPlayers)
+    
+    if (newSquad) {
+      // Update the squad in the store
+      set(state => ({
+        squads: {
+          ...state.squads,
+          [nation]: newSquad
+        }
+      }))
+    } else {
+      console.warn(`Failed to generate squad for ${nation}`)
+    }
+  },
+  
+  // Export all squads to JSON file
+  exportAllSquads: () => {
+    const { squads } = get()
+    
+    // Create filename with timestamp
+    const now = new Date()
+    const timestamp = now.getFullYear().toString() +
+                     (now.getMonth() + 1).toString().padStart(2, '0') +
+                     now.getDate().toString().padStart(2, '0') +
+                     now.getHours().toString().padStart(2, '0') +
+                     now.getMinutes().toString().padStart(2, '0') +
+                     now.getSeconds().toString().padStart(2, '0')
+    
+    const filename = `all-squads-${timestamp}.json`
+    
+    // Convert squads to JSON and create blob
+    const jsonData = JSON.stringify(squads, null, 2)
+    const blob = new Blob([jsonData], { type: 'application/json' })
+    
+    // Create download link and trigger download
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  },
+  
+  // Export selected squads to JSON file
+  exportSelectedSquads: (nations: string[]) => {
+    const { squads } = get()
+    
+    // Filter squads for selected nations
+    const selectedSquads: { [nation: string]: Squad } = {}
+    nations.forEach(nation => {
+      if (squads[nation]) {
+        selectedSquads[nation] = squads[nation]
+      }
+    })
+    
+    // Create filename with timestamp
+    const now = new Date()
+    const timestamp = now.getFullYear().toString() +
+                     (now.getMonth() + 1).toString().padStart(2, '0') +
+                     now.getDate().toString().padStart(2, '0') +
+                     now.getHours().toString().padStart(2, '0') +
+                     now.getMinutes().toString().padStart(2, '0') +
+                     now.getSeconds().toString().padStart(2, '0')
+    
+    const filename = `selected-squads-${timestamp}.json`
+    
+    // Convert selected squads to JSON and create blob
+    const jsonData = JSON.stringify(selectedSquads, null, 2)
+    const blob = new Blob([jsonData], { type: 'application/json' })
+    
+    // Create download link and trigger download
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
   }
 }))

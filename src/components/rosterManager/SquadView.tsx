@@ -11,6 +11,8 @@ interface SquadViewProps {
 
 const SquadView: React.FC<SquadViewProps> = ({ squad, nation }) => {
   const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode)
+  const exportSquad = useGlobalStore(state => state.exportSquad)
+  const refreshSquad = useGlobalStore(state => state.refreshSquad)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   return (
@@ -21,16 +23,29 @@ const SquadView: React.FC<SquadViewProps> = ({ squad, nation }) => {
           <div className="bg-gray-800 rounded-lg p-6 h-full">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-green-400">Starting XI</h3>
+              <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsEditModalOpen(true)}
-                className="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                 title="Edit Squad"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
                 Edit
               </button>
+              <button
+                onClick={() => refreshSquad(nation)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                title="Refresh"
+              >
+                Refresh
+              </button>
+              <button
+                onClick={() => exportSquad(nation)}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                title="Export"
+              >
+                Export
+              </button>
+            </div>
             </div>
             
             <div className="flex items-center justify-center mb-8">
