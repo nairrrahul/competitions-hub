@@ -4,13 +4,15 @@ import { useGlobalStore } from '../../state/GlobalState'
 interface NationAutocompleteProps {
   onNationSelect: (nation: string) => void
   placeholder?: string
+  initialValue?: string
 }
 
 const NationAutocomplete: React.FC<NationAutocompleteProps> = ({ 
   onNationSelect, 
-  placeholder = "Enter country name..." 
+  placeholder = "Enter country name...",
+  initialValue = ''
 }) => {
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState(initialValue)
   const [isOpen, setIsOpen] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -64,6 +66,11 @@ const NationAutocomplete: React.FC<NationAutocompleteProps> = ({
     setSelectedIndex(-1)
     onNationSelect(nation)
   }
+
+  // Update input value when initialValue changes
+  useEffect(() => {
+    setInputValue(initialValue)
+  }, [initialValue])
 
   const handleBlur = () => {
     // Delay closing to allow click on dropdown items

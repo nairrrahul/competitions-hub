@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { Player, PlayersData, NationInfo, Squad } from '../types/rosterManager'
 import playersData from '../config/players.json'
 import nationInfo from '../config/nation_info.json'
-import { generateAllSquads, getPlayerAtPosition } from '../utils/squadGenerator'
+import { generateAllSquads, getPlayerAtPosition, getAllSquadPlayers, findPlayerInSquad, replacePlayerInSquad, getPositionConstraints, getSubstitutePositionConstraints } from '../utils/squadGenerator'
 
 interface PlayersState {
   // Raw data
@@ -24,6 +24,10 @@ interface PlayersState {
   // Initialization state
   isInitialized: boolean
   
+  // Game state for added players
+  numPlayersAdded: number
+  highestPlayerID: number
+  
   // Actions
   loadPlayersData: () => void
   loadNationInfo: () => void
@@ -31,6 +35,7 @@ interface PlayersState {
   initializeData: () => void
   revertToOriginalData: () => void
   updatePlayer: (playerId: number, updates: Partial<Player>) => void
+  addPlayer: (player: Omit<Player, 'playerid'>) => void
   updateSquad: (nation: string, squad: Squad) => void
   getPlayerById: (id: number) => Player | undefined
   getPlayersByNation: (nation: string) => Player[]
@@ -61,6 +66,10 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   
   // Initialization state
   isInitialized: false,
+  
+  // Game state for added players
+  numPlayersAdded: 0,
+  highestPlayerID: 0,
   
   // Load players data from JSON
   loadPlayersData: () => {
@@ -93,6 +102,11 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
       playersByNation[nation] = nationPlayers
     })
     
+    // Calculate highest player ID
+    const highestPlayerID = allPlayers.length > 0 
+      ? Math.max(...allPlayers.map(p => p.playerid))
+      : 0
+    
     set({
       playersData: data,
       originalAllPlayers: [...allPlayers],
@@ -100,7 +114,8 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
       originalPlayersByPosition: { ...playersByPosition },
       allPlayers,
       playersByNation,
-      playersByPosition
+      playersByPosition,
+      highestPlayerID
     })
   },
   
@@ -127,7 +142,10 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
       get().loadPlayersData()
       get().loadNationInfo()
       get().generateSquads()
-      set({ isInitialized: true })
+      set({ 
+        isInitialized: true,
+        numPlayersAdded: 0
+      })
       console.log("initialization run");
     }
   },
@@ -145,33 +163,167 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   
   // Update a player
   updatePlayer: (playerId: number, updates: Partial<Player>) => {
-    const { allPlayers, playersByNation, playersByPosition } = get()
+    const { allPlayers, playersByNation, playersByPosition, squads } = get()
     const playerIndex = allPlayers.findIndex(p => p.playerid === playerId)
     
     if (playerIndex === -1) return
     
-    const updatedPlayer = { ...allPlayers[playerIndex], ...updates }
+    const originalPlayer = allPlayers[playerIndex]
+    const updatedPlayer = { ...originalPlayer, ...updates }
     const updatedAllPlayers = [...allPlayers]
     updatedAllPlayers[playerIndex] = updatedPlayer
     
+    // Handle squad replacements if nationality changed
+    let updatedSquads = { ...squads }
+    if (originalPlayer.nationality !== updatedPlayer.nationality) {
+      const oldNationSquad = squads[originalPlayer.nationality]
+      if (oldNationSquad) {
+        // Check if player is in old nation's squad
+        const squadPlayerInfo = findPlayerInSquad(oldNationSquad, playerId)
+        
+        if (squadPlayerInfo) {
+          const { position, isSubstitute, squadSlot } = squadPlayerInfo
+          const oldNationPlayers = playersByNation[originalPlayer.nationality] || []
+          const currentSquadPlayers = getAllSquadPlayers(oldNationSquad)
+          
+          // Get eligible positions based on whether player is starter or substitute
+          const eligiblePositions = isSubstitute 
+            ? getSubstitutePositionConstraints(position)
+            : getPositionConstraints(position)
+          
+          // Find best replacement player (highest overall, then potential)
+          const availableReplacements = oldNationPlayers.filter(p => 
+            !currentSquadPlayers.some(sp => sp.playerid === p.playerid) &&
+            eligiblePositions.includes(p.position)
+          )
+          
+          const bestReplacement = availableReplacements.length > 0 
+            ? availableReplacements.sort((a, b) => {
+                if (b.overall !== a.overall) return b.overall - a.overall
+                return b.potential - a.potential
+              })[0]
+            : null
+          
+          if (bestReplacement) {
+            // Replace player in old squad with best replacement
+            updatedSquads[originalPlayer.nationality] = replacePlayerInSquad(
+              oldNationSquad,
+              bestReplacement,
+              squadSlot
+            )
+          } else {
+            // No replacement found - create empty slot
+            const emptyPlayer: Player = {
+              playerid: -1,
+              firstName: 'Empty',
+              lastName: 'Slot',
+              commonName: 'Empty Slot',
+              age: 0,
+              overall: 0,
+              potential: 0,
+              position: position,
+              nationality: originalPlayer.nationality
+            }
+            
+            updatedSquads[originalPlayer.nationality] = replacePlayerInSquad(
+              oldNationSquad,
+              emptyPlayer,
+              squadSlot
+            )
+          }
+        }
+      }
+    }
+    
     // Update playersByNation
     const updatedPlayersByNation = { ...playersByNation }
+    
+    // If nationality changed, remove from old nation
+    if (originalPlayer.nationality !== updatedPlayer.nationality) {
+      const oldNationPlayers = updatedPlayersByNation[originalPlayer.nationality]?.filter(p => 
+        p.playerid !== playerId
+      ) || []
+      updatedPlayersByNation[originalPlayer.nationality] = oldNationPlayers
+    }
+    
+    // Add/update in new nation
     const nationPlayers = updatedPlayersByNation[updatedPlayer.nationality]?.map(p => 
       p.playerid === playerId ? updatedPlayer : p
     ) || []
+    
+    // If player wasn't in the new nation list, add them
+    if (!nationPlayers.some(p => p.playerid === playerId)) {
+      nationPlayers.push(updatedPlayer)
+    }
+    
     updatedPlayersByNation[updatedPlayer.nationality] = nationPlayers
     
     // Update playersByPosition
     const updatedPlayersByPosition = { ...playersByPosition }
+    
+    // If position changed, remove from old position
+    if (originalPlayer.position !== updatedPlayer.position) {
+      const oldPositionPlayers = updatedPlayersByPosition[originalPlayer.position]?.filter(p => 
+        p.playerid !== playerId
+      ) || []
+      updatedPlayersByPosition[originalPlayer.position] = oldPositionPlayers
+    }
+    
+    // Add/update in new position
     const positionPlayers = updatedPlayersByPosition[updatedPlayer.position]?.map(p => 
       p.playerid === playerId ? updatedPlayer : p
     ) || []
+    
+    // If player wasn't in the new position list, add them
+    if (!positionPlayers.some(p => p.playerid === playerId)) {
+      positionPlayers.push(updatedPlayer)
+    }
+    
     updatedPlayersByPosition[updatedPlayer.position] = positionPlayers
     
     set({
       allPlayers: updatedAllPlayers,
       playersByNation: updatedPlayersByNation,
-      playersByPosition: updatedPlayersByPosition
+      playersByPosition: updatedPlayersByPosition,
+      squads: updatedSquads
+    })
+  },
+  
+  // Add a new player
+  addPlayer: (playerData: Omit<Player, 'playerid'>) => {
+    const { allPlayers, playersByNation, playersByPosition, highestPlayerID, numPlayersAdded } = get()
+    
+    // Generate new player ID
+    const newPlayerId = highestPlayerID + numPlayersAdded + 1
+    
+    // Create new player object
+    const newPlayer: Player = {
+      ...playerData,
+      playerid: newPlayerId
+    }
+    
+    // Update all players array
+    const updatedAllPlayers = [...allPlayers, newPlayer]
+    
+    // Update playersByNation
+    const updatedPlayersByNation = { ...playersByNation }
+    if (!updatedPlayersByNation[newPlayer.nationality]) {
+      updatedPlayersByNation[newPlayer.nationality] = []
+    }
+    updatedPlayersByNation[newPlayer.nationality].push(newPlayer)
+    
+    // Update playersByPosition
+    const updatedPlayersByPosition = { ...playersByPosition }
+    if (!updatedPlayersByPosition[newPlayer.position]) {
+      updatedPlayersByPosition[newPlayer.position] = []
+    }
+    updatedPlayersByPosition[newPlayer.position].push(newPlayer)
+    
+    set({
+      allPlayers: updatedAllPlayers,
+      playersByNation: updatedPlayersByNation,
+      playersByPosition: updatedPlayersByPosition,
+      numPlayersAdded: numPlayersAdded + 1
     })
   },
   

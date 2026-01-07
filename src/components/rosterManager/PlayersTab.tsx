@@ -1,8 +1,13 @@
 import { useState, useMemo, useCallback } from 'react'
-import { filterPlayers, getRatingColor, getPositionOptions, getAllPositions } from '../../utils/rosterManager'
+import { filterPlayers, getPositionOptions, getAllPositions } from '../../utils/rosterManager'
 import { useGlobalStore } from '../../state/GlobalState'
+import PlayerRow from './PlayerRow'
+import PlayerViewModal from './PlayerViewModal'
+import type { Player } from '../../types/rosterManager'
 
 const PlayersTab: React.FC = () => {
+  const { addPlayer } = useGlobalStore()
+
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedNationality, setSelectedNationality] = useState('All')
   const [ageRange, setAgeRange] = useState<[number, number]>([0, 99])
@@ -10,6 +15,9 @@ const PlayersTab: React.FC = () => {
   const [potentialRange, setPotentialRange] = useState<[number, number]>([0, 99])
   const [selectedPositions, setSelectedPositions] = useState<string[]>(() => getAllPositions())
   const [isPositionDropdownOpen, setIsPositionDropdownOpen] = useState(false)
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
+  const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false)
+  const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
 
   // Get players data from global state
   const allPlayers = useGlobalStore(state => state.allPlayers)
@@ -52,9 +60,37 @@ const PlayersTab: React.FC = () => {
     setIsPositionDropdownOpen(prev => !prev)
   }, [])
 
+  const handlePlayerClick = useCallback((player: Player) => {
+    setSelectedPlayer(player)
+    setIsPlayerModalOpen(true)
+  }, [])
+
+  const handlePlayerModalClose = useCallback(() => {
+    setIsPlayerModalOpen(false)
+    setSelectedPlayer(null)
+  }, [])
+
+  const handleAddPlayer = useCallback(() => {
+    setSelectedPlayer(null)
+    setIsAddPlayerModalOpen(true)
+  }, [])
+
+  const handleAddPlayerModalClose = useCallback(() => {
+    setIsAddPlayerModalOpen(false)
+    setSelectedPlayer(null)
+  }, [])
+
   return (
     <div>
-      <h2 className="text-2xl font-semibold text-gray-200 mb-6">Player Viewer</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-semibold text-gray-200">Player Viewer</h2>
+        <button 
+          onClick={handleAddPlayer}
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+        >
+          Add Player
+        </button>
+      </div>
       
       {/* Filters */}
       <div className="bg-gray-800 rounded-lg p-6 mb-6">
@@ -227,48 +263,13 @@ const PlayersTab: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
-              {filteredPlayers.map((player, index) => (
-                <tr key={index} className="hover:bg-gray-750 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-base text-white">
-                    {player.commonName ? (
-                      <span className="font-bold text-lg">{player.commonName}</span>
-                    ) : (
-                      <>
-                        <span className="text-gray-300 text-lg">{player.firstName} </span>
-                        <span className="font-bold text-lg">{player.lastName}</span>
-                      </>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base text-white">
-                    <div className="flex items-center space-x-2">
-                      <div className="relative w-6 h-4 overflow-hidden rounded flex items-center justify-center bg-gray-600">
-                        {getNationFlagCode(player.nationality) && (
-                          <span
-                            className={`fi fi-${getNationFlagCode(player.nationality)} absolute inset-0`}
-                            style={{
-                              fontSize: '1rem',
-                              lineHeight: '1',
-                              transform: 'scale(1.2)',
-                            }}
-                          />
-                        )}
-                      </div>
-                      <span>{player.nationality}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base text-white">{player.age}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base">
-                    <span className={`px-2 py-1 rounded font-medium ${getRatingColor(player.overall).bg} ${getRatingColor(player.overall).text}`}>
-                      {player.overall}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base">
-                    <span className={`px-2 py-1 rounded font-medium ${getRatingColor(player.potential).bg} ${getRatingColor(player.potential).text}`}>
-                      {player.potential}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base text-white">{player.position}</td>
-                </tr>
+              {filteredPlayers.map((player) => (
+                <PlayerRow
+                  key={player.playerid}
+                  player={player}
+                  getNationFlagCode={getNationFlagCode}
+                  onPlayerClick={handlePlayerClick}
+                />
               ))}
             </tbody>
           </table>
@@ -279,6 +280,24 @@ const PlayersTab: React.FC = () => {
       <div className="mt-4 text-sm text-gray-400">
         Showing {filteredPlayers.length} of {allPlayers.length} players
       </div>
+
+      {/* Player View Modal */}
+      {selectedPlayer && (
+        <PlayerViewModal
+          player={selectedPlayer}
+          isOpen={isPlayerModalOpen}
+          onClose={handlePlayerModalClose}
+        />
+      )}
+
+      {/* Add Player Modal */}
+      {isAddPlayerModalOpen && (
+        <PlayerViewModal
+          player={null}
+          isOpen={isAddPlayerModalOpen}
+          onClose={handleAddPlayerModalClose}
+        />
+      )}
     </div>
   )
 }

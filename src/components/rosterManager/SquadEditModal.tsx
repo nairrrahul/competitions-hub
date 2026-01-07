@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Squad, Player, SquadPlayer } from '../../types/rosterManager'
 import { useGlobalStore } from '../../state/GlobalState'
 import PlayerCard from './PlayerCard'
+import { getPositionConstraints, getSubstitutePositionConstraints, getAllSquadPlayers } from '../../utils/squadGenerator'
 
 interface SquadEditModalProps {
   squad: Squad
@@ -25,26 +26,12 @@ const SquadEditModal: React.FC<SquadEditModalProps> = ({ squad, nation, onClose 
   const [swapStarter, setSwapStarter] = useState<EditablePlayerSlot | null>(null)
   const [swapSubstitute, setSwapSubstitute] = useState<EditablePlayerSlot | null>(null)
 
-  // Get all players from the nation
+  // Get all players from nation
   const allNationPlayers = getPlayersByNation(nation)
   
-    // Get players currently in the squad
+  // Get players currently in squad
   const getSquadPlayers = (): Player[] => {
-    const players: Player[] = []
-    
-    // Add starters
-    if (editedSquad.starters.gk) players.push(editedSquad.starters.gk.player)
-    editedSquad.starters.defenders.forEach(d => d && players.push(d.player))
-    editedSquad.starters.midfielders.forEach(m => m && players.push(m.player))
-    editedSquad.starters.forwards.forEach(f => f && players.push(f.player))
-    
-    // Add substitutes
-    if (editedSquad.substitutes.gk) players.push(editedSquad.substitutes.gk.player)
-    editedSquad.substitutes.defenders.forEach(d => d && players.push(d.player))
-    editedSquad.substitutes.midfielders.forEach(m => m && players.push(m.player))
-    editedSquad.substitutes.forwards.forEach(f => f && players.push(f.player))
-    
-    return players
+    return getAllSquadPlayers(editedSquad)
   }
 
   // Get player IDs currently in the squad
@@ -53,42 +40,6 @@ const SquadEditModal: React.FC<SquadEditModalProps> = ({ squad, nation, onClose 
     return players.map(p => p.playerid)
   }
 
-  // Position constraints for swaps
-  const getPositionConstraints = (position: string): string[] => {
-    const constraints: { [key: string]: string[] } = {
-      'GK': ['GK'],
-      'RB': ['RB'],
-      'LB': ['LB'],
-      'CB': ['CB'],
-      'CDM': ['CDM', 'CM'],
-      'CM': ['CM', 'CDM', 'CAM'],
-      'CAM': ['CM', 'CAM'],
-      'RW': ['RW', 'RM'],
-      'LW': ['LW', 'LM'],
-      'RM': ['RM', 'RW'],
-      'LM': ['LM', 'LW'],
-      'ST': ['ST']
-    }
-    return constraints[position] || [position]
-  }
-
-  const getSubstitutePositionConstraints = (position: string): string[] => {
-    const constraints: { [key: string]: string[] } = {
-      'GK': ['GK'],
-      'RB': ['RB','LB','CB'],
-      'LB': ['LB','RB','CB'],
-      'CB': ['CB','RB','LB'],
-      'CDM': ['CDM', 'CM','CAM'],
-      'CM': ['CM', 'CDM', 'CAM'],
-      'CAM': ['CM', 'CAM', 'CDM'],
-      'RW': ['RW', 'RM', 'LW', 'LM','ST'],
-      'LW': ['RW', 'RM', 'LW', 'LM','ST'],
-      'RM': ['RW', 'RM', 'LW', 'LM','ST'],
-      'LM': ['RW', 'RM', 'LW', 'LM','ST'],
-      'ST': ['RW', 'RM', 'LW', 'LM','ST']
-    }
-    return constraints[position] || [position]
-  }
 
   // Start swap process
   const handleStartSwap = () => {

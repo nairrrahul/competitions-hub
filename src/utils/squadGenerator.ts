@@ -20,6 +20,189 @@ export const SUBSTITUTE_POSITIONS = {
   forwards: { eligiblePositions: ['ST', 'LW', 'RW', 'LM', 'RM'], count: 2 }
 }
 
+// Get position constraints for starters
+export const getPositionConstraints = (position: string): string[] => {
+  const constraints: { [key: string]: string[] } = {
+    'GK': ['GK'],
+    'RB': ['RB'],
+    'LB': ['LB'],
+    'CB': ['CB'],
+    'CDM': ['CDM', 'CM'],
+    'CM': ['CM', 'CDM', 'CAM'],
+    'CAM': ['CM', 'CAM'],
+    'RW': ['RW', 'RM'],
+    'LW': ['LW', 'LM'],
+    'RM': ['RM', 'RW'],
+    'LM': ['LM', 'LW'],
+    'ST': ['ST']
+  }
+  return constraints[position] || [position]
+}
+
+// Get position constraints for substitutes
+export const getSubstitutePositionConstraints = (position: string): string[] => {
+  const constraints: { [key: string]: string[] } = {
+    'GK': ['GK'],
+    'RB': ['RB','LB','CB'],
+    'LB': ['LB','RB','CB'],
+    'CB': ['CB','RB','LB'],
+    'CDM': ['CDM', 'CM','CAM'],
+    'CM': ['CM', 'CDM', 'CAM'],
+    'CAM': ['CM', 'CAM', 'CDM'],
+    'RW': ['RW', 'RM', 'LW', 'LM','ST'],
+    'LW': ['RW', 'RM', 'LW', 'LM','ST'],
+    'RM': ['RW', 'RM', 'LW', 'LM','ST'],
+    'LM': ['RW', 'RM', 'LW', 'LM','ST'],
+    'ST': ['RW', 'RM', 'LW', 'LM','ST']
+  }
+  return constraints[position] || [position]
+}
+
+// Find best replacement player for a squad position
+export const findReplacementPlayer = (
+  nationPlayers: Player[],
+  squadPlayers: Player[],
+  position: string,
+  isSubstitute: boolean = false
+): Player | null => {
+  const constraints = isSubstitute 
+    ? getSubstitutePositionConstraints(position)
+    : getPositionConstraints(position)
+  
+  const usedPlayerIds = new Set(squadPlayers.map(p => p.playerid))
+  
+  const availablePlayers = nationPlayers.filter(player => 
+    constraints.includes(player.position) && 
+    !usedPlayerIds.has(player.playerid)
+  )
+  
+  if (availablePlayers.length === 0) return null
+  
+  // Sort by overall rating, then potential
+  return availablePlayers.sort((a, b) => {
+    if (b.overall !== a.overall) return b.overall - a.overall
+    return b.potential - a.potential
+  })[0]
+}
+
+// Get all players from a squad
+export const getAllSquadPlayers = (squad: Squad): Player[] => {
+  const players: Player[] = []
+  
+  // Add starters
+  if (squad.starters.gk) players.push(squad.starters.gk.player)
+  squad.starters.defenders.forEach(d => d && players.push(d.player))
+  squad.starters.midfielders.forEach(m => m && players.push(m.player))
+  squad.starters.forwards.forEach(f => f && players.push(f.player))
+  
+  // Add substitutes
+  if (squad.substitutes.gk) players.push(squad.substitutes.gk.player)
+  squad.substitutes.defenders.forEach(d => d && players.push(d.player))
+  squad.substitutes.midfielders.forEach(m => m && players.push(m.player))
+  squad.substitutes.forwards.forEach(f => f && players.push(f.player))
+  
+  return players
+}
+
+// Find a player in a squad and return position info
+export const findPlayerInSquad = (
+  squad: Squad, 
+  playerId: number
+): { position: string; isSubstitute: boolean; squadSlot: string } | null => {
+  // Check starters
+  if (squad.starters.gk?.player.playerid === playerId) {
+    return { position: 'GK', isSubstitute: false, squadSlot: 'starters.gk' }
+  }
+  
+  for (let i = 0; i < squad.starters.defenders.length; i++) {
+    const defender = squad.starters.defenders[i]
+    if (defender?.player.playerid === playerId) {
+      const positions = ['RB', 'CB', 'CB', 'LB']
+      return { position: positions[i], isSubstitute: false, squadSlot: `starters.defenders.${i}` }
+    }
+  }
+  
+  for (let i = 0; i < squad.starters.midfielders.length; i++) {
+    const midfielder = squad.starters.midfielders[i]
+    if (midfielder?.player.playerid === playerId) {
+      const positions = ['CDM', 'CM', 'CAM'] // Map to single positions
+      return { position: positions[i], isSubstitute: false, squadSlot: `starters.midfielders.${i}` }
+    }
+  }
+  
+  for (let i = 0; i < squad.starters.forwards.length; i++) {
+    const forward = squad.starters.forwards[i]
+    if (forward?.player.playerid === playerId) {
+      const positions = ['RW', 'LW', 'ST'] // Map to single positions
+      return { position: positions[i], isSubstitute: false, squadSlot: `starters.forwards.${i}` }
+    }
+  }
+  
+  // Check substitutes
+  if (squad.substitutes.gk?.player.playerid === playerId) {
+    return { position: 'GK', isSubstitute: true, squadSlot: 'substitutes.gk' }
+  }
+  
+  for (let i = 0; i < squad.substitutes.defenders.length; i++) {
+    const defender = squad.substitutes.defenders[i]
+    if (defender?.player.playerid === playerId) {
+      return { position: 'CB', isSubstitute: true, squadSlot: `substitutes.defenders.${i}` }
+    }
+  }
+  
+  for (let i = 0; i < squad.substitutes.midfielders.length; i++) {
+    const midfielder = squad.substitutes.midfielders[i]
+    if (midfielder?.player.playerid === playerId) {
+      return { position: 'CM', isSubstitute: true, squadSlot: `substitutes.midfielders.${i}` }
+    }
+  }
+  
+  for (let i = 0; i < squad.substitutes.forwards.length; i++) {
+    const forward = squad.substitutes.forwards[i]
+    if (forward?.player.playerid === playerId) {
+      return { position: 'ST', isSubstitute: true, squadSlot: `substitutes.forwards.${i}` }
+    }
+  }
+  
+  return null
+}
+
+// Replace a player in a squad at a specific slot
+export const replacePlayerInSquad = (
+  squad: Squad,
+  newPlayer: Player,
+  squadSlot: string
+): Squad => {
+  const newSquad = JSON.parse(JSON.stringify(squad)) as Squad
+  const parts = squadSlot.split('.')
+  
+  if (parts[0] === 'starters') {
+    if (parts[1] === 'gk') {
+      newSquad.starters.gk = { player: newPlayer }
+    } else if (parts.length === 3) {
+      const subSection = parts[1] as 'defenders' | 'midfielders' | 'forwards'
+      const index = parseInt(parts[2])
+      
+      if (!isNaN(index) && index >= 0 && index < newSquad.starters[subSection].length) {
+        newSquad.starters[subSection][index] = { player: newPlayer }
+      }
+    }
+  } else if (parts[0] === 'substitutes') {
+    if (parts[1] === 'gk') {
+      newSquad.substitutes.gk = { player: newPlayer }
+    } else if (parts.length === 3) {
+      const subSection = parts[1] as 'defenders' | 'midfielders' | 'forwards'
+      const index = parseInt(parts[2])
+      
+      if (!isNaN(index) && index >= 0 && index < newSquad.substitutes[subSection].length) {
+        newSquad.substitutes[subSection][index] = { player: newPlayer }
+      }
+    }
+  }
+  
+  return newSquad
+}
+
 const sortPlayersByQuality = (players: Player[]): Player[] => {
   return [...players].sort((a, b) => {
     // Primary sort: overall rating
