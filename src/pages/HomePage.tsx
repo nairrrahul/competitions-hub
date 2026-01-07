@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface App {
   id: string;
@@ -9,6 +10,7 @@ interface App {
 }
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
   const apps: App[] = [
     {
       id: 'draw-maker',
@@ -57,7 +59,7 @@ const HomePage: React.FC = () => {
             {apps.map((app) => (
               <button
                 key={app.id}
-                onClick={() => window.location.href = app.route}
+                onClick={() => navigate(app.route)}
                 className="group flex flex-col items-center p-6 bg-gray-800 rounded-lg border border-gray-700 hover:border-green-400 transition-all duration-200 hover:bg-gray-750 hover:shadow-lg"
               >
                 {/* App Icon */}
