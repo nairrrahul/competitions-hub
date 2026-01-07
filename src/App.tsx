@@ -7,7 +7,7 @@ import './App.css'
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/competitions-hub">
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/index.html" element={<Navigate to="/" replace />} />
