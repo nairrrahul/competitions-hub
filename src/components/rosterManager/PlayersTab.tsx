@@ -1,8 +1,9 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { filterPlayers, getPositionOptions, getAllPositions } from '../../utils/rosterManager'
 import { useGlobalStore } from '../../state/GlobalState'
-import PlayerRow from './PlayerRow'
 import PlayerViewModal from './PlayerViewModal'
+import PlayerRow from './PlayerRow'
 import type { Player } from '../../types/rosterManager'
 
 const PlayersTab: React.FC = () => {
@@ -78,6 +79,16 @@ const PlayersTab: React.FC = () => {
     setIsAddPlayerModalOpen(false)
     setSelectedPlayer(null)
   }, [])
+
+  // Virtual scrolling setup
+  const parentRef = useRef<HTMLDivElement>(null)
+  
+  const virtualizer = useVirtualizer({
+    count: filteredPlayers.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 60, // Estimated row height in pixels
+    overscan: 10,
+  })
 
   return (
     <div>
@@ -249,29 +260,51 @@ const PlayersTab: React.FC = () => {
 
       {/* Players Table */}
       <div className="bg-gray-800 rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-700 border-b border-gray-600">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">NAME</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">NAT</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">AGE</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">OVR</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">POT</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">POS</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-700">
-              {filteredPlayers.map((player) => (
-                <PlayerRow
-                  key={player.playerid}
-                  player={player}
-                  getNationFlagCode={getNationFlagCode}
-                  onPlayerClick={handlePlayerClick}
-                />
-              ))}
-            </tbody>
-          </table>
+        <div 
+          ref={parentRef}
+          className="overflow-y-auto"
+          style={{ height: '600px' }} // Fixed height for virtual scrolling
+        >
+          {/* Header */}
+          <div className="sticky top-0 bg-gray-700 z-10 border-b border-gray-600 flex">
+            <div className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider flex-2">NAME</div>
+            <div className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider flex-2">NAT</div>
+            <div className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider flex-1">AGE</div>
+            <div className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider flex-1">OVR</div>
+            <div className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider flex-1">POT</div>
+            <div className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider flex-1">POS</div>
+          </div>
+
+          {/* Virtualized Body */}
+          <div 
+            style={{
+              height: `${virtualizer.getTotalSize()}px`,
+              position: 'relative',
+            }}
+          >
+            {virtualizer.getVirtualItems().map((virtualItem) => {
+              const player = filteredPlayers[virtualItem.index]
+              return (
+                <div
+                  key={virtualItem.key}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${virtualItem.size}px`,
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                >
+                  <PlayerRow
+                    player={player}
+                    getNationFlagCode={getNationFlagCode}
+                    onPlayerClick={handlePlayerClick}
+                  />
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
 

@@ -3,12 +3,10 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
-  return {
+export default defineConfig({
     plugins: [react(), tailwindcss()],
-    base: mode === 'production' ? '/competitions-hub/' : '/',
+    base: '/competitions-hub/',
     build: {
       outDir: 'dist'
     }
-  }
 })
