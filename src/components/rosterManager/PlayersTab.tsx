@@ -18,10 +18,12 @@ const PlayersTab: React.FC = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false)
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
+  const [showToast, setShowToast] = useState('')
 
   // Get players data from global state
   const allPlayers = useGlobalStore(state => state.allPlayers)
   const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode)
+  const { exportAllPlayers, importAllPlayers, revertToOriginalData } = useGlobalStore()
 
   // Get all nationalities from global state
   const nationalities = useMemo(() => {
@@ -80,6 +82,37 @@ const PlayersTab: React.FC = () => {
     setSelectedPlayer(null)
   }, [])
 
+  const handleImportPlayers = useCallback(() => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.json'
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (file) {
+        try {
+          await importAllPlayers(file)
+          setShowToast('Players imported successfully')
+          setTimeout(() => setShowToast(''), 3000)
+        } catch (error) {
+          alert(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        }
+      }
+    }
+    input.click()
+  }, [importAllPlayers])
+
+  const handleExportPlayers = useCallback(() => {
+    exportAllPlayers()
+  }, [exportAllPlayers])
+
+  const handleRevertToOriginal = useCallback(() => {
+    if (window.confirm('Are you sure you want to revert to original data? This will undo all changes made to players and squads.')) {
+      revertToOriginalData()
+      setShowToast('Reverted to original data')
+      setTimeout(() => setShowToast(''), 3000)
+    }
+  }, [revertToOriginalData])
+
   // Virtual scrolling setup
   const parentRef = useRef<HTMLDivElement>(null)
   
@@ -94,12 +127,32 @@ const PlayersTab: React.FC = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold text-gray-200">Player Viewer</h2>
-        <button 
-          onClick={handleAddPlayer}
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-        >
-          Add Player
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={handleImportPlayers}
+            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+          >
+            Import All Players
+          </button>
+          <button 
+            onClick={handleExportPlayers}
+            className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm"
+          >
+            Export All Players
+          </button>
+          <button 
+            onClick={handleRevertToOriginal}
+            className="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors text-sm"
+          >
+            Revert to Original
+          </button>
+          <button 
+            onClick={handleAddPlayer}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+          >
+            Add Player
+          </button>
+        </div>
       </div>
       
       {/* Filters */}
@@ -330,6 +383,13 @@ const PlayersTab: React.FC = () => {
           onClose={handleAddPlayerModalClose}
           prefillNationality={selectedNationality === 'All' ? '' : selectedNationality}
         />
+      )}
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out">
+          {showToast}
+        </div>
       )}
     </div>
   )

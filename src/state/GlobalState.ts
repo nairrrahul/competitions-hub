@@ -49,6 +49,9 @@ interface PlayersState {
   refreshSquad: (nation: string) => void
   exportAllSquads: () => void
   exportSelectedSquads: (nations: string[]) => void
+  refreshAllSquads: () => void
+  exportAllPlayers: () => void
+  importAllPlayers: (file: File) => void
 }
 
 export const useGlobalStore = create<PlayersState>((set, get) => ({
@@ -520,5 +523,146 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
+  },
+  
+  // Refresh all squads
+  refreshAllSquads: () => {
+    const { getAllNationalities, refreshSquad } = get()
+    const allNations = getAllNationalities()
+    
+    // Refresh each nation's squad
+    allNations.forEach(nation => {
+      refreshSquad(nation)
+    })
+  },
+
+  // Export all players to JSON file
+  exportAllPlayers: () => {
+    const { playersByNation } = get()
+    
+    // Create filename with timestamp
+    const now = new Date()
+    const timestamp = now.getFullYear().toString() +
+                     (now.getMonth() + 1).toString().padStart(2, '0') +
+                     now.getDate().toString().padStart(2, '0') +
+                     now.getHours().toString().padStart(2, '0') +
+                     now.getMinutes().toString().padStart(2, '0') +
+                     now.getSeconds().toString().padStart(2, '0')
+    
+    const filename = `players-${timestamp}.json`
+    
+    // Structure data correctly with 'players' property under each country
+    const exportData: { [country: string]: { players: Player[] } } = {}
+    for (const [country, players] of Object.entries(playersByNation)) {
+      exportData[country] = {
+        players: players
+      }
+    }
+    
+    // Convert players data to JSON and create blob
+    const jsonData = JSON.stringify(exportData, null, 2)
+    const blob = new Blob([jsonData], { type: 'application/json' })
+    
+    // Create download link and trigger download
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  },
+
+  // Import all players from JSON file
+  importAllPlayers: (file: File) => {
+    return new Promise<void>((resolve, reject) => {
+      const reader = new FileReader()
+      
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string
+          const importedData = JSON.parse(content)
+          
+          // Validate that it's an object with country keys
+          if (typeof importedData !== 'object' || importedData === null || Array.isArray(importedData)) {
+            throw new Error('Invalid format: Expected an object with country keys')
+          }
+          
+          // Validate each country has players array and each player has required fields
+          const requiredFields = ['playerid', 'firstName', 'lastName', 'commonName', 'age', 'overall', 'potential', 'position']
+          const allPlayers: Player[] = []
+          
+          for (const [countryName, countryData] of Object.entries(importedData)) {
+            if (!countryData || typeof countryData !== 'object' || !('players' in countryData)) {
+              throw new Error(`Invalid format: Country '${countryName}' must have a 'players' array`)
+            }
+            
+            const players = (countryData as any).players
+            if (!Array.isArray(players)) {
+              throw new Error(`Invalid format: Country '${countryName}' players must be an array`)
+            }
+            
+            for (const player of players) {
+              // Add nationality to each player
+              const playerWithNationality = { ...player, nationality: countryName }
+              
+              // Validate required fields
+              for (const field of requiredFields) {
+                if (!(field in playerWithNationality)) {
+                  throw new Error(`Invalid player format: Missing required field '${field}' in player from ${countryName}`)
+                }
+              }
+              
+              allPlayers.push(playerWithNationality)
+            }
+          }
+          
+          // Update the store with imported players
+          const { generateSquads } = get()
+          
+          set({
+            allPlayers,
+            playersByNation: groupPlayersByNation(allPlayers),
+            playersByPosition: groupPlayersByPosition(allPlayers),
+            squads: {}
+          })
+          
+          // Regenerate squads with new players
+          generateSquads()
+          
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      }
+      
+      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.readAsText(file)
+    })
   }
 }))
+
+// Helper function to group players by nation
+const groupPlayersByNation = (players: Player[]): { [nation: string]: Player[] } => {
+  return players.reduce((acc, player) => {
+    const nation = player.nationality
+    if (!acc[nation]) {
+      acc[nation] = []
+    }
+    acc[nation].push(player)
+    return acc
+  }, {} as { [nation: string]: Player[] })
+}
+
+// Helper function to group players by position
+const groupPlayersByPosition = (players: Player[]): { [position: string]: Player[] } => {
+  return players.reduce((acc, player) => {
+    const position = player.position
+    if (!acc[position]) {
+      acc[position] = []
+    }
+    acc[position].push(player)
+    return acc
+  }, {} as { [position: string]: Player[] })
+}
