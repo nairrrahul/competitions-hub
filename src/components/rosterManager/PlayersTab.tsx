@@ -19,11 +19,12 @@ const PlayersTab: React.FC = () => {
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false)
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
   const [showToast, setShowToast] = useState('')
+  const [ageYears, setAgeYears] = useState(1)
 
   // Get players data from global state
   const allPlayers = useGlobalStore(state => state.allPlayers)
   const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode)
-  const { exportAllPlayers, importAllPlayers, revertToOriginalData } = useGlobalStore()
+  const { exportAllPlayers, importAllPlayers, revertToOriginalData, ageAllPlayers } = useGlobalStore()
 
   // Get all nationalities from global state
   const nationalities = useMemo(() => {
@@ -113,6 +114,14 @@ const PlayersTab: React.FC = () => {
     }
   }, [revertToOriginalData])
 
+  const handleAgePlayers = useCallback(() => {
+    if (window.confirm(`Are you sure you want to age all players by ${ageYears} year(s)? This will modify player ages and overall ratings, and regenerate all squads.`)) {
+      ageAllPlayers(ageYears)
+      setShowToast(`All players aged by ${ageYears} year(s)`)
+      setTimeout(() => setShowToast(''), 3000)
+    }
+  }, [ageYears, ageAllPlayers])
+
   // Virtual scrolling setup
   const parentRef = useRef<HTMLDivElement>(null)
   
@@ -127,31 +136,52 @@ const PlayersTab: React.FC = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold text-gray-200">Player Viewer</h2>
-        <div className="flex gap-2">
-          <button 
-            onClick={handleImportPlayers}
-            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
-          >
-            Import All Players
-          </button>
-          <button 
-            onClick={handleExportPlayers}
-            className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm"
-          >
-            Export All Players
-          </button>
-          <button 
-            onClick={handleRevertToOriginal}
-            className="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors text-sm"
-          >
-            Revert to Original
-          </button>
-          <button 
-            onClick={handleAddPlayer}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-          >
-            Add Player
-          </button>
+        <div className="flex flex-col gap-2 items-end">
+          <div className="flex gap-2">
+            <button 
+              onClick={handleImportPlayers}
+              className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+            >
+              Import All Players
+            </button>
+            <button 
+              onClick={handleExportPlayers}
+              className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm"
+            >
+              Export All Players
+            </button>
+            <button 
+              onClick={handleRevertToOriginal}
+              className="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors text-sm"
+            >
+              Revert to Original
+            </button>
+            <button 
+              onClick={handleAddPlayer}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+            >
+              Add Player
+            </button>
+          </div>
+          <div className="bg-gray-700 rounded-lg p-3 border border-gray-600">
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-300">Years:</label>
+              <input
+                type="number"
+                min="1"
+                max="10"
+                value={ageYears}
+                onChange={(e) => setAgeYears(Math.max(1, Math.min(10, parseInt(e.target.value) || 1)))}
+                className="w-16 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-center focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
+              <button 
+                onClick={handleAgePlayers}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+              >
+                Age Players
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       

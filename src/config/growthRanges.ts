@@ -1,5 +1,5 @@
-export const ATK_PEAK_START = 24
-export const ATK_PEAK_END = 31
+export const ATK_PEAK_START = 25
+export const ATK_PEAK_END = 32
 
 export const MID_PEAK_START = 25
 export const MID_PEAK_END = 32

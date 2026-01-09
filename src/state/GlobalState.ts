@@ -3,6 +3,7 @@ import type { Player, PlayersData, NationInfo, Squad } from '../types/rosterMana
 import playersData from '../config/players.json'
 import nationInfo from '../config/nation_info.json'
 import { generateAllSquads, generateSquad, getPlayerAtPosition, getAllSquadPlayers, findPlayerInSquad, replacePlayerInSquad, getPositionConstraints, getSubstitutePositionConstraints } from '../utils/squadGenerator'
+import { ageAllPlayers as agePlayersUtil } from '../utils/playerAging'
 
 interface PlayersState {
   // Raw data
@@ -52,6 +53,7 @@ interface PlayersState {
   refreshAllSquads: () => void
   exportAllPlayers: () => void
   importAllPlayers: (file: File) => void
+  ageAllPlayers: (years: number) => void
 }
 
 export const useGlobalStore = create<PlayersState>((set, get) => ({
@@ -117,8 +119,8 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     set({
       playersData: data,
       originalAllPlayers: [...allPlayers],
-      originalPlayersByNation: { ...playersByNation },
-      originalPlayersByPosition: { ...playersByPosition },
+      originalPlayersByNation: JSON.parse(JSON.stringify(playersByNation)),
+      originalPlayersByPosition: JSON.parse(JSON.stringify(playersByPosition)),
       allPlayers,
       playersByNation,
       playersByPosition,
@@ -136,8 +138,15 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   generateSquads: () => {
     const { playersByNation } = get()
     const squads = generateAllSquads(playersByNation)
+    
+    // Create deep copy for originalSquads
+    const originalSquadsDeepCopy: { [nation: string]: Squad } = {}
+    Object.entries(squads).forEach(([nation, squad]) => {
+      originalSquadsDeepCopy[nation] = JSON.parse(JSON.stringify(squad))
+    })
+    
     set({ 
-      originalSquads: { ...squads },
+      originalSquads: originalSquadsDeepCopy,
       squads 
     })
   },
@@ -159,13 +168,15 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   
   // Revert to original data
   revertToOriginalData: () => {
-    const { originalAllPlayers, originalPlayersByNation, originalPlayersByPosition, originalSquads } = get()
+    const { originalAllPlayers, originalPlayersByNation, originalPlayersByPosition, refreshAllSquads } = get()
     set({
       allPlayers: [...originalAllPlayers],
-      playersByNation: { ...originalPlayersByNation },
-      playersByPosition: { ...originalPlayersByPosition },
-      squads: { ...originalSquads }
+      playersByNation: JSON.parse(JSON.stringify(originalPlayersByNation)),
+      playersByPosition: JSON.parse(JSON.stringify(originalPlayersByPosition)),
+      squads: {}
     })
+    // Regenerate squads with restored player data
+    refreshAllSquads()
   },
   
   // Update a player
@@ -181,7 +192,7 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     updatedAllPlayers[playerIndex] = updatedPlayer
     
     // Handle squad replacements if nationality changed
-    let updatedSquads = { ...squads }
+    let updatedSquads = JSON.parse(JSON.stringify(squads))
     if (originalPlayer.nationality !== updatedPlayer.nationality) {
       const oldNationSquad = squads[originalPlayer.nationality]
       if (oldNationSquad) {
@@ -243,46 +254,46 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     }
     
     // Update playersByNation
-    const updatedPlayersByNation = { ...playersByNation }
+    const updatedPlayersByNation = JSON.parse(JSON.stringify(playersByNation))
     
     // If nationality changed, remove from old nation
     if (originalPlayer.nationality !== updatedPlayer.nationality) {
-      const oldNationPlayers = updatedPlayersByNation[originalPlayer.nationality]?.filter(p => 
+      const oldNationPlayers = updatedPlayersByNation[originalPlayer.nationality]?.filter((p: Player) => 
         p.playerid !== playerId
       ) || []
       updatedPlayersByNation[originalPlayer.nationality] = oldNationPlayers
     }
     
     // Add/update in new nation
-    const nationPlayers = updatedPlayersByNation[updatedPlayer.nationality]?.map(p => 
+    const nationPlayers = updatedPlayersByNation[updatedPlayer.nationality]?.map((p: Player) => 
       p.playerid === playerId ? updatedPlayer : p
     ) || []
     
     // If player wasn't in the new nation list, add them
-    if (!nationPlayers.some(p => p.playerid === playerId)) {
+    if (!nationPlayers.some((p: Player) => p.playerid === playerId)) {
       nationPlayers.push(updatedPlayer)
     }
     
     updatedPlayersByNation[updatedPlayer.nationality] = nationPlayers
     
     // Update playersByPosition
-    const updatedPlayersByPosition = { ...playersByPosition }
+    const updatedPlayersByPosition = JSON.parse(JSON.stringify(playersByPosition))
     
     // If position changed, remove from old position
     if (originalPlayer.position !== updatedPlayer.position) {
-      const oldPositionPlayers = updatedPlayersByPosition[originalPlayer.position]?.filter(p => 
+      const oldPositionPlayers = updatedPlayersByPosition[originalPlayer.position]?.filter((p: Player) => 
         p.playerid !== playerId
       ) || []
       updatedPlayersByPosition[originalPlayer.position] = oldPositionPlayers
     }
     
     // Add/update in new position
-    const positionPlayers = updatedPlayersByPosition[updatedPlayer.position]?.map(p => 
+    const positionPlayers = updatedPlayersByPosition[updatedPlayer.position]?.map((p: Player) => 
       p.playerid === playerId ? updatedPlayer : p
     ) || []
     
     // If player wasn't in the new position list, add them
-    if (!positionPlayers.some(p => p.playerid === playerId)) {
+    if (!positionPlayers.some((p: Player) => p.playerid === playerId)) {
       positionPlayers.push(updatedPlayer)
     }
     
@@ -313,14 +324,14 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     const updatedAllPlayers = [...allPlayers, newPlayer]
     
     // Update playersByNation
-    const updatedPlayersByNation = { ...playersByNation }
+    const updatedPlayersByNation = JSON.parse(JSON.stringify(playersByNation))
     if (!updatedPlayersByNation[newPlayer.nationality]) {
       updatedPlayersByNation[newPlayer.nationality] = []
     }
     updatedPlayersByNation[newPlayer.nationality].push(newPlayer)
     
     // Update playersByPosition
-    const updatedPlayersByPosition = { ...playersByPosition }
+    const updatedPlayersByPosition = JSON.parse(JSON.stringify(playersByPosition))
     if (!updatedPlayersByPosition[newPlayer.position]) {
       updatedPlayersByPosition[newPlayer.position] = []
     }
@@ -337,8 +348,10 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   // Update a squad
   updateSquad: (nation: string, squad: Squad) => {
     const { squads } = get()
+    const updatedSquads = JSON.parse(JSON.stringify(squads))
+    updatedSquads[nation] = squad
     set({
-      squads: { ...squads, [nation]: squad }
+      squads: updatedSquads
     })
   },
   
@@ -640,6 +653,25 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
       reader.onerror = () => reject(new Error('Failed to read file'))
       reader.readAsText(file)
     })
+  },
+
+  // Age all players by specified years
+  ageAllPlayers: (years: number) => {
+    const { allPlayers, generateSquads } = get()
+    
+    // Age all players
+    const agedPlayers = agePlayersUtil(allPlayers, years)
+    
+    // Update the store with aged players
+    set({
+      allPlayers: agedPlayers,
+      playersByNation: groupPlayersByNation(agedPlayers),
+      playersByPosition: groupPlayersByPosition(agedPlayers),
+      squads: {}
+    })
+    
+    // Regenerate squads with aged players
+    generateSquads()
   }
 }))
 
