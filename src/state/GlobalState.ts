@@ -173,7 +173,8 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
       allPlayers: [...originalAllPlayers],
       playersByNation: JSON.parse(JSON.stringify(originalPlayersByNation)),
       playersByPosition: JSON.parse(JSON.stringify(originalPlayersByPosition)),
-      squads: {}
+      squads: {},
+      numPlayersAdded: 0
     })
     // Regenerate squads with restored player data
     refreshAllSquads()
@@ -634,11 +635,15 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
           // Update the store with imported players
           const { generateSquads } = get()
           
+          // Find the highest player ID from imported players
+          const highestId = Math.max(...allPlayers.map(p => p.playerid))
+          
           set({
             allPlayers,
             playersByNation: groupPlayersByNation(allPlayers),
             playersByPosition: groupPlayersByPosition(allPlayers),
-            squads: {}
+            squads: {},
+            highestPlayerID: highestId
           })
           
           // Regenerate squads with new players

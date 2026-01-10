@@ -3,6 +3,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { filterPlayers, getPositionOptions, getAllPositions } from '../../utils/rosterManager'
 import { useGlobalStore } from '../../state/GlobalState'
 import PlayerViewModal from './PlayerViewModal'
+import BatchAddPlayersModal from './BatchAddPlayersModal'
 import PlayerRow from './PlayerRow'
 import type { Player } from '../../types/rosterManager'
 
@@ -18,6 +19,7 @@ const PlayersTab: React.FC = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false)
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
+  const [isBatchAddModalOpen, setIsBatchAddModalOpen] = useState(false)
   const [showToast, setShowToast] = useState('')
   const [ageYears, setAgeYears] = useState(1)
 
@@ -81,6 +83,14 @@ const PlayersTab: React.FC = () => {
   const handleAddPlayerModalClose = useCallback(() => {
     setIsAddPlayerModalOpen(false)
     setSelectedPlayer(null)
+  }, [])
+
+  const handleBatchAddPlayers = useCallback(() => {
+    setIsBatchAddModalOpen(true)
+  }, [])
+
+  const handleBatchAddModalClose = useCallback(() => {
+    setIsBatchAddModalOpen(false)
   }, [])
 
   const handleImportPlayers = useCallback(() => {
@@ -156,12 +166,6 @@ const PlayersTab: React.FC = () => {
             >
               Revert to Original
             </button>
-            <button 
-              onClick={handleAddPlayer}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-            >
-              Add Player
-            </button>
           </div>
           <div className="bg-gray-700 rounded-lg p-3 border border-gray-600">
             <div className="flex items-center gap-3">
@@ -181,6 +185,20 @@ const PlayersTab: React.FC = () => {
                 Age Players
               </button>
             </div>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={handleAddPlayer}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+            >
+              Add Player
+            </button>
+            <button 
+              onClick={handleBatchAddPlayers}
+              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors"
+            >
+              Batch Add Players
+            </button>
           </div>
         </div>
       </div>
@@ -414,6 +432,12 @@ const PlayersTab: React.FC = () => {
           prefillNationality={selectedNationality === 'All' ? '' : selectedNationality}
         />
       )}
+
+      {/* Batch Add Players Modal */}
+      <BatchAddPlayersModal
+        isOpen={isBatchAddModalOpen}
+        onClose={handleBatchAddModalClose}
+      />
 
       {/* Toast Notification */}
       {showToast && (

@@ -71,8 +71,8 @@ export const calculateOverallChange = (player: Player): number => {
     newOverall = overall - (0.5 * RANDINT(1, 2) * (age - peakEnd))
   }
   
-  // Ensure overall doesn't go below 1 or above potential
-  newOverall = Math.max(1, Math.min(potential, newOverall))
+  // Ensure overall doesn't go below 20 or above potential
+  newOverall = Math.max(20, Math.min(potential, newOverall))
   
   return Math.round(newOverall) // Round to nearest integer
 }
