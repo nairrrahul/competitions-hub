@@ -1,0 +1,253 @@
+{
+    "World Cup": {
+        "hasP3": true,
+    	"rounds": [
+            {
+                "type": "GROUP",
+                "roundName": "Group Stage",
+                "numIn": 48,
+                "numThrough": 32
+            },
+            {
+                "type": "KO",
+                "roundName": "Round of 32",
+                "numIn": 32,
+                "numThrough": 16
+            },
+            {
+                "type": "KO",
+                "roundName": "Round of 16",
+                "numIn": 16,
+                "numThrough": 8
+            },
+            {
+                "type": "KO",
+                "roundName": "Quarter-finals",
+                "numIn": 8,
+                "numThrough": 4
+            },
+            {
+                "type": "KO",
+                "roundName": "Semi-finals",
+                "numIn": 4,
+                "numThrough": 2
+            },
+            {
+                "type": "P3",
+                "roundName": "Third Place",
+                "numIn": 2,
+                "numThrough": 1
+            },
+            {
+                "type": "KO",
+                "roundName": "Final",
+                "numIn": 2,
+                "numThrough": 1
+            }
+        ]
+    },
+    "EUROs": {
+        "hasP3": false,
+    	"rounds": [
+            {
+                "type": "GROUP",
+                "roundName": "Group Stage",
+                "numIn": 24,
+                "numThrough": 16
+            },
+            {
+                "type": "KO",
+                "roundName": "Round of 16",
+                "numIn": 16,
+                "numThrough": 8
+            },
+            {
+                "type": "KO",
+                "roundName": "Quarter-finals",
+                "numIn": 8,
+                "numThrough": 4
+            },
+            {
+                "type": "KO",
+                "roundName": "Semi-finals",
+                "numIn": 4,
+                "numThrough": 2
+            },
+            {
+                "type": "KO",
+                "roundName": "Final",
+                "numIn": 2,
+                "numThrough": 1
+            }
+        ]
+    },
+    "AFCON": {
+        "hasP3": true,
+    	"rounds": [
+            {
+                "type": "GROUP",
+                "roundName": "Group Stage",
+                "numIn": 24,
+                "numThrough": 16
+            },
+            {
+                "type": "KO",
+                "roundName": "Round of 16",
+                "numIn": 16,
+                "numThrough": 8
+            },
+            {
+                "type": "KO",
+                "roundName": "Quarter-finals",
+                "numIn": 8,
+                "numThrough": 4
+            },
+            {
+                "type": "KO",
+                "roundName": "Semi-finals",
+                "numIn": 4,
+                "numThrough": 2
+            },
+            {
+                "type": "P3",
+                "roundName": "Third Place",
+                "numIn": 2,
+                "numThrough": 1
+            },
+            {
+                "type": "KO",
+                "roundName": "Final",
+                "numIn": 2,
+                "numThrough": 1
+            }
+        ]
+    },
+    "Copa America": {
+        "hasP3": true,
+    	"rounds": [
+            {
+                "type": "GROUP",
+                "roundName": "Group Stage",
+                "numIn": 16,
+                "numThrough": 8
+            },
+            {
+                "type": "KO",
+                "roundName": "Quarter-finals",
+                "numIn": 8,
+                "numThrough": 4
+            },
+            {
+                "type": "KO",
+                "roundName": "Semi-finals",
+                "numIn": 4,
+                "numThrough": 2
+            },
+            {
+                "type": "P3",
+                "roundName": "Third Place",
+                "numIn": 2,
+                "numThrough": 1
+            },
+            {
+                "type": "KO",
+                "roundName": "Final",
+                "numIn": 2,
+                "numThrough": 1
+            }
+        ]
+    },
+    "Gold Cup": {
+        "hasP3": false,
+    	"rounds": [
+            {
+                "type": "GROUP",
+                "roundName": "Group Stage",
+                "numIn": 16,
+                "numThrough": 8
+            },
+            {
+                "type": "KO",
+                "roundName": "Quarter-finals",
+                "numIn": 8,
+                "numThrough": 4
+            },
+            {
+                "type": "KO",
+                "roundName": "Semi-finals",
+                "numIn": 4,
+                "numThrough": 2
+            },
+            {
+                "type": "KO",
+                "roundName": "Final",
+                "numIn": 2,
+                "numThrough": 1
+            }
+        ]
+    },
+    "OFC Nations Cup": {
+        "hasP3": true,
+    	"rounds": [
+            {
+                "type": "GROUP",
+                "roundName": "Group Stage",
+                "numIn": 8,
+                "numThrough": 4
+            },
+            {
+                "type": "KO",
+                "roundName": "Semi-finals",
+                "numIn": 4,
+                "numThrough": 2
+            },
+            {
+                "type": "P3",
+                "roundName": "Third Place",
+                "numIn": 2,
+                "numThrough": 1
+            },
+            {
+                "type": "KO",
+                "roundName": "Final",
+                "numIn": 2,
+                "numThrough": 1
+            }
+        ]
+    },
+    "AFC Asian Cup": {
+        "hasP3": false,
+    	"rounds": [
+            {
+                "type": "GROUP",
+                "roundName": "Group Stage",
+                "numIn": 24,
+                "numThrough": 16
+            },
+            {
+                "type": "KO",
+                "roundName": "Round of 16",
+                "numIn": 16,
+                "numThrough": 8
+            },
+            {
+                "type": "KO",
+                "roundName": "Quarter-finals",
+                "numIn": 8,
+                "numThrough": 4
+            },
+            {
+                "type": "KO",
+                "roundName": "Semi-finals",
+                "numIn": 4,
+                "numThrough": 2
+            },
+            {
+                "type": "KO",
+                "roundName": "Final",
+                "numIn": 2,
+                "numThrough": 1
+            }
+        ]
+    }
+}

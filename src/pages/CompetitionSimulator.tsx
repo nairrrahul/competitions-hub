@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import MatchSchedulerTab from '../components/competitionSimulator/MatchSchedulerTab';
 import SimulatorTab from '../components/competitionSimulator/SimulatorTab';
+import LoadedSquads from '../components/competitionSimulator/LoadedSquads';
 import type { CompetitionSchedule } from '../utils/SchedulerUtils';
+import { useGlobalStore } from '../state/GlobalState';
 
 interface ImportedCompetition {
   compName: string;
@@ -13,7 +15,7 @@ interface ImportedCompetition {
 }
 
 const CompetitionSimulator: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'match-scheduler' | 'simulator'>('match-scheduler');
+  const [activeTab, setActiveTab] = useState<'match-scheduler' | 'simulator' | 'loaded-squads'>('match-scheduler');
   const [canAccessSimulator, setCanAccessSimulator] = useState(false);
   
   // Competition state moved here for persistence
@@ -25,11 +27,37 @@ const CompetitionSimulator: React.FC = () => {
   const [currentMatchday, setCurrentMatchday] = useState(1);
   const [totalMatchdays, setTotalMatchdays] = useState(0);
 
+  const { getSquad } = useGlobalStore();
+
   const handleTabNavigation = () => {
     if (canAccessSimulator) {
       setActiveTab('simulator');
     }
   };
+
+  const canAccessLoadedSquads = importedCompetition !== null;
+
+  // Load squad information for Loaded Squads tab
+  const getCompetitionSquads = () => {
+    if (!importedCompetition) return {};
+    
+    const squads: { [nation: string]: any } = {};
+    
+    // Get all nations from all groups
+    const allNations = Object.values(importedCompetition.groups).flat();
+    
+    // Load squad for each nation
+    allNations.forEach(nation => {
+      const squad = getSquad(nation);
+      if (squad) {
+        squads[nation] = squad;
+      }
+    });
+    
+    return squads;
+  };
+
+  const competitionSquads = getCompetitionSquads();
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -75,6 +103,19 @@ const CompetitionSimulator: React.FC = () => {
               >
                 Simulator
               </button>
+              <button
+                onClick={() => setActiveTab('loaded-squads')}
+                className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
+                  canAccessLoadedSquads
+                    ? activeTab === 'loaded-squads'
+                      ? 'bg-gray-900 text-green-400 border-b-2 border-green-400'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                    : 'text-gray-400 cursor-not-allowed'
+                }`}
+                disabled={!canAccessLoadedSquads}
+              >
+                Loaded Squads
+              </button>
             </nav>
           </div>
         </div>
@@ -105,7 +146,25 @@ const CompetitionSimulator: React.FC = () => {
 
         {/* Simulator Tab */}
         {activeTab === 'simulator' && (
-          <SimulatorTab hasData={canAccessSimulator} />
+          <SimulatorTab 
+            hasData={canAccessSimulator}
+            importedCompetition={importedCompetition}
+            matchSchedule={matchSchedule}
+          />
+        )}
+
+        {/* Loaded Squads Tab */}
+        {activeTab === 'loaded-squads' && (
+          <div className="p-8">
+            <div className="w-full">
+              <h2 className="text-2xl font-bold text-green-400 mb-6">Loaded Squads</h2>
+              <LoadedSquads 
+                squads={competitionSquads} 
+                competitionType={importedCompetition?.compType}
+                groups={importedCompetition?.groups}
+              />
+            </div>
+          </div>
         )}
       </main>
     </div>
