@@ -13,6 +13,7 @@ interface PlayerStatsSectionProps {
 }
 
 const PlayerStatsSection: React.FC<PlayerStatsSectionProps> = ({ importedCompetition }) => {
+  console.log(importedCompetition);
   return (
     <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 h-full flex flex-col">
       <h2 className="text-xl font-bold text-green-400 mb-4">PLAYER STATS</h2>

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { Player, PlayersData, NationInfo, Squad } from '../types/rosterManager'
 import playersData from '../config/players.json'
 import nationInfo from '../config/nation_info.json'
+import roundInfoPresets from '../config/round_info_presets.json'
 import { generateAllSquads, generateSquad, getPlayerAtPosition, getAllSquadPlayers, findPlayerInSquad, replacePlayerInSquad, getPositionConstraints, getSubstitutePositionConstraints } from '../utils/squadGenerator'
 import { ageAllPlayers as agePlayersUtil } from '../utils/playerAging'
 
@@ -9,6 +10,7 @@ interface PlayersState {
   // Raw data
   playersData: PlayersData
   nationInfo: NationInfo
+  roundInfoPresets: { [key: string]: any }
   
   // Original data (read-only)
   originalAllPlayers: Player[]
@@ -32,6 +34,7 @@ interface PlayersState {
   // Actions
   loadPlayersData: () => void
   loadNationInfo: () => void
+  loadRoundInfoPresets: () => void
   generateSquads: () => void
   initializeData: () => void
   revertToOriginalData: () => void
@@ -54,12 +57,14 @@ interface PlayersState {
   exportAllPlayers: () => void
   importAllPlayers: (file: File) => void
   ageAllPlayers: (years: number) => void
+  getRoundInfo: (competitionName: string) => any
 }
 
 export const useGlobalStore = create<PlayersState>((set, get) => ({
   // Initialize with empty data
   playersData: {},
   nationInfo: {},
+  roundInfoPresets: {},
   
   // Original data (read-only)
   originalAllPlayers: [],
@@ -134,6 +139,18 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     set({ nationInfo: data })
   },
   
+  // Load round info presets from JSON
+  loadRoundInfoPresets: () => {
+    const data = roundInfoPresets as { [key: string]: any }
+    set({ roundInfoPresets: data })
+  },
+  
+  // Get round info for a competition
+  getRoundInfo: (competitionName: string) => {
+    const { roundInfoPresets } = get()
+    return roundInfoPresets[competitionName] || null
+  },
+  
   // Generate squads for all nations
   generateSquads: () => {
     const { playersByNation } = get()
@@ -157,6 +174,7 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     if (!isInitialized) {
       get().loadPlayersData()
       get().loadNationInfo()
+      get().loadRoundInfoPresets()
       get().generateSquads()
       set({ 
         isInitialized: true,
