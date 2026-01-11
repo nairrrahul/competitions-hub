@@ -77,7 +77,7 @@ const StagesSection: React.FC<StagesSectionProps> = ({ importedCompetition, matc
     }
 
     if (stageType === 'GROUP') {
-      return <GroupStageComponent transformedGroups={transformedGroups} />;
+      return <GroupStageComponent transformedGroups={transformedGroups} importedCompetition={importedCompetition} />;
     } else if (stageType === 'KO' || stageType === 'P3') {
       return <KnockoutStageComponent />;
     } else {

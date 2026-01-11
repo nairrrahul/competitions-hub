@@ -15,7 +15,7 @@ interface SquadPlayerDisplayProps {
 }
 
 const SquadPlayerDisplay: React.FC<SquadPlayerDisplayProps> = ({ player, isStarter }) => {
-  const playerName = `${player.firstName} ${player.lastName}`;
+  const playerName = player.commonName || `${player.firstName} ${player.lastName}`;
   return (
     <div className={`flex items-center justify-between p-1 rounded ${isStarter ? 'bg-gray-700/50' : 'bg-gray-600/30'}`}>
       <div className="flex items-center gap-2">
