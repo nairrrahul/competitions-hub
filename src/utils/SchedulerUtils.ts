@@ -1,7 +1,10 @@
+import type { MatchResult } from "./MatchEngine";
+
 // Types for match scheduling
 export interface Match {
   homeTeam: string;
   awayTeam: string;
+  result: MatchResult | null;
 }
 
 export interface GroupMatchSchedule {
@@ -41,7 +44,8 @@ export function leagueScheduler(teams: string[], homeAway: boolean, offset: numb
       if (team1 !== "X" && team2 !== "X") {
         matchups.push({
           homeTeam: team1,
-          awayTeam: team2
+          awayTeam: team2,
+          result: null
         });
       }
     }
@@ -66,7 +70,8 @@ export function leagueScheduler(teams: string[], homeAway: boolean, offset: numb
       const firstMatch = matchday[0];
       matchday[0] = {
         homeTeam: firstMatch.awayTeam,
-        awayTeam: firstMatch.homeTeam
+        awayTeam: firstMatch.homeTeam,
+        result: null
       };
     }
   });
@@ -76,9 +81,10 @@ export function leagueScheduler(teams: string[], homeAway: boolean, offset: numb
   if (homeAway) {
     // Add reversed fixtures for home-away format
     shiftedMatchdays.forEach(matchday => {
-      const reversedMatches = matchday.map(({ homeTeam, awayTeam }) => ({
+      const reversedMatches = matchday.map(({ homeTeam, awayTeam, result }) => ({
         homeTeam: awayTeam,
-        awayTeam: homeTeam
+        awayTeam: homeTeam,
+        result
       }));
       allMatchdays.push(reversedMatches);
     });

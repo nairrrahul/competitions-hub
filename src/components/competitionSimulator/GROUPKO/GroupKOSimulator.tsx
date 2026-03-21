@@ -2,7 +2,7 @@ import React from 'react';
 import StagesSection from './StagesSection';
 import MatchesSection from './MatchesSection';
 import PlayerStatsSection from './PlayerStatsSection';
-import type { CompetitionSchedule } from '../../../utils/SchedulerUtils';
+import type { CompetitionSchedule, Match } from '../../../utils/SchedulerUtils';
 import type { Squad } from '../../../types/rosterManager';
 
 interface ImportedCompetition {
@@ -26,33 +26,56 @@ interface TransformedGroups {
   [groupName: string]: GroupTeamStats[];
 }
 
+interface MatchInformation {
+  stage: 'GROUP' | 'KO' | 'P3';
+  group: string | null;
+  match: Match;
+}
+
+export interface RearrangedSchedule {
+  [matchday: number]: MatchInformation[];
+}
+
 interface GroupKOSimulatorProps {
   importedCompetition: ImportedCompetition;
   matchSchedule: CompetitionSchedule | null;
   competitionSquads: { [nation: string]: Squad };
+  transformedSquads: TransformedGroups
 }
 
-const GroupKOSimulator: React.FC<GroupKOSimulatorProps> = ({ importedCompetition, matchSchedule, competitionSquads }) => {
-  console.log(competitionSquads);
-  const transformGroupsData = (): TransformedGroups => {
-    const transformed: TransformedGroups = {};
-    
-    Object.entries(importedCompetition.groups).forEach(([groupName, countries]) => {
-      transformed[groupName] = countries.map(country => ({
-        countryName: country,
-        wins: 0,
-        draws: 0,
-        losses: 0,
-        goalsFor: 0,
-        goalsAgainst: 0
-      }));
-    });
-    
-    return transformed;
-  };
+const GroupKOSimulator: React.FC<GroupKOSimulatorProps> = ({ importedCompetition, matchSchedule, competitionSquads, transformedSquads }) => {
 
-  const transformedGroups = transformGroupsData();
+  console.log(matchSchedule);
 
+  function convertToMatchdayList(input: CompetitionSchedule): RearrangedSchedule {
+    const result: RearrangedSchedule = {};
+
+    for (const [outerKey, innerObj] of Object.entries(input)) {
+      for (const [numKeyStr, arr] of Object.entries(innerObj)) {
+        const numKey = Number(numKeyStr);
+
+        if (!result[numKey]) {
+          result[numKey] = [];
+        }
+
+        for (const item of arr) {
+          result[numKey].push({
+            stage: "GROUP",
+            group: outerKey,
+            match: item,
+          });
+        }
+      }
+    }
+
+    return result;
+  }
+
+  let orderedMatchdays: RearrangedSchedule = {};
+  if (matchSchedule) {
+    orderedMatchdays = convertToMatchdayList(matchSchedule);
+  }
+  
   return (
     <div className="flex h-full p-6 gap-4">
       {/* Left Panel - Stages (full height) */}
@@ -60,14 +83,14 @@ const GroupKOSimulator: React.FC<GroupKOSimulatorProps> = ({ importedCompetition
         <StagesSection 
           importedCompetition={importedCompetition} 
           matchSchedule={matchSchedule}
-          transformedGroups={transformedGroups}
+          transformedGroups={transformedSquads}
         />
       </div>
       
       {/* Right Panel - Matches and Player Stats (stacked) */}
       <div className="w-5/8 h-full flex flex-col gap-4">
         <div className="h-1/2">
-          <MatchesSection importedCompetition={importedCompetition} matchSchedule={matchSchedule} />
+          <MatchesSection importedCompetition={importedCompetition} matchSchedule={orderedMatchdays} />
         </div>
         <div className="h-1/2">
           <PlayerStatsSection importedCompetition={importedCompetition} />

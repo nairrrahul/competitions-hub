@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import type { CompetitionSchedule, Match } from '../../../utils/SchedulerUtils';
+import type { Match } from '../../../utils/SchedulerUtils';
 import { useGlobalStore } from '../../../state/GlobalState';
+import type { RearrangedSchedule } from './GroupKOSimulator';
 
 interface ImportedCompetition {
   compName: string;
@@ -12,38 +13,33 @@ interface ImportedCompetition {
 
 interface MatchesSectionProps {
   importedCompetition: ImportedCompetition;
-  matchSchedule: CompetitionSchedule | null;
+  matchSchedule: RearrangedSchedule | null;
 }
 
 const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, matchSchedule }) => {
-  const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
+  //const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
   const [currentMatchday, setCurrentMatchday] = useState(1);
 
   const getAllMatchdays = () => {
     if (!matchSchedule) return [];
     
-    const allMatchdays = new Set<number>();
-    Object.values(matchSchedule).forEach(groupSchedule => {
-      Object.keys(groupSchedule).forEach(matchday => {
-        allMatchdays.add(parseInt(matchday));
-      });
-    });
-    
-    return Array.from(allMatchdays).sort((a, b) => a - b);
+    return Object.keys(matchSchedule)
+      .map(matchday => parseInt(matchday))
+      .sort((a, b) => a - b);
+  };
+
+  const renderScoreline = (match: Match) => {
+    // Placeholder scoreline - in a real implementation, this would come from the match result
+    return `${match.result?.team1Goals} - ${match.result?.team2Goals}`;
   };
 
   const getCurrentMatchdayMatches = () => {
     if (!matchSchedule) return [];
     
-    const matches: Match[] = [];
-    Object.values(matchSchedule).forEach(groupSchedule => {
-      const matchdayMatches = groupSchedule[currentMatchday];
-      if (matchdayMatches) {
-        matches.push(...matchdayMatches);
-      }
-    });
+    const matchdaySchedules = matchSchedule[currentMatchday];
+    if (!matchdaySchedules) return [];
     
-    return matches;
+    return matchdaySchedules.map(item => item.match);
   };
 
   const goToMatchday = (matchday: number) => {
@@ -98,20 +94,21 @@ const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, ma
       );
     }
 
-    const roundInfo = getRoundInfo(importedCompetition.compName);
-    const isGroupStage = roundInfo?.rounds?.some((round: any) => round.type === 'GROUP') && 
-                        Object.keys(matchSchedule).some(groupName => importedCompetition.groups[groupName]);
-
     const currentMatches = getCurrentMatchdayMatches();
     
+    // Determine stage based on the first match of the current matchday
+    const isGroupStage = currentMatches.length > 0 && matchSchedule[currentMatchday]?.[0]?.stage === 'GROUP';
+
     if (isGroupStage) {
       // Group stage: separate matches by group
       const matchesByGroup: { [groupName: string]: Match[] } = {};
       
-      Object.entries(matchSchedule).forEach(([groupName, groupSchedule]) => {
-        const matchdayMatches = groupSchedule[currentMatchday];
-        if (matchdayMatches) {
-          matchesByGroup[groupName] = matchdayMatches;
+      matchSchedule[currentMatchday]?.forEach(item => {
+        if (item.stage === 'GROUP') {
+          if (!matchesByGroup[item.group!]) {
+            matchesByGroup[item.group!] = [];
+          }
+          matchesByGroup[item.group!].push(item.match);
         }
       });
 
@@ -134,7 +131,7 @@ const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, ma
                           </div>
                         </div>
                         <div className="absolute left-1/2 transform -translate-x-1/2">
-                          <span className="text-gray-400 text-sm">vs</span>
+                          <span className="text-gray-400 text-sm">{match.result ? renderScoreline(match) : 'vs'}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-white font-medium">{match.awayTeam}</span>

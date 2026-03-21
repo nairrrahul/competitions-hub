@@ -18,6 +18,19 @@ interface SimulatorTabProps {
   matchSchedule: CompetitionSchedule | null;
 }
 
+interface GroupTeamStats {
+  countryName: string;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+}
+
+interface TransformedGroups {
+  [groupName: string]: GroupTeamStats[];
+}
+
 const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetition, matchSchedule }) => {
   const { getSquad } = useGlobalStore();
 
@@ -41,7 +54,27 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     return squads;
   };
 
+  const transformGroupsData = (): TransformedGroups => {
+    if (!importedCompetition) return {};
+    const transformed: TransformedGroups = {};
+    
+    Object.entries(importedCompetition.groups).forEach(([groupName, countries]) => {
+      transformed[groupName] = countries.map(country => ({
+        countryName: country,
+        wins: 0,
+        draws: 0,
+        losses: 0,
+        goalsFor: 0,
+        goalsAgainst: 0
+      }));
+    });
+    
+    return transformed;
+  };
+
   const competitionSquads = getCompetitionSquads();
+  const transformedGroups = transformGroupsData();
+
   const renderSimulatorContent = () => {
     if (!hasData || !importedCompetition) {
       return (
@@ -62,6 +95,7 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
             importedCompetition={importedCompetition} 
             matchSchedule={matchSchedule}
             competitionSquads={competitionSquads}
+            transformedSquads={transformedGroups}
           />
         );
       default:
@@ -78,7 +112,21 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
 
   return (
     <div className="h-[calc(100vh-4rem)]">
-      {renderSimulatorContent()}
+      {/* Header Row with Simulate Button */}
+      <div className="bg-gray-800 border-b border-gray-700 px-6 py-3 flex items-center justify-between mt-2">
+        <h1 className="text-xl font-bold text-green-400">World Cup</h1>
+        <button 
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+          onClick={() => {console.log(matchSchedule); console.log(importedCompetition);}} // Empty function for now
+        >
+          Simulate
+        </button>
+      </div>
+      
+      {/* Simulator Content */}
+      <div className="h-[calc(100%-4rem)]">
+        {renderSimulatorContent()}
+      </div>
     </div>
   );
 };
