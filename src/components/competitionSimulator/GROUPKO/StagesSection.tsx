@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useGlobalStore } from '../../../state/GlobalState';
-import type { CompetitionSchedule } from '../../../utils/SchedulerUtils';
 import GroupStageComponent from './GroupStageComponent';
 import KnockoutStageComponent from './KnockoutStageComponent';
+import type { RearrangedSchedule } from '../SimulatorTab';
 
 interface ImportedCompetition {
   compName: string;
@@ -27,13 +27,18 @@ interface TransformedGroups {
 
 interface StagesSectionProps {
   importedCompetition: ImportedCompetition;
-  matchSchedule: CompetitionSchedule | null;
+  matchSchedule: RearrangedSchedule | null;
   transformedGroups: TransformedGroups;
+  selectedStage: string;
+  setSelectedStage: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const StagesSection: React.FC<StagesSectionProps> = ({ importedCompetition, matchSchedule, transformedGroups }) => {
+const StagesSection: React.FC<StagesSectionProps> = ({ importedCompetition, matchSchedule, transformedGroups, selectedStage, setSelectedStage }) => {
   const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
-  const [selectedStage, setSelectedStage] = useState<string>('');
+
+  console.log(selectedStage);
+  console.log(transformedGroups);
+  console.log(matchSchedule);
 
   const getAvailableStages = () => {
     const roundInfo = getRoundInfo(importedCompetition.compName);
@@ -41,15 +46,14 @@ const StagesSection: React.FC<StagesSectionProps> = ({ importedCompetition, matc
 
     // Filter stages to only include those with scheduled matches
     return roundInfo.rounds.filter((round: any) => {
-      // For group stage, check if matchSchedule has group data
-      if (round.type === 'GROUP') {
-        return matchSchedule && Object.keys(matchSchedule).length > 0;
-      }
-      
-      // For knockout rounds, check if matchSchedule exists (non-group data)
-      return matchSchedule && !Object.keys(matchSchedule).some(key => 
-        importedCompetition.groups[key]
+      if (!matchSchedule) return false;
+
+      // Check if this round type has matches in the schedule
+      const hasMatchesForRound = Object.values(matchSchedule).some((matchdaySchedules: any[]) =>
+        matchdaySchedules.some((item: any) => item.stage === round.type)
       );
+
+      return hasMatchesForRound;
     }).map((round: any) => round.roundName || round.type);
   };
 

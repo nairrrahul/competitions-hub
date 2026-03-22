@@ -23,8 +23,10 @@ const CompetitionSimulator: React.FC = () => {
   const [importError, setImportError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'teams' | 'matches'>('teams');
   const [matchSchedule, setMatchSchedule] = useState<CompetitionSchedule | null>(null);
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [simulatorSchedule, setSimulatorSchedule] = useState<import('../components/competitionSimulator/SimulatorTab').RearrangedSchedule>({});
+  const [transformedGroups, setTransformedGroups] = useState<import('../components/competitionSimulator/GROUPKO/GroupKOSimulator').TransformedGroups>({});
   const [currentMatchday, setCurrentMatchday] = useState(1);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [totalMatchdays, setTotalMatchdays] = useState(0);
 
   const { getSquad } = useGlobalStore();
@@ -150,6 +152,12 @@ const CompetitionSimulator: React.FC = () => {
             hasData={canAccessSimulator}
             importedCompetition={importedCompetition}
             matchSchedule={matchSchedule}
+            simulatorSchedule={simulatorSchedule}
+            setSimulatorSchedule={setSimulatorSchedule}
+            transformedGroups={transformedGroups}
+            setTransformedGroups={setTransformedGroups}
+            currentMatchday={currentMatchday}
+            setCurrentMatchday={setCurrentMatchday}
           />
         )}
 

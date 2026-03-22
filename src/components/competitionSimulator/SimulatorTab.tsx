@@ -1,8 +1,9 @@
 import React from 'react';
 import GroupKOSimulator from './GROUPKO/GroupKOSimulator';
-import type { CompetitionSchedule } from '../../utils/SchedulerUtils';
+import type { CompetitionSchedule, Match } from '../../utils/SchedulerUtils';
 import { useGlobalStore } from '../../state/GlobalState';
 import type { Squad } from '../../types/rosterManager';
+import { simulateMatchesForRound, type RoundType } from '../../utils/MatchEngine';
 
 interface ImportedCompetition {
   compName: string;
@@ -16,6 +17,12 @@ interface SimulatorTabProps {
   hasData: boolean;
   importedCompetition: ImportedCompetition | null;
   matchSchedule: CompetitionSchedule | null;
+  simulatorSchedule: RearrangedSchedule;
+  setSimulatorSchedule: React.Dispatch<React.SetStateAction<RearrangedSchedule>>;
+  transformedGroups: TransformedGroups;
+  setTransformedGroups: React.Dispatch<React.SetStateAction<TransformedGroups>>;
+  currentMatchday: number;
+  setCurrentMatchday: React.Dispatch<React.SetStateAction<number>>;
 }
 
 interface GroupTeamStats {
@@ -31,7 +38,17 @@ interface TransformedGroups {
   [groupName: string]: GroupTeamStats[];
 }
 
-const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetition, matchSchedule }) => {
+export interface MatchInformation {
+  stage: RoundType;
+  group: string | null;
+  match: Match;
+}
+
+export interface RearrangedSchedule {
+  [matchday: number]: MatchInformation[];
+}
+
+const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetition, matchSchedule, simulatorSchedule, setSimulatorSchedule, transformedGroups, setTransformedGroups, currentMatchday, setCurrentMatchday }) => {
   const { getSquad } = useGlobalStore();
 
   // Load squad information for all nations in the competition
@@ -54,6 +71,30 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     return squads;
   };
 
+  const convertToMatchdayList = (input: CompetitionSchedule): RearrangedSchedule => {
+    const result: RearrangedSchedule = {};
+
+    for (const [outerKey, innerObj] of Object.entries(input)) {
+      for (const [numKeyStr, arr] of Object.entries(innerObj)) {
+        const numKey = Number(numKeyStr);
+
+        if (!result[numKey]) {
+          result[numKey] = [];
+        }
+
+        for (const item of arr) {
+          result[numKey].push({
+            stage: "GROUP",
+            group: outerKey,
+            match: item,
+          });
+        }
+      }
+    }
+
+    return result;
+  }
+
   const transformGroupsData = (): TransformedGroups => {
     if (!importedCompetition) return {};
     const transformed: TransformedGroups = {};
@@ -73,7 +114,13 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
   };
 
   const competitionSquads = getCompetitionSquads();
-  const transformedGroups = transformGroupsData();
+  React.useEffect(() => {
+    if (importedCompetition && matchSchedule && Object.keys(transformedGroups).length === 0) {
+      setTransformedGroups(transformGroupsData());
+      const converted = convertToMatchdayList(matchSchedule);
+      setSimulatorSchedule(converted);
+    }
+  }, [importedCompetition, matchSchedule, transformedGroups, setSimulatorSchedule, setTransformedGroups]);
 
   const renderSimulatorContent = () => {
     if (!hasData || !importedCompetition) {
@@ -93,9 +140,9 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
         return (
           <GroupKOSimulator 
             importedCompetition={importedCompetition} 
-            matchSchedule={matchSchedule}
+            matchSchedule={simulatorSchedule}
             competitionSquads={competitionSquads}
-            transformedSquads={transformedGroups}
+            transformedStandings={transformedGroups}
           />
         );
       default:
@@ -110,14 +157,40 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     }
   };
 
+  const modifyGroupTest = () => { 
+    const roundMatches = simulatorSchedule[currentMatchday];
+    if (!roundMatches) return;
+
+    const result = simulateMatchesForRound(
+      roundMatches,
+      competitionSquads,
+      transformedGroups
+    );
+
+    const updatedSchedule = {
+      ...simulatorSchedule,
+      [currentMatchday]: result.matches
+    };
+
+    setSimulatorSchedule(updatedSchedule);
+    setTransformedGroups(result.standings);
+    setCurrentMatchday(prev => prev + 1);
+  }
+
+  const maxMatchday = Math.max(0, ...Object.keys(simulatorSchedule).map(Number));
+
   return (
     <div className="h-[calc(100vh-4rem)]">
       {/* Header Row with Simulate Button */}
       <div className="bg-gray-800 border-b border-gray-700 px-6 py-3 flex items-center justify-between mt-2">
-        <h1 className="text-xl font-bold text-green-400">World Cup</h1>
+        <h1 className="text-xl font-bold text-green-400">{importedCompetition?.compName}</h1>
         <button 
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-          onClick={() => {console.log(matchSchedule); console.log(importedCompetition);}} // Empty function for now
+          className={`px-4 py-2 rounded-lg transition-colors font-medium 
+           ${currentMatchday > maxMatchday 
+            ? "bg-gray-600 text-gray-300 cursor-not-allowed" 
+            : "bg-green-600 text-white hover:bg-green-700"
+          }`}
+          onClick={modifyGroupTest}
         >
           Simulate
         </button>

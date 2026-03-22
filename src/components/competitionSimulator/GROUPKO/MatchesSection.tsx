@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Match } from '../../../utils/SchedulerUtils';
 import { useGlobalStore } from '../../../state/GlobalState';
-import type { RearrangedSchedule } from './GroupKOSimulator';
+import type { RearrangedSchedule } from '../SimulatorTab';
 
 interface ImportedCompetition {
   compName: string;
