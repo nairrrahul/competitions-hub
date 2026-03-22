@@ -28,6 +28,7 @@ interface MatchSchedulerTabProps {
   setCurrentMatchday: React.Dispatch<React.SetStateAction<number>>;
   totalMatchdays: number;
   setTotalMatchdays: React.Dispatch<React.SetStateAction<number>>;
+  resetSimulatorState: () => void;
 }
 
 const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
@@ -45,7 +46,8 @@ const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
   currentMatchday,
   setCurrentMatchday,
   totalMatchdays,
-  setTotalMatchdays
+  setTotalMatchdays,
+  resetSimulatorState,
 }) => {
 
   const handleImportInfo = () => {
@@ -108,6 +110,7 @@ const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
           setCurrentMatchday(1);
           setImportError(null);
           onValidationUpdate(true);
+          resetSimulatorState();
           
         } catch (error) {
           setImportError('Import failed: Invalid JSON file');

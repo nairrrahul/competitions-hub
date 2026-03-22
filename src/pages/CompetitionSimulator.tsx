@@ -39,6 +39,12 @@ const CompetitionSimulator: React.FC = () => {
 
   const canAccessLoadedSquads = importedCompetition !== null;
 
+  const resetSimulatorState = () => {
+    setSimulatorSchedule({});
+    setTransformedGroups({});
+    setCurrentMatchday(1);
+  };
+
   // Load squad information for Loaded Squads tab
   const getCompetitionSquads = () => {
     if (!importedCompetition) return {};
@@ -143,6 +149,7 @@ const CompetitionSimulator: React.FC = () => {
             setCurrentMatchday={setCurrentMatchday}
             totalMatchdays={totalMatchdays}
             setTotalMatchdays={setTotalMatchdays}
+            resetSimulatorState={resetSimulatorState}
           />
         )}
 
