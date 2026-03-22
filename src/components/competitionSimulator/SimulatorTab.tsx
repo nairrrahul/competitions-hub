@@ -4,6 +4,7 @@ import type { CompetitionSchedule, Match } from '../../utils/SchedulerUtils';
 import { useGlobalStore } from '../../state/GlobalState';
 import type { Squad } from '../../types/rosterManager';
 import { simulateMatchesForRound, type RoundType } from '../../utils/MatchEngine';
+import { generateKnockout24 } from '../../utils/BracketGeneration';
 
 interface ImportedCompetition {
   compName: string;
@@ -25,7 +26,7 @@ interface SimulatorTabProps {
   setCurrentMatchday: React.Dispatch<React.SetStateAction<number>>;
 }
 
-interface GroupTeamStats {
+export interface GroupTeamStats {
   countryName: string;
   wins: number;
   draws: number;
@@ -50,6 +51,9 @@ export interface RearrangedSchedule {
 
 const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetition, matchSchedule, simulatorSchedule, setSimulatorSchedule, transformedGroups, setTransformedGroups, currentMatchday, setCurrentMatchday }) => {
   const { getSquad } = useGlobalStore();
+  const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
+  const getThirdPlacings = useGlobalStore(state => state.getThirdPlaceFor24);
+  const compRoundInfo = getRoundInfo(importedCompetition?.compName || '');
 
   // Load squad information for all nations in the competition
   const getCompetitionSquads = () => {
@@ -157,24 +161,51 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     }
   };
 
-  const modifyGroupTest = () => { 
+  const onNextRound = () => { 
     const roundMatches = simulatorSchedule[currentMatchday];
+    const numGSMatches = compRoundInfo.rounds[0].numMatchdays;
+    let transferStandings = {};
     if (!roundMatches) return;
 
-    const result = simulateMatchesForRound(
-      roundMatches,
-      competitionSquads,
-      transformedGroups
-    );
+    if(currentMatchday <= numGSMatches) {
+      const result = simulateMatchesForRound(
+        roundMatches,
+        competitionSquads,
+        transformedGroups
+      );
 
-    const updatedSchedule = {
-      ...simulatorSchedule,
-      [currentMatchday]: result.matches
-    };
+      transferStandings = result.standings;
 
-    setSimulatorSchedule(updatedSchedule);
-    setTransformedGroups(result.standings);
-    setCurrentMatchday(prev => prev + 1);
+      const updatedSchedule = {
+        ...simulatorSchedule,
+        [currentMatchday]: result.matches
+      };
+
+      setSimulatorSchedule(updatedSchedule);
+      setTransformedGroups(result.standings);
+    }
+    
+    const newMatchday = currentMatchday + 1;
+    console.log(newMatchday, numGSMatches);
+    setCurrentMatchday(newMatchday);
+
+    if(importedCompetition?.compType == 'GROUPKO' && newMatchday > numGSMatches) {
+      if(importedCompetition.numTeams == 24) {
+        console.log(simulatorSchedule,"Need to schedule knockouts");
+        //do we need to schedule knockouts
+        if(newMatchday == numGSMatches + 1) {
+          const knockoutMatches = generateKnockout24(transferStandings, getThirdPlacings);
+          console.log(knockoutMatches);
+          setSimulatorSchedule(prev => ({
+            ...prev,
+            [newMatchday]: knockoutMatches
+          }));
+        }
+        
+        //or do we need to produce the next round of knockouts
+      }
+    }
+      
   }
 
   const maxMatchday = Math.max(0, ...Object.keys(simulatorSchedule).map(Number));
@@ -190,7 +221,7 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
             ? "bg-gray-600 text-gray-300 cursor-not-allowed" 
             : "bg-green-600 text-white hover:bg-green-700"
           }`}
-          onClick={modifyGroupTest}
+          onClick={onNextRound}
         >
           Simulate
         </button>

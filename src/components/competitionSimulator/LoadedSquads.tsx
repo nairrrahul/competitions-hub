@@ -49,6 +49,7 @@ const LoadedSquads: React.FC<LoadedSquadsProps> = ({ squads, competitionType, gr
 
   const renderSquadContainer = (nation: string, squad: Squad) => {
     const flagCode = getNationFlagCode(nation);
+    console.log(squad);
     
     return (
       <div key={nation} className="bg-gray-800 rounded-lg border border-gray-700">

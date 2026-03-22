@@ -1,5 +1,6 @@
 import React from 'react';
 import { useGlobalStore } from '../../../state/GlobalState';
+import { calculateNthPlaceTeams, calculateStats, getBestNthPlaceCount, getNthPlaceSuffix, sortTeams } from '../../../utils/GroupSort';
 
 interface GroupTeamStats {
   countryName: string;
@@ -22,43 +23,9 @@ interface GroupStageComponentProps {
 const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGroups, importedCompetition }) => {
   const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
   const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
+  const totalGroups = Object.keys(transformedGroups).length; 
+  const groupStageRound = getRoundInfo(importedCompetition.compName)?.rounds?.find((round: any) => round.type === 'GROUP');
 
-  const calculateStats = (team: GroupTeamStats) => {
-    const gamesPlayed = team.wins + team.draws + team.losses;
-    const points = team.wins * 3 + team.draws;
-    const goalDifference = team.goalsFor - team.goalsAgainst;
-    
-    return {
-      gamesPlayed,
-      points,
-      goalDifference
-    };
-  };
-
-  const sortTeams = (teams: GroupTeamStats[]) => {
-    return [...teams].sort((a, b) => {
-      const statsA = calculateStats(a);
-      const statsB = calculateStats(b);
-      
-      // Sort by points
-      if (statsB.points !== statsA.points) {
-        return statsB.points - statsA.points;
-      }
-      
-      // Sort by goal difference
-      if (statsB.goalDifference !== statsA.goalDifference) {
-        return statsB.goalDifference - statsA.goalDifference;
-      }
-      
-      // Sort by goals for
-      if (b.goalsFor !== a.goalsFor) {
-        return b.goalsFor - a.goalsFor;
-      }
-      
-      // Sort by alphabetical order
-      return a.countryName.localeCompare(b.countryName);
-    });
-  };
 
   const TeamFlag: React.FC<{ countryName: string }> = ({ countryName }) => {
     const flagCode = getNationFlagCode(countryName);
@@ -79,30 +46,6 @@ const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGr
     );
   };
 
-  // Calculate Nth place teams (all teams currently in Nth place in their groups)
-  const calculateNthPlaceTeams = () => {
-    const nthPlaceTeams: GroupTeamStats[] = [];
-    const nthPlace = getBestNthPlaceCount(); // This is N (e.g., 3rd place)
-    
-    Object.entries(transformedGroups).forEach(([, teams]) => {
-      const sortedTeams = sortTeams(teams);
-      if (sortedTeams[nthPlace - 1]) { // nthPlace - 1 for 0-based index
-        nthPlaceTeams.push(sortedTeams[nthPlace - 1]);
-      }
-    });
-    
-    // Sort by typical criteria: points, goal difference, goals for, alphabetical
-    return nthPlaceTeams.sort((a, b) => {
-      const aStats = calculateStats(a);
-      const bStats = calculateStats(b);
-      
-      if (bStats.points !== aStats.points) return bStats.points - aStats.points;
-      if (bStats.goalDifference !== aStats.goalDifference) return bStats.goalDifference - aStats.goalDifference;
-      if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
-      return a.countryName.localeCompare(b.countryName);
-    });
-  };
-
   const shouldShowBestNthPlaceTable = () => {
     // Check if we need to show Nth place teams
     // This would be true when numIn % numThrough != 0 (not all teams advance)
@@ -114,23 +57,6 @@ const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGr
     const totalTeamsAdvancing = groupStageRound?.numThrough || totalGroups * 2;
     
     return totalTeams % totalTeamsAdvancing !== 0;
-  };
-
-  const getBestNthPlaceCount = () => {
-    const totalGroups = Object.keys(transformedGroups).length;
-    
-    // Get numThrough from competition round info
-    const groupStageRound = getRoundInfo(importedCompetition.compName)?.rounds?.find((round: any) => round.type === 'GROUP');
-    const numThrough = groupStageRound?.numThrough || totalGroups * 2;
-    
-    return Math.ceil(numThrough / totalGroups);
-  };
-
-  const getNthPlaceSuffix = (n: number) => {
-    if (n === 1) return 'st';
-    if (n === 2) return 'nd';
-    if (n === 3) return 'rd';
-    return 'th';
   };
 
   return (
@@ -192,7 +118,7 @@ const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGr
         <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
           {/* Header */}
           <div className="bg-gray-750 px-4 py-3 border-b border-gray-700">
-            <h3 className="font-semibold text-green-400">{getBestNthPlaceCount()}{getNthPlaceSuffix(getBestNthPlaceCount())} place teams</h3>
+            <h3 className="font-semibold text-green-400">{getBestNthPlaceCount(totalGroups, groupStageRound?.numThrough || totalGroups * 2)}{getNthPlaceSuffix(getBestNthPlaceCount(totalGroups, groupStageRound?.numThrough || totalGroups * 2))} place teams</h3>
           </div>
           
           {/* Column Headers */}
@@ -212,7 +138,7 @@ const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGr
           
           {/* Nth Place Teams */}
           <div className="p-2 space-y-1">
-            {calculateNthPlaceTeams().map((team: GroupTeamStats) => {
+            {calculateNthPlaceTeams(transformedGroups, groupStageRound?.numThrough || totalGroups * 2).map((team: GroupTeamStats) => {
               const stats = calculateStats(team);
               
               return (

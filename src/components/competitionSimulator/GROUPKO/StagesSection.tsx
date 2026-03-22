@@ -36,10 +36,6 @@ interface StagesSectionProps {
 const StagesSection: React.FC<StagesSectionProps> = ({ importedCompetition, matchSchedule, transformedGroups, selectedStage, setSelectedStage }) => {
   const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
 
-  console.log(selectedStage);
-  console.log(transformedGroups);
-  console.log(matchSchedule);
-
   const getAvailableStages = () => {
     const roundInfo = getRoundInfo(importedCompetition.compName);
     if (!roundInfo?.rounds) return [];

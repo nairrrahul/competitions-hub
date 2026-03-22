@@ -36,7 +36,6 @@ interface GroupKOSimulatorProps {
 const GroupKOSimulator: React.FC<GroupKOSimulatorProps> = ({ importedCompetition, matchSchedule, competitionSquads, transformedStandings }) => {
   const [selectedStage, setSelectedStage] = React.useState<string>('');
 
-  console.log(matchSchedule);
   console.log(competitionSquads);
   
   return (
