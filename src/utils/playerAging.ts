@@ -93,3 +93,7 @@ export const agePlayer = (player: Player, years: number): Player => {
 export const ageAllPlayers = (players: Player[], years: number): Player[] => {
   return players.map(player => agePlayer(player, years))
 }
+
+export function isPowerOfTwo(n: number): boolean {
+  return n > 0 && (n & (n - 1)) === 0;
+}

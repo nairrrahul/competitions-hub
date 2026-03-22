@@ -39,6 +39,12 @@ export interface MatchRoundInfo {
   standings: TransformedGroups;
 }
 
+export interface KOMatchRoundResult {
+  oldMatches: MatchInformation[];
+  newRound: MatchInformation[];
+  loserInfo: MatchInformation[];
+}
+
 export type RoundType = 'GROUP' | 'KO' | 'P3';
 
 export function simulateMatch(team1Squad: Squad, team2Squad: Squad, roundType: RoundType): MatchResult {
@@ -64,7 +70,83 @@ export function simulateMatch(team1Squad: Squad, team2Squad: Squad, roundType: R
     };
   }
 }
-  // In a real implementation, this would be based on player stats, team chemistry, etc.
+
+export function parseKnockoutWinner(team1: string, team2: string, match: MatchResult, winnerProg: boolean) {
+  if(match.team1Goals > match.team2Goals) {
+    return winnerProg ? team1 : team2;
+  }else if(match.team2Goals > match.team1Goals) {
+    return winnerProg ? team2 : team1;
+  } else {
+    let team1PensMade = match.penalties!.team1Results.filter(pen => pen === 'O').length;
+    let team2PensMade = match.penalties!.team2Results.filter(pen => pen === 'O').length;
+    return (team1PensMade > team2PensMade === winnerProg) ? team1 : team2;
+  }
+}
+
+export function simulateKnockoutRound(matches: MatchInformation[], squads: {[nation: string]: Squad}): KOMatchRoundResult {
+  let winners = [];
+  let losers = [];
+
+  const newKOMatches: MatchInformation[] = matches.map(matchInfo => {
+    const team1Squad = squads[matchInfo.match.homeTeam];
+    const team2Squad = squads[matchInfo.match.awayTeam];
+    const matchType = matchInfo.stage;
+
+    const matchResult = simulateMatch(team1Squad, team2Squad, matchType);
+
+    return {
+      ...matchInfo,
+      match: {
+        ...matchInfo.match,
+        result: matchResult
+      }
+    };
+  });
+
+
+  if(newKOMatches.length == 1) {
+    return {
+      oldMatches: newKOMatches,
+      newRound: [],
+      loserInfo: []
+    }
+  }
+
+  for(let i = 0; i < newKOMatches.length; i+=2) {
+
+    let match1Winner = parseKnockoutWinner(newKOMatches[i].match.homeTeam, newKOMatches[i].match.awayTeam, newKOMatches[i].match.result!, true);
+    let match2Winner = parseKnockoutWinner(newKOMatches[i+1].match.homeTeam, newKOMatches[i+1].match.awayTeam, newKOMatches[i+1].match.result!, true);
+    let match1Loser = parseKnockoutWinner(newKOMatches[i].match.homeTeam, newKOMatches[i].match.awayTeam, newKOMatches[i].match.result!, false);
+    let match2Loser = parseKnockoutWinner(newKOMatches[i+1].match.homeTeam, newKOMatches[i+1].match.awayTeam, newKOMatches[i+1].match.result!, false);
+
+    winners.push({
+      stage: 'KO' as RoundType, 
+      group: null, 
+      match: { 
+        homeTeam: match1Winner, 
+        awayTeam: match2Winner, 
+        result: null 
+      }
+    });
+
+    losers.push({
+      stage: 'KO' as RoundType, 
+      group: null, 
+      match: { 
+        homeTeam: match1Loser, 
+        awayTeam: match2Loser, 
+        result: null 
+      }
+    });
+  }
+
+  return {
+    oldMatches: newKOMatches,
+    newRound: winners,
+    loserInfo: losers
+  };
+}
+
 
 export function simulateMatchesForRound(matches: MatchInformation[], squads: { [nation: string]: Squad }, standings: TransformedGroups): MatchRoundInfo{
   const newMatches: MatchInformation[] = matches.map(matchInfo => {

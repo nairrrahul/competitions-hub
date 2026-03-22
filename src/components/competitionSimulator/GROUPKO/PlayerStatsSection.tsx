@@ -19,6 +19,7 @@ interface PlayerStatsSectionProps {
 const PlayerStatsSection: React.FC<PlayerStatsSectionProps> = ({ matchSchedule}) => {
   const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
   const getPlayerName = (player: Player) => player.commonName || `${player.firstName} ${player.lastName}`;
+  const MAX_ROWS_SHOW = 5;
 
   const FlagIcon = ({ countryName }: { countryName: string }) => {
     const flagCode = getNationFlagCode(countryName);
@@ -81,7 +82,7 @@ const PlayerStatsSection: React.FC<PlayerStatsSectionProps> = ({ matchSchedule})
           if (countDiff !== 0) return countDiff;
           return getPlayerName(a.player).localeCompare(getPlayerName(b.player));
         })
-        .slice(0, 3);
+        .slice(0, MAX_ROWS_SHOW);
     };
 
     return {

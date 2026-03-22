@@ -66,3 +66,21 @@ export function generateKnockout24(standings: TransformedGroups, getThirdPlacing
     {stage: 'KO', group: null, match: { homeTeam: sortedStandings['B'][1].countryName, awayTeam: sortedStandings['F'][1].countryName, result: null }}
   ];
 }
+
+export function generateKnockoutPO2(standings: TransformedGroups): MatchInformation[] {
+  let evenBracket: MatchInformation[] = [];
+  let oddBracket: MatchInformation[] = [];
+  const sortedStandings = Object.fromEntries(Object.entries(standings).map(([_, teams]) => [_, sortTeams(teams)]));
+  const groupNamesSorted = Object.keys(sortedStandings)
+  groupNamesSorted.sort();
+
+  let oddsPos = 0;
+  let evensPos = groupNamesSorted.length - 1;
+  while(oddsPos < groupNamesSorted.length -1 && evensPos > 0) {
+    oddBracket.push({stage: 'KO', group: null, match: { homeTeam: sortedStandings[groupNamesSorted[oddsPos]][0].countryName, awayTeam: sortedStandings[groupNamesSorted[oddsPos+1]][1].countryName, result: null }});
+    evenBracket.unshift({stage: 'KO', group: null, match: { homeTeam: sortedStandings[groupNamesSorted[evensPos]][0].countryName, awayTeam: sortedStandings[groupNamesSorted[evensPos - 1]][1].countryName, result: null }});
+    oddsPos += 2;
+    evensPos -= 2;
+  }
+  return oddBracket.concat(evenBracket);
+}

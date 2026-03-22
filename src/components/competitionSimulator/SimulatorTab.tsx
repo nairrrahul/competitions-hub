@@ -3,8 +3,9 @@ import GroupKOSimulator from './GROUPKO/GroupKOSimulator';
 import type { CompetitionSchedule, Match } from '../../utils/SchedulerUtils';
 import { useGlobalStore } from '../../state/GlobalState';
 import type { Squad } from '../../types/rosterManager';
-import { simulateMatchesForRound, type RoundType } from '../../utils/MatchEngine';
-import { generateKnockout24 } from '../../utils/BracketGeneration';
+import { simulateKnockoutRound, simulateMatchesForRound, type RoundType } from '../../utils/MatchEngine';
+import { generateKnockout24, generateKnockoutPO2 } from '../../utils/BracketGeneration';
+import { isPowerOfTwo } from '../../utils/playerAging';
 
 interface ImportedCompetition {
   compName: string;
@@ -161,7 +162,7 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     }
   };
 
-  const onNextRound = () => { 
+  const onNextRoundGroupKO = () => { 
     const roundMatches = simulatorSchedule[currentMatchday];
     const numGSMatches = compRoundInfo.rounds[0].numMatchdays;
     let transferStandings = {};
@@ -183,29 +184,64 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
 
       setSimulatorSchedule(updatedSchedule);
       setTransformedGroups(result.standings);
+    } else {
+      //check if we are in F or P3 or not
+      const {oldMatches, newRound, loserInfo} = simulateKnockoutRound(roundMatches, competitionSquads);
+      if(roundMatches.length == 1) {
+        const updatedSchedule = {
+          ...simulatorSchedule,
+          [currentMatchday]: oldMatches
+        };
+        setSimulatorSchedule(updatedSchedule);
+      } else {
+        if(roundMatches.length == 2 && compRoundInfo.hasP3) {
+          const updatedSchedule = {
+            ...simulatorSchedule,
+            [currentMatchday]: oldMatches,
+            [currentMatchday + 1]: loserInfo,
+            [currentMatchday + 2]: newRound
+          };
+          setSimulatorSchedule(updatedSchedule);
+        } else {
+          const updatedSchedule = {
+            ...simulatorSchedule,
+            [currentMatchday]: oldMatches,
+            [currentMatchday + 1]: newRound
+          };
+          setSimulatorSchedule(updatedSchedule);
+        }
+      }
     }
-    
+
     const newMatchday = currentMatchday + 1;
     console.log(newMatchday, numGSMatches);
     setCurrentMatchday(newMatchday);
 
-    if(importedCompetition?.compType == 'GROUPKO' && newMatchday > numGSMatches) {
-      if(importedCompetition.numTeams == 24) {
-        console.log(simulatorSchedule,"Need to schedule knockouts");
-        //do we need to schedule knockouts
-        if(newMatchday == numGSMatches + 1) {
-          const knockoutMatches = generateKnockout24(transferStandings, getThirdPlacings);
-          console.log(knockoutMatches);
-          setSimulatorSchedule(prev => ({
-            ...prev,
-            [newMatchday]: knockoutMatches
-          }));
-        }
-        
-        //or do we need to produce the next round of knockouts
+    if(newMatchday === numGSMatches + 1) {
+      if(importedCompetition?.numTeams == 24) {
+        const knockoutMatches = generateKnockout24(transferStandings, getThirdPlacings);
+        setSimulatorSchedule(prev => ({
+          ...prev,
+          [newMatchday]: knockoutMatches
+        }));
+      } else if(isPowerOfTwo(importedCompetition?.numTeams || 0)) {
+        const knockoutMatches = generateKnockoutPO2(transferStandings);
+        setSimulatorSchedule(prev => ({
+          ...prev,
+          [newMatchday]: knockoutMatches
+        }));
       }
     }
-      
+  }
+
+  const onNextRound = (compType: string) => {
+    switch (compType) {
+      case 'GROUPKO':
+        onNextRoundGroupKO();
+        break;
+      default:
+        console.log(`No simulation logic for competition type: ${compType}`);
+    }
   }
 
   const maxMatchday = Math.max(0, ...Object.keys(simulatorSchedule).map(Number));
@@ -221,7 +257,7 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
             ? "bg-gray-600 text-gray-300 cursor-not-allowed" 
             : "bg-green-600 text-white hover:bg-green-700"
           }`}
-          onClick={onNextRound}
+          onClick={() => onNextRound(importedCompetition?.compType || 'NA')}
         >
           Simulate
         </button>

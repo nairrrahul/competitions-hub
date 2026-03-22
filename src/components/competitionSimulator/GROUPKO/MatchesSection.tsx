@@ -163,7 +163,7 @@ const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, ma
                     </div>
                   </div>
                   <div className="absolute left-1/2 transform -translate-x-1/2">
-                    <span className="text-gray-400 text-sm">vs</span>
+                    <span className="text-gray-400 text-sm">{match.result ? renderScoreline(match) : 'vs'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-white font-medium">{match.awayTeam}</span>
