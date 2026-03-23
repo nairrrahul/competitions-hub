@@ -4,6 +4,7 @@ import playersData from '../config/players.json'
 import nationInfo from '../config/nation_info.json'
 import roundInfoPresets from '../config/round_info_presets.json'
 import thirdPlace24 from '../config/p3_24.json'
+import thirdPlace48 from '../config/p3_48.json'
 import { generateAllSquads, generateSquad, getPlayerAtPosition, getAllSquadPlayers, findPlayerInSquad, replacePlayerInSquad, getPositionConstraints, getSubstitutePositionConstraints } from '../utils/squadGenerator'
 import { ageAllPlayers as agePlayersUtil } from '../utils/playerAging'
 
@@ -13,6 +14,7 @@ interface PlayersState {
   nationInfo: NationInfo
   roundInfoPresets: { [key: string]: any }
   thirdPlaceFor24: { [key: string]: string }
+  thirdPlaceFor48: { [key: string]: string }
   
   // Original data (read-only)
   originalAllPlayers: Player[]
@@ -38,6 +40,7 @@ interface PlayersState {
   loadNationInfo: () => void
   loadRoundInfoPresets: () => void
   loadThirdPlaceFor24: () => void
+  loadThirdPlaceFor48: () => void
   generateSquads: () => void
   initializeData: () => void
   revertToOriginalData: () => void
@@ -51,6 +54,7 @@ interface PlayersState {
   getNationFlagCode: (nation: string) => string
   getAllNationalities: () => string[]
   getThirdPlaceFor24: (key: string) => string | undefined
+  getThirdPlaceFor48: (key: string) => string | undefined
   getSquad: (nation: string) => Squad | undefined
   getPlayerAtPosition: (nation: string, position: string) => any
   exportSquad: (nation: string) => void
@@ -70,6 +74,7 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   nationInfo: {},
   roundInfoPresets: {},
   thirdPlaceFor24: {},
+  thirdPlaceFor48: {},
   
   // Original data (read-only)
   originalAllPlayers: [],
@@ -154,6 +159,11 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     const data = thirdPlace24 as {[key: string] : string}
     set({ thirdPlaceFor24: data })
   },
+
+  loadThirdPlaceFor48: () => {
+    const data = thirdPlace48 as {[key: string] : string}
+    set({ thirdPlaceFor48: data })
+  },
   
   // Get round info for a competition
   getRoundInfo: (competitionName: string) => {
@@ -186,6 +196,7 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
       get().loadNationInfo()
       get().loadRoundInfoPresets()
       get().loadThirdPlaceFor24()
+      get().loadThirdPlaceFor48()
       get().generateSquads()
       set({ 
         isInitialized: true,
@@ -431,6 +442,11 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   getThirdPlaceFor24(key) {
     const { thirdPlaceFor24 } = get()
     return thirdPlaceFor24[key]
+  },
+
+  getThirdPlaceFor48(key) {
+    const { thirdPlaceFor48 } = get()
+    return thirdPlaceFor48[key]
   },
   
   // Get squad for a nation

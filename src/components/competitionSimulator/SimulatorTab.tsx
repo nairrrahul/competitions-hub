@@ -4,7 +4,7 @@ import type { CompetitionSchedule, Match } from '../../utils/SchedulerUtils';
 import { useGlobalStore } from '../../state/GlobalState';
 import type { Squad } from '../../types/rosterManager';
 import { simulateKnockoutRound, simulateMatchesForRound, type RoundType } from '../../utils/MatchEngine';
-import { generateKnockout24, generateKnockoutPO2 } from '../../utils/BracketGeneration';
+import { generateKnockout24, generateKnockout48, generateKnockoutPO2 } from '../../utils/BracketGeneration';
 import { isPowerOfTwo } from '../../utils/playerAging';
 
 interface ImportedCompetition {
@@ -54,6 +54,7 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
   const { getSquad } = useGlobalStore();
   const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
   const getThirdPlacings = useGlobalStore(state => state.getThirdPlaceFor24);
+  const getThirdPlacings48 = useGlobalStore(state => state.getThirdPlaceFor48);
   const compRoundInfo = getRoundInfo(importedCompetition?.compName || '');
 
   // Load squad information for all nations in the competition
@@ -219,17 +220,29 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
 
     if(newMatchday === numGSMatches + 1) {
       if(importedCompetition?.numTeams == 24) {
+
         const knockoutMatches = generateKnockout24(transferStandings, getThirdPlacings);
         setSimulatorSchedule(prev => ({
           ...prev,
           [newMatchday]: knockoutMatches
         }));
+
+      }else if(importedCompetition?.numTeams == 48) {
+
+        const knockoutMatches = generateKnockout48(transferStandings, getThirdPlacings48);
+        setSimulatorSchedule(prev => ({
+          ...prev,
+          [newMatchday]: knockoutMatches
+        }));    
+
       } else if(isPowerOfTwo(importedCompetition?.numTeams || 0)) {
+
         const knockoutMatches = generateKnockoutPO2(transferStandings);
         setSimulatorSchedule(prev => ({
           ...prev,
           [newMatchday]: knockoutMatches
         }));
+
       }
     }
   }
