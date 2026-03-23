@@ -1,6 +1,7 @@
 import type { TransformedGroups } from '../components/competitionSimulator/GROUPKO/GroupKOSimulator';
 import type { MatchInformation } from '../components/competitionSimulator/SimulatorTab';
 import type { Squad, Player } from '../types/rosterManager';
+import type { Match } from './SchedulerUtils';
 
 export interface GoalInfo {
   goalScorer: Player;
@@ -201,3 +202,7 @@ export function simulateMatchesForRound(matches: MatchInformation[], squads: { [
   };
 
 }
+
+export function renderScoreline(match: Match){
+  return `${match.result?.team1Goals} - ${match.result?.team2Goals}`;
+};

@@ -3,7 +3,6 @@ import { useGlobalStore } from '../../../state/GlobalState';
 import GroupStageComponent from './GroupStageComponent';
 import KnockoutStageComponent from './KnockoutStageComponent';
 import type { RearrangedSchedule } from '../SimulatorTab';
-
 interface ImportedCompetition {
   compName: string;
   numTeams: number;
@@ -35,9 +34,10 @@ interface StagesSectionProps {
 
 const StagesSection: React.FC<StagesSectionProps> = ({ importedCompetition, matchSchedule, transformedGroups, selectedStage, setSelectedStage }) => {
   const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
+  const roundInfo = getRoundInfo(importedCompetition.compName);
 
   const getAvailableStages = () => {
-    const roundInfo = getRoundInfo(importedCompetition.compName);
+    
     if (!roundInfo?.rounds) return [];
 
     // Filter stages to only include those with scheduled matches
@@ -45,9 +45,7 @@ const StagesSection: React.FC<StagesSectionProps> = ({ importedCompetition, matc
       if (!matchSchedule) return false;
 
       // Check if this round type has matches in the schedule
-      const hasMatchesForRound = Object.values(matchSchedule).some((matchdaySchedules: any[]) =>
-        matchdaySchedules.some((item: any) => item.stage === round.type)
-      );
+      const hasMatchesForRound = Object.keys(matchSchedule).filter(md => md == round.numMatchdays).length > 0;
 
       return hasMatchesForRound;
     }).map((round: any) => round.roundName || round.type);
@@ -66,6 +64,15 @@ const StagesSection: React.FC<StagesSectionProps> = ({ importedCompetition, matc
 
   const availableStages = getAvailableStages();
   const stageType = selectedStage ? getStageType(selectedStage) : null;
+  console.log(selectedStage, roundInfo);
+
+  const getMatchdayFromRound = () => {
+    const stageInfo = roundInfo?.rounds.find((round: any) => round.roundName === selectedStage);
+    if(stageInfo) {
+      return matchSchedule![stageInfo.numMatchdays];
+    }
+    return null;
+  };
 
   const renderStageContent = () => {
     if (!selectedStage) {
@@ -79,7 +86,7 @@ const StagesSection: React.FC<StagesSectionProps> = ({ importedCompetition, matc
     if (stageType === 'GROUP') {
       return <GroupStageComponent transformedGroups={transformedGroups} importedCompetition={importedCompetition} />;
     } else if (stageType === 'KO' || stageType === 'P3') {
-      return <KnockoutStageComponent />;
+      return <KnockoutStageComponent matchSchedule={getMatchdayFromRound()} />;
     } else {
       return (
         <div className="text-gray-400">

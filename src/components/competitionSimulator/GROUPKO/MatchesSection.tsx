@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Match } from '../../../utils/SchedulerUtils';
-import { useGlobalStore } from '../../../state/GlobalState';
 import type { RearrangedSchedule } from '../SimulatorTab';
+import MatchRow from '../MatchRow';
 
 interface ImportedCompetition {
   compName: string;
@@ -28,10 +28,7 @@ const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, ma
       .sort((a, b) => a - b);
   };
 
-  const renderScoreline = (match: Match) => {
-    // Placeholder scoreline - in a real implementation, this would come from the match result
-    return `${match.result?.team1Goals} - ${match.result?.team2Goals}`;
-  };
+
 
   const getCurrentMatchdayMatches = () => {
     if (!matchSchedule) return [];
@@ -123,21 +120,7 @@ const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, ma
                   <h3 className="text-center text-green-400 font-semibold mb-2">Group {groupName}</h3>
                   <div className="space-y-2">
                     {matches.map((match: Match, index: number) => (
-                      <div key={index} className="flex items-center justify-between bg-gray-700 rounded p-3 relative">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-2">
-                            <MatchFlag countryName={match.homeTeam} />
-                            <span className="text-white font-medium">{match.homeTeam}</span>
-                          </div>
-                        </div>
-                        <div className="absolute left-1/2 transform -translate-x-1/2">
-                          <span className="text-gray-400 text-sm">{match.result ? renderScoreline(match) : 'vs'}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-white font-medium">{match.awayTeam}</span>
-                          <MatchFlag countryName={match.awayTeam} />
-                        </div>
-                      </div>
+                      <MatchRow index={`group${groupName}-match${index}`} match={match} />
                     ))}
                   </div>
                 </div>
@@ -155,21 +138,7 @@ const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, ma
           <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
             <div className="space-y-2">
               {currentMatches.map((match: Match, index: number) => (
-                <div key={index} className="flex items-center justify-between bg-gray-700 rounded p-3 relative">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2">
-                      <MatchFlag countryName={match.homeTeam} />
-                      <span className="text-white font-medium">{match.homeTeam}</span>
-                    </div>
-                  </div>
-                  <div className="absolute left-1/2 transform -translate-x-1/2">
-                    <span className="text-gray-400 text-sm">{match.result ? renderScoreline(match) : 'vs'}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-medium">{match.awayTeam}</span>
-                    <MatchFlag countryName={match.awayTeam} />
-                  </div>
-                </div>
+                <MatchRow index={index} match={match} />
               ))}
             </div>
           </div>
@@ -177,27 +146,6 @@ const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, ma
       );
     }
   };
-
-// Helper component for country flags
-const MatchFlag: React.FC<{ countryName: string }> = ({ countryName }) => {
-  const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
-  const flagCode = getNationFlagCode(countryName);
-  
-  return (
-    <div className="relative w-7 h-5 overflow-hidden rounded flex items-center justify-center bg-gray-600">
-      {flagCode && (
-        <span
-          className={`fi fi-${flagCode} absolute inset-0`}
-          style={{
-            fontSize: '1rem',
-            lineHeight: '1',
-            transform: 'scale(1.5)',
-          }}
-        ></span>
-      )}
-    </div>
-  );
-};
 
   return (
     <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 h-full overflow-y-auto">
