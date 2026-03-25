@@ -112,10 +112,10 @@ const PlayerStatsSection: React.FC<PlayerStatsSectionProps> = ({ matchSchedule})
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 h-full flex flex-col">
+    <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 h-full overflow-y-auto">
       <h2 className="text-xl font-bold text-green-400 mb-4">PLAYER STATS</h2>
       
-      <div className="flex-1 grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div className="bg-gray-700/30 rounded-lg p-4">
           <h3 className="text-lg font-semibold text-green-300 mb-3 border-b border-gray-600/50 pb-2">Most Goals</h3>
           <div className="space-y-2">{renderStatRows(topGoals)}</div>

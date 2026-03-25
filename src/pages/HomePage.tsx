@@ -32,6 +32,13 @@ const HomePage: React.FC = () => {
       description: 'Manage team rosters and player information',
       icon: '👥',
       route: '/roster-manager'
+    },
+    {
+      id: 'data-editor',
+      name: 'Data Editor',
+      description: 'Edit Team Confederation and Ranking Data',
+      icon: '📊',
+      route: '/data-editor'
     }
   ];
 

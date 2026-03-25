@@ -1,5 +1,6 @@
 import type { TransformedGroups } from '../components/competitionSimulator/GROUPKO/GroupKOSimulator';
 import type { MatchInformation } from '../components/competitionSimulator/SimulatorTab';
+import { useGlobalStore } from '../state/GlobalState';
 import type { Squad, Player } from '../types/rosterManager';
 import type { Match } from './SchedulerUtils';
 
@@ -28,6 +29,7 @@ export interface MatchResult {
   team2GoalInfo: GoalInfo[];
   penalties: Penalties | null;
   cleanSheetNames: Player[];
+  rankingDelta: { [nation: string]: number } | null;
   // substitutions: {
   //   team1: Array<{ playerOut: Player; playerIn: Player; minute: number }>;
   //   team2: Array<{ playerOut: Player; playerIn: Player; minute: number }>;
@@ -48,6 +50,58 @@ export interface KOMatchRoundResult {
 
 export type RoundType = 'GROUP' | 'KO' | 'P3';
 
+export function computeExpectedResult(team1Points: number, team2Points: number): number {
+  return 1/(1 + Math.pow(10, -(team1Points - team2Points)/600));
+}
+
+export function computeRankingWeight(team1: string, team2: string, res: MatchResult, roundType: RoundType): [number, number] {
+  if(roundType == 'GROUP') {
+    if(res.team1Goals > res.team2Goals) {
+      return [1, 0];
+    } else if(res.team2Goals > res.team1Goals) {
+      return [0, 1];
+    } else {
+      return [0.5, 0.5];
+    }
+  } else {
+    if(res.team1Goals > res.team2Goals) {
+      return [1, 0];
+    } else if(res.team2Goals > res.team1Goals) {
+      return [0, 1];
+    } else {
+      const winner = parseKnockoutWinner(team1, team2, res, true);
+      if(winner === team1) {
+        return [0.75, 0.5];
+      } else {
+        return [0.5, 0.75];
+      }
+    }
+  }
+}
+
+export function getRankingPointsFromMatch(res: MatchResult, roundType: RoundType, team1Name: string, team2Name: string): {[nation: string]: number} {
+  const getNationInfo = useGlobalStore.getState().getNationInfo;
+  const nationOneInfo = getNationInfo(team1Name);
+  const nationTwoInfo = getNationInfo(team2Name);
+
+  const team1Expected = computeExpectedResult(nationOneInfo.rankingPts, nationTwoInfo.rankingPts);
+  const team2Expected = computeExpectedResult(nationTwoInfo.rankingPts, nationOneInfo.rankingPts);
+
+  const matchPoints = computeRankingWeight(team1Name, team2Name, res, roundType);
+
+  if(roundType == 'GROUP') {
+    return {
+      [team1Name]: 15 * (matchPoints[0] - team1Expected),
+      [team2Name]: 15 * (matchPoints[1] - team2Expected)
+    }
+  } else {
+    return {
+      [team1Name]: 40 * (matchPoints[0] - team1Expected),
+      [team2Name]: 40 * (matchPoints[1] - team2Expected)
+    }
+  }
+}
+
 export function simulateMatch(team1Squad: Squad, team2Squad: Squad, roundType: RoundType): MatchResult {
   const res = Math.random();
   console.log(roundType);
@@ -58,7 +112,8 @@ export function simulateMatch(team1Squad: Squad, team2Squad: Squad, roundType: R
       team1GoalInfo: [{ goalScorer: team1Squad.starters.forwards[1].player, assist: team1Squad.starters.midfielders[0].player, minute: 74 }],
       team2GoalInfo: [{goalScorer: team2Squad.starters.forwards[0].player, assist: team2Squad.starters.midfielders[1].player, minute: 45}, {goalScorer: team2Squad.starters.forwards[1].player, assist: team2Squad.starters.defenders[0].player, minute: 88}],
       penalties: null,
-      cleanSheetNames: []
+      cleanSheetNames: [],
+      rankingDelta: null
     };
   } else {
     return {
@@ -67,7 +122,8 @@ export function simulateMatch(team1Squad: Squad, team2Squad: Squad, roundType: R
       team1GoalInfo: [{ goalScorer: team1Squad.starters.forwards[0].player, assist: team1Squad.starters.midfielders[1].player, minute: 33 }],
       team2GoalInfo: [],
       penalties: null,
-      cleanSheetNames: [team1Squad.starters.gk.player]
+      cleanSheetNames: [team1Squad.starters.gk.player],
+      rankingDelta: null
     };
   }
 }
@@ -94,6 +150,7 @@ export function simulateKnockoutRound(matches: MatchInformation[], squads: {[nat
     const matchType = matchInfo.stage;
 
     const matchResult = simulateMatch(team1Squad, team2Squad, matchType);
+    matchResult.rankingDelta = getRankingPointsFromMatch(matchResult, matchType, matchInfo.match.homeTeam, matchInfo.match.awayTeam);
 
     return {
       ...matchInfo,
@@ -156,6 +213,7 @@ export function simulateMatchesForRound(matches: MatchInformation[], squads: { [
     const matchType = matchInfo.stage;
 
     const matchResult = simulateMatch(team1Squad, team2Squad, matchType);
+    matchResult.rankingDelta = getRankingPointsFromMatch(matchResult, matchType, matchInfo.match.homeTeam, matchInfo.match.awayTeam);
 
     return {
       ...matchInfo,

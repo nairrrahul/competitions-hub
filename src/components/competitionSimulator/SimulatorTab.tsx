@@ -259,21 +259,73 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
 
   const maxMatchday = Math.max(0, ...Object.keys(simulatorSchedule).map(Number));
 
+  const totalMatchDeltas = () => {
+    const deltas: { [nation: string]: number } = {};
+    for (const matchday of Object.values(simulatorSchedule)) {
+      for (const matchInfo of matchday) {
+        const match = matchInfo.match;
+        if (match.result) {
+          const homeDelta = match.result.rankingDelta ? match.result.rankingDelta[match.homeTeam] || 0 : 0;
+          const awayDelta = match.result.rankingDelta ? match.result.rankingDelta[match.awayTeam] || 0 : 0;
+          deltas[match.homeTeam] = (deltas[match.homeTeam] || 0) + homeDelta;
+          deltas[match.awayTeam] = (deltas[match.awayTeam] || 0) + awayDelta;
+        }
+      }
+    }
+    return deltas;
+  }
+
   return (
     <div className="h-[calc(100vh-4rem)]">
       {/* Header Row with Simulate Button */}
       <div className="bg-gray-800 border-b border-gray-700 px-6 py-3 flex items-center justify-between mt-2">
         <h1 className="text-xl font-bold text-green-400">{importedCompetition?.compName}</h1>
-        <button 
-          className={`px-4 py-2 rounded-lg transition-colors font-medium 
-           ${currentMatchday > maxMatchday 
-            ? "bg-gray-600 text-gray-300 cursor-not-allowed" 
-            : "bg-green-600 text-white hover:bg-green-700"
-          }`}
-          onClick={() => onNextRound(importedCompetition?.compType || 'NA')}
-        >
-          Simulate
-        </button>
+        <div className="flex items-center gap-2">
+          {currentMatchday > maxMatchday && (
+            <>
+              <button
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium"
+                onClick={() => {
+                  // TODO: implement history view action
+                  console.log('History clicked');
+                }}
+              >
+                History
+              </button>
+              <button
+                className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-medium"
+                onClick={() => {
+                  const rankingData = totalMatchDeltas();
+                  const jsonString = JSON.stringify(rankingData, null, 2);
+                  const blob = new Blob([jsonString], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = `${importedCompetition?.compName || 'competition'}_ranking_deltas.json`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                Export Ranking Info
+              </button>
+            </>
+          )}
+
+          <button
+            className={`px-4 py-2 rounded-lg transition-colors font-medium
+              ${currentMatchday > maxMatchday
+                ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                : 'bg-green-600 text-white hover:bg-green-700'
+            }`}
+            onClick={() => onNextRound(importedCompetition?.compType || 'NA')}
+          >
+            Simulate
+          </button>
+        </div>
       </div>
       
       {/* Simulator Content */}

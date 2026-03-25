@@ -4,6 +4,7 @@ import DrawMaker from './pages/DrawMaker'
 import CompetitionSimulator from './pages/CompetitionSimulator'
 import RosterManager from './pages/RosterManager'
 import './App.css'
+import DataEditor from './pages/DataEditor'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/index.html" element={<Navigate to="/" replace />} />
         <Route path="/draw-maker" element={<DrawMaker />} />
         <Route path="/competition-simulator" element={<CompetitionSimulator />} />
+        <Route path="/data-editor" element={<DataEditor />} />
         <Route path="/roster-manager" element={<RosterManager />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

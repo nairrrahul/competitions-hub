@@ -66,6 +66,8 @@ interface PlayersState {
   importAllPlayers: (file: File) => void
   ageAllPlayers: (years: number) => void
   getRoundInfo: (competitionName: string) => any
+  getNationInfo: (nationName: string) => any
+  updateNationInfo: (nationName: string, newInfo: any) => void
 }
 
 export const useGlobalStore = create<PlayersState>((set, get) => ({
@@ -727,7 +729,22 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
     
     // Regenerate squads with aged players
     generateSquads()
+  },
+
+  getNationInfo: (nationName: string) => {
+    const { nationInfo } = get()
+    return nationInfo[nationName]
+  },
+
+  updateNationInfo: (nationName: string, newInfo: any) => {
+    set((state) => ({
+      nationInfo: {
+        ...state.nationInfo,
+        [nationName]: newInfo
+      }
+    }))
   }
+  
 }))
 
 // Helper function to group players by nation
