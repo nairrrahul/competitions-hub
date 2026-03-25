@@ -12,7 +12,7 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, index }) => {
      <div key={index} className="flex items-center justify-between bg-gray-700 rounded p-3 relative">
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-2">
-          <MatchFlag countryName={match.homeTeam} />
+          <MatchFlag countryName={match.homeTeam} w={7} h={5} s={1.5}/>
           <span className="text-white font-medium">{match.homeTeam}</span>
         </div>
       </div>
@@ -21,7 +21,7 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, index }) => {
       </div>
       <div className="flex items-center gap-2">
         <span className="text-white font-medium">{match.awayTeam}</span>
-        <MatchFlag countryName={match.awayTeam} />
+        <MatchFlag countryName={match.awayTeam} w={7} h={5} s={1.5} />
       </div>
     </div>
   );
