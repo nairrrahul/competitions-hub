@@ -35,14 +35,89 @@ const DataEditor: React.FC = () => {
     });
   }, [sortedNations, searchTerm, selectedConfederation]);
 
+  const { updateNationInfo } = useGlobalStore();
+
   const handleExportData = () => {
-    // TODO: implement export data action
-    console.log('Export Data clicked');
+    const jsonString = JSON.stringify(nationInfo, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'nationInfo.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportAllData = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const importedData = JSON.parse(text) as NationInfo;
+
+        // Update each country in nationInfo with imported data
+        Object.entries(importedData).forEach(([countryName, importedInfo]) => {
+          if (nationInfo[countryName]) {
+            // Merge imported data (rankingPts and confederationID) with existing data
+            const updatedInfo = {
+              ...nationInfo[countryName],
+              rankingPts: importedInfo.rankingPts,
+              confederationID: importedInfo.confederationID
+            };
+            updateNationInfo(countryName, updatedInfo);
+          }
+        });
+
+        // Show success message
+        console.log('Nation info imported successfully');
+      } catch (error) {
+        console.error('Error importing nation info:', error);
+      }
+    };
+    input.click();
   };
 
   const handleImportRankingDeltas = () => {
-    // TODO: implement import ranking deltas action
-    console.log('Import Ranking Deltas clicked');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const rankingDeltas = JSON.parse(text) as { [countryName: string]: number };
+
+        // Apply ranking deltas to valid countries
+        Object.entries(rankingDeltas).forEach(([countryName, delta]) => {
+          if (nationInfo[countryName]) {
+            const currentInfo = nationInfo[countryName];
+            const newRankingPts = currentInfo.rankingPts + delta;
+            const updatedInfo = {
+              ...currentInfo,
+              rankingPts: newRankingPts
+            };
+            updateNationInfo(countryName, updatedInfo);
+          }
+        });
+
+        // Show success message
+        console.log('Ranking deltas imported successfully');
+      } catch (error) {
+        console.error('Error importing ranking deltas:', error);
+      }
+    };
+    input.click();
   };
 
   return (
@@ -79,6 +154,12 @@ const DataEditor: React.FC = () => {
                 className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium"
               >
                 Export Data
+              </button>
+              <button
+                onClick={handleImportAllData}
+                className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors font-medium"
+              >
+                Import All Data
               </button>
               <button
                 onClick={handleImportRankingDeltas}
