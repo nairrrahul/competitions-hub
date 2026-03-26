@@ -189,16 +189,16 @@ function pickN(start: number, stop: number, n: number): number[] {
 export function generateStarterScoringProbability(squad: Squad): Map<Player, number> {
   const [defenderRatings, midRatings, atkRatings] = caluclateTeamPositionRatingSum(squad);
   const initialProbs = new Map<Player, number>([
-    [squad.starters.defenders[0].player, squad.starters.defenders[0].player.overall / defenderRatings * 0.15],
-    [squad.starters.defenders[1].player, squad.starters.defenders[1].player.overall / defenderRatings * 0.15],
-    [squad.starters.defenders[2].player, squad.starters.defenders[2].player.overall / defenderRatings * 0.15],
-    [squad.starters.defenders[3].player, squad.starters.defenders[3].player.overall / defenderRatings * 0.15],
+    [squad.starters.defenders[0].player, squad.starters.defenders[0].player.overall / defenderRatings * 0.17],
+    [squad.starters.defenders[1].player, squad.starters.defenders[1].player.overall / defenderRatings * 0.1],
+    [squad.starters.defenders[2].player, squad.starters.defenders[2].player.overall / defenderRatings * 0.1],
+    [squad.starters.defenders[3].player, squad.starters.defenders[3].player.overall / defenderRatings * 0.17],
     [squad.starters.midfielders[0].player, squad.starters.midfielders[0].player.overall / midRatings * 0.35],
     [squad.starters.midfielders[1].player, squad.starters.midfielders[1].player.overall / midRatings * 0.35],
     [squad.starters.midfielders[2].player, squad.starters.midfielders[2].player.overall / midRatings * 0.35],
     [squad.starters.forwards[0].player, squad.starters.forwards[0].player.overall / atkRatings * 0.5],
     [squad.starters.forwards[1].player, squad.starters.forwards[1].player.overall / atkRatings * 0.5],
-    [squad.starters.forwards[2].player, squad.starters.forwards[2].player.overall / atkRatings * 0.5]
+    [squad.starters.forwards[2].player, squad.starters.forwards[2].player.overall / atkRatings * 0.56]
   ]);
   const total = Array.from(initialProbs.values()).reduce((acc, val) => acc + val, 0);
   return new Map(
@@ -209,16 +209,16 @@ export function generateStarterScoringProbability(squad: Squad): Map<Player, num
 export function generateAssister(squad: Squad, scoringPlayer: Player): Player {
   const [defenderRatings, midRatings, atkRatings] = caluclateTeamPositionRatingSum(squad);
   const initialProbs = new Map<Player, number>([
-    [squad.starters.defenders[0].player, squad.starters.defenders[0].player.overall / defenderRatings * 0.2],
-    [squad.starters.defenders[1].player, squad.starters.defenders[1].player.overall / defenderRatings * 0.2],
-    [squad.starters.defenders[2].player, squad.starters.defenders[2].player.overall / defenderRatings * 0.2],
-    [squad.starters.defenders[3].player, squad.starters.defenders[3].player.overall / defenderRatings * 0.2],
+    [squad.starters.defenders[0].player, squad.starters.defenders[0].player.overall / defenderRatings * 0.25],
+    [squad.starters.defenders[1].player, squad.starters.defenders[1].player.overall / defenderRatings * 0.15],
+    [squad.starters.defenders[2].player, squad.starters.defenders[2].player.overall / defenderRatings * 0.15],
+    [squad.starters.defenders[3].player, squad.starters.defenders[3].player.overall / defenderRatings * 0.25],
     [squad.starters.midfielders[0].player, squad.starters.midfielders[0].player.overall / midRatings * 0.4],
     [squad.starters.midfielders[1].player, squad.starters.midfielders[1].player.overall / midRatings * 0.4],
-    [squad.starters.midfielders[2].player, squad.starters.midfielders[2].player.overall / midRatings * 0.4],
-    [squad.starters.forwards[0].player, squad.starters.forwards[0].player.overall / atkRatings * 0.4],
-    [squad.starters.forwards[1].player, squad.starters.forwards[1].player.overall / atkRatings * 0.4],
-    [squad.starters.forwards[2].player, squad.starters.forwards[2].player.overall / atkRatings * 0.4]
+    [squad.starters.midfielders[2].player, squad.starters.midfielders[2].player.overall / midRatings * 0.44],
+    [squad.starters.forwards[0].player, squad.starters.forwards[0].player.overall / atkRatings * 0.43],
+    [squad.starters.forwards[1].player, squad.starters.forwards[1].player.overall / atkRatings * 0.43],
+    [squad.starters.forwards[2].player, squad.starters.forwards[2].player.overall / atkRatings * 0.3]
   ]);
   const resMap = new Map<Player, number>();
   for(const [player,prob] of initialProbs.entries()) {

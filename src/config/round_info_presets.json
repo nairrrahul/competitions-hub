@@ -7,49 +7,56 @@
                 "roundName": "Group Stage",
                 "numIn": 48,
                 "numThrough": 32,
-                "numMatchdays": 3
+                "numMatchdays": 3,
+                "rankingPts": 50
             },
             {
                 "type": "KO",
                 "roundName": "Round of 32",
                 "numIn": 32,
                 "numThrough": 16,
-                "numMatchdays": 4
+                "numMatchdays": 4,
+                "rankingPts": 50
             },
             {
                 "type": "KO",
                 "roundName": "Round of 16",
                 "numIn": 16,
                 "numThrough": 8,
-                "numMatchdays": 5
+                "numMatchdays": 5,
+                "rankingPts": 50
             },
             {
                 "type": "KO",
                 "roundName": "Quarter-finals",
                 "numIn": 8,
                 "numThrough": 4,
-                "numMatchdays": 6
+                "numMatchdays": 6,
+                "rankingPts": 60
             },
             {
                 "type": "KO",
                 "roundName": "Semi-finals",
                 "numIn": 4,
                 "numThrough": 2,
-                "numMatchdays": 7
+                "numMatchdays": 7,
+                "rankingPts": 60
             },
             {
                 "type": "P3",
                 "roundName": "Third Place",
                 "numIn": 2,
                 "numThrough": 1,
-                "numMatchdays": 8
+                "numMatchdays": 8,
+                "rankingPts": 60
             },
             {
                 "type": "KO",
                 "roundName": "Final",
                 "numIn": 2,
                 "numThrough": 1,
-                "numMatchdays": 9
+                "numMatchdays": 9,
+                "rankingPts": 60
             }
         ]
     },
@@ -61,35 +68,40 @@
                 "roundName": "Group Stage",
                 "numIn": 24,
                 "numThrough": 16,
-                "numMatchdays": 3
+                "numMatchdays": 3,
+                "rankingPts": 35
             },
             {
                 "type": "KO",
                 "roundName": "Round of 16",
                 "numIn": 16,
                 "numThrough": 8,
-                "numMatchdays": 4
+                "numMatchdays": 4,
+                "rankingPts": 35
             },
             {
                 "type": "KO",
                 "roundName": "Quarter-finals",
                 "numIn": 8,
                 "numThrough": 4,
-                "numMatchdays": 5
+                "numMatchdays": 5,
+                "rankingPts": 40
             },
             {
                 "type": "KO",
                 "roundName": "Semi-finals",
                 "numIn": 4,
                 "numThrough": 2,
-                "numMatchdays": 6
+                "numMatchdays": 6,
+                "rankingPts": 40
             },
             {
                 "type": "KO",
                 "roundName": "Final",
                 "numIn": 2,
                 "numThrough": 1,
-                "numMatchdays": 7
+                "numMatchdays": 7,
+                "rankingPts": 40
             }
         ]
     },
@@ -101,42 +113,48 @@
                 "roundName": "Group Stage",
                 "numIn": 24,
                 "numThrough": 16,
-                "numMatchdays": 3
+                "numMatchdays": 3,
+                "rankingPts": 35
             },
             {
                 "type": "KO",
                 "roundName": "Round of 16",
                 "numIn": 16,
                 "numThrough": 8,
-                "numMatchdays": 4
+                "numMatchdays": 4,
+                "rankingPts": 35
             },
             {
                 "type": "KO",
                 "roundName": "Quarter-finals",
                 "numIn": 8,
                 "numThrough": 4,
-                "numMatchdays": 5
+                "numMatchdays": 5,
+                "rankingPts": 40
             },
             {
                 "type": "KO",
                 "roundName": "Semi-finals",
                 "numIn": 4,
                 "numThrough": 2,
-                "numMatchdays": 6
+                "numMatchdays": 6,
+                "rankingPts": 40
             },
             {
                 "type": "P3",
                 "roundName": "Third Place",
                 "numIn": 2,
                 "numThrough": 1,
-                "numMatchdays": 7
+                "numMatchdays": 7,
+                "rankingPts": 40
             },
             {
                 "type": "KO",
                 "roundName": "Final",
                 "numIn": 2,
                 "numThrough": 1,
-                "numMatchdays": 8
+                "numMatchdays": 8,
+                "rankingPts": 40
             }
         ]
     },
@@ -148,35 +166,40 @@
                 "roundName": "Group Stage",
                 "numIn": 16,
                 "numThrough": 8,
-                "numMatchdays": 3
+                "numMatchdays": 3,
+                "rankingPts": 35
             },
             {
                 "type": "KO",
                 "roundName": "Quarter-finals",
                 "numIn": 8,
                 "numThrough": 4,
-                "numMatchdays": 4
+                "numMatchdays": 4,
+                "rankingPts": 40
             },
             {
                 "type": "KO",
                 "roundName": "Semi-finals",
                 "numIn": 4,
                 "numThrough": 2,
-                "numMatchdays": 5
+                "numMatchdays": 5,
+                "rankingPts": 40
             },
             {
                 "type": "P3",
                 "roundName": "Third Place",
                 "numIn": 2,
                 "numThrough": 1,
-                "numMatchdays": 6
+                "numMatchdays": 6,
+                "rankingPts": 40
             },
             {
                 "type": "KO",
                 "roundName": "Final",
                 "numIn": 2,
                 "numThrough": 1,
-                "numMatchdays": 7
+                "numMatchdays": 7,
+                "rankingPts": 40
             }
         ]
     },
@@ -188,28 +211,32 @@
                 "roundName": "Group Stage",
                 "numIn": 16,
                 "numThrough": 8,
-                "numMatchdays": 3
+                "numMatchdays": 3,
+                "rankingPts": 35
             },
             {
                 "type": "KO",
                 "roundName": "Quarter-finals",
                 "numIn": 8,
                 "numThrough": 4,
-                "numMatchdays": 4
+                "numMatchdays": 4,
+                "rankingPts": 40
             },
             {
                 "type": "KO",
                 "roundName": "Semi-finals",
                 "numIn": 4,
                 "numThrough": 2,
-                "numMatchdays": 5
+                "numMatchdays": 5,
+                "rankingPts": 40
             },
             {
                 "type": "KO",
                 "roundName": "Final",
                 "numIn": 2,
                 "numThrough": 1,
-                "numMatchdays": 6
+                "numMatchdays": 6,
+                "rankingPts": 40
             }
         ]
     },
@@ -221,28 +248,32 @@
                 "roundName": "Group Stage",
                 "numIn": 8,
                 "numThrough": 4,
-                "numMatchdays": 3
+                "numMatchdays": 3,
+                "rankingPts": 35
             },
             {
                 "type": "KO",
                 "roundName": "Semi-finals",
                 "numIn": 4,
                 "numThrough": 2,
-                "numMatchdays": 4
+                "numMatchdays": 4,
+                "rankingPts": 40
             },
             {
                 "type": "P3",
                 "roundName": "Third Place",
                 "numIn": 2,
                 "numThrough": 1,
-                "numMatchdays": 5
+                "numMatchdays": 5,
+                "rankingPts": 40
             },
             {
                 "type": "KO",
                 "roundName": "Final",
                 "numIn": 2,
                 "numThrough": 1,
-                "numMatchdays": 6
+                "numMatchdays": 6,
+                "rankingPts": 40
             }
         ]
     },
@@ -254,35 +285,40 @@
                 "roundName": "Group Stage",
                 "numIn": 24,
                 "numThrough": 16,
-                "numMatchdays": 3
+                "numMatchdays": 3,
+                "rankingPts": 35
             },
             {
                 "type": "KO",
                 "roundName": "Round of 16",
                 "numIn": 16,
                 "numThrough": 8,
-                "numMatchdays": 4
+                "numMatchdays": 4,
+                "rankingPts": 35
             },
             {
                 "type": "KO",
                 "roundName": "Quarter-finals",
                 "numIn": 8,
                 "numThrough": 4,
-                "numMatchdays": 5
+                "numMatchdays": 5,
+                "rankingPts": 40
             },
             {
                 "type": "KO",
                 "roundName": "Semi-finals",
                 "numIn": 4,
                 "numThrough": 2,
-                "numMatchdays": 6
+                "numMatchdays": 6,
+                "rankingPts": 40
             },
             {
                 "type": "KO",
                 "roundName": "Final",
                 "numIn": 2,
                 "numThrough": 1,
-                "numMatchdays": 7
+                "numMatchdays": 7,
+                "rankingPts": 40
             }
         ]
     }

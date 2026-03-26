@@ -133,7 +133,7 @@ const LoadedSquads: React.FC<LoadedSquadsProps> = ({ squads, competitionType, gr
                   isStarter={false}
                 />
                 <div className="text-gray-400 mb-2 mt-3">Defenders</div>
-                {squad.substitutes.defenders.map((squadPlayer) => (
+                {squad.substitutes.defenders.filter(df => df != null).map((squadPlayer) => (
                   <SquadPlayerDisplay 
                     key={squadPlayer.player.playerid} 
                     player={squadPlayer.player} 
@@ -141,7 +141,7 @@ const LoadedSquads: React.FC<LoadedSquadsProps> = ({ squads, competitionType, gr
                   />
                 ))}
                 <div className="text-gray-400 mb-2 mt-3">Midfielders</div>
-                {squad.substitutes.midfielders.map((squadPlayer) => (
+                {squad.substitutes.midfielders.filter(mf => mf != null).map((squadPlayer) => (
                   <SquadPlayerDisplay 
                     key={squadPlayer.player.playerid} 
                     player={squadPlayer.player} 
@@ -149,7 +149,7 @@ const LoadedSquads: React.FC<LoadedSquadsProps> = ({ squads, competitionType, gr
                   />
                 ))}
                 <div className="text-gray-400 mb-2 mt-3">Forwards</div>
-                {squad.substitutes.forwards.map((squadPlayer) => (
+                {squad.substitutes.forwards.filter(at => at != null).map((squadPlayer) => (
                   <SquadPlayerDisplay 
                     key={squadPlayer.player.playerid} 
                     player={squadPlayer.player} 
