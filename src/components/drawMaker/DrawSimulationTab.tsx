@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import nationInfo from '../../config/nation_info.json';
 import groupPresets from '../../config/group_presets.json';
 import PotsDisplay from './PotsDisplay';
 import GroupsDisplay from './GroupsDisplay';
@@ -11,6 +10,7 @@ import {
   type TeamSlot,
   type TeamData
 } from '../../types/DrawMakerTypes';
+import { useGlobalStore } from '../../state/GlobalState';
 
 
 interface DrawSimulationTabProps {
@@ -29,6 +29,8 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
   // State for calculated teams and pots (to reset properly when teamData changes)
   const [sortedTeams, setSortedTeams] = useState<TeamSlot[]>([]);
   const [pots, setPots] = useState<{ [key: string]: TeamSlot[] }>({});
+
+  const getNationInfo = useGlobalStore(state => state.getNationInfo);
 
   // Recalculate sorted teams and pots when teamData changes
   useEffect(() => {
@@ -101,8 +103,8 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
 
     // Sort each category by ranking points
     const sortByRanking = (a: TeamSlot, b: TeamSlot) => {
-      const aRanking = nationInfo[a.name as keyof typeof nationInfo]?.rankingPts || 0;
-      const bRanking = nationInfo[b.name as keyof typeof nationInfo]?.rankingPts || 0;
+      const aRanking = getNationInfo(a.name)?.rankingPts || 0;
+      const bRanking = getNationInfo(b.name)?.rankingPts || 0;
       return bRanking - aRanking; // Descending order (highest first)
     };
 

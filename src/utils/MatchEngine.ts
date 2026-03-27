@@ -193,12 +193,12 @@ export function generateStarterScoringProbability(squad: Squad): Map<Player, num
     [squad.starters.defenders[1].player, squad.starters.defenders[1].player.overall / defenderRatings * 0.1],
     [squad.starters.defenders[2].player, squad.starters.defenders[2].player.overall / defenderRatings * 0.1],
     [squad.starters.defenders[3].player, squad.starters.defenders[3].player.overall / defenderRatings * 0.17],
-    [squad.starters.midfielders[0].player, squad.starters.midfielders[0].player.overall / midRatings * 0.35],
-    [squad.starters.midfielders[1].player, squad.starters.midfielders[1].player.overall / midRatings * 0.35],
-    [squad.starters.midfielders[2].player, squad.starters.midfielders[2].player.overall / midRatings * 0.35],
-    [squad.starters.forwards[0].player, squad.starters.forwards[0].player.overall / atkRatings * 0.5],
-    [squad.starters.forwards[1].player, squad.starters.forwards[1].player.overall / atkRatings * 0.5],
-    [squad.starters.forwards[2].player, squad.starters.forwards[2].player.overall / atkRatings * 0.56]
+    [squad.starters.midfielders[0].player, squad.starters.midfielders[0].player.overall / midRatings * 0.3],
+    [squad.starters.midfielders[1].player, squad.starters.midfielders[1].player.overall / midRatings * 0.36],
+    [squad.starters.midfielders[2].player, squad.starters.midfielders[2].player.overall / midRatings * 0.36],
+    [squad.starters.forwards[0].player, squad.starters.forwards[0].player.overall / atkRatings * 0.51],
+    [squad.starters.forwards[1].player, squad.starters.forwards[1].player.overall / atkRatings * 0.51],
+    [squad.starters.forwards[2].player, squad.starters.forwards[2].player.overall / atkRatings * 0.57]
   ]);
   const total = Array.from(initialProbs.values()).reduce((acc, val) => acc + val, 0);
   return new Map(
@@ -215,10 +215,10 @@ export function generateAssister(squad: Squad, scoringPlayer: Player): Player {
     [squad.starters.defenders[3].player, squad.starters.defenders[3].player.overall / defenderRatings * 0.25],
     [squad.starters.midfielders[0].player, squad.starters.midfielders[0].player.overall / midRatings * 0.4],
     [squad.starters.midfielders[1].player, squad.starters.midfielders[1].player.overall / midRatings * 0.4],
-    [squad.starters.midfielders[2].player, squad.starters.midfielders[2].player.overall / midRatings * 0.44],
-    [squad.starters.forwards[0].player, squad.starters.forwards[0].player.overall / atkRatings * 0.43],
-    [squad.starters.forwards[1].player, squad.starters.forwards[1].player.overall / atkRatings * 0.43],
-    [squad.starters.forwards[2].player, squad.starters.forwards[2].player.overall / atkRatings * 0.3]
+    [squad.starters.midfielders[2].player, squad.starters.midfielders[2].player.overall / midRatings * 0.45],
+    [squad.starters.forwards[0].player, squad.starters.forwards[0].player.overall / atkRatings * 0.45],
+    [squad.starters.forwards[1].player, squad.starters.forwards[1].player.overall / atkRatings * 0.45],
+    [squad.starters.forwards[2].player, squad.starters.forwards[2].player.overall / atkRatings * 0.25]
   ]);
   const resMap = new Map<Player, number>();
   for(const [player,prob] of initialProbs.entries()) {
@@ -401,7 +401,7 @@ export function simulateMatch(team1Squad: Squad, team2Squad: Squad, roundType: R
   const team1Rating = ((roundType == 'KO' || roundType == 'P3') && team1InitRating > team2InitRating) ? team1InitRating + 2 : team1InitRating;
   const team2Rating = ((roundType == 'KO' || roundType == 'P3') && team2InitRating > team1InitRating) ? team2InitRating + 2 : team2InitRating;
 
-  let ratingRatio = team1Rating / team2Rating;
+  let ratingRatio = Math.pow(team1Rating / team2Rating, 2);
   const ratingFactor = ratingRatio < 1 ? 0.0276842*Math.pow(33.50952, ratingRatio) + 0.0723158 : 1;
   const ratingSkew = (1-ratingFactor) * SCALAR_VALUE;
   const skewedZ = Object.fromEntries(

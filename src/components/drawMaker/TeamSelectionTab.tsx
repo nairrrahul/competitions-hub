@@ -30,12 +30,6 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
 
   // Get global state functions
   const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
-  const loadNationInfo = useGlobalStore(state => state.loadNationInfo);
-
-  // Load nation info data on component mount
-  useEffect(() => {
-    loadNationInfo();
-  }, [loadNationInfo]);
 
   // Team management state
   const [teamSlots, setTeamSlots] = useState<TeamSlot[]>(initialData?.teamSlots || []);
