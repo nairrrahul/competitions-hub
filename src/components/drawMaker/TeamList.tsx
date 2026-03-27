@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React  from 'react';
 import drawPresets from '../../config/draw_presets.json';
 import { useGlobalStore } from '../../state/GlobalState';
 import { type TeamSlot } from '../../types/DrawMakerTypes';
@@ -28,12 +28,6 @@ const TeamList: React.FC<TeamListProps> = ({
   setAutocompleteStates
 }) => {
   const getCountryFlagCode = useGlobalStore(state => state.getNationFlagCode);
-  const loadNationInfo = useGlobalStore(state => state.loadNationInfo);
-
-  // Load nation info data on component mount
-  useEffect(() => {
-    loadNationInfo();
-  }, [loadNationInfo]);
   
   // Get all available team names for autocomplete
   const allTeamNames = useGlobalStore.getState().getAllNationalities();

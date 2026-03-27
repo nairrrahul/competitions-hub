@@ -44,7 +44,7 @@ const DataEditor: React.FC = () => {
     
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'nationInfo.json';
+    link.download = 'nationInfo.nt.json';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -55,7 +55,7 @@ const DataEditor: React.FC = () => {
   const handleImportAllData = () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json';
+    input.accept = '.nt.json';
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
@@ -89,7 +89,7 @@ const DataEditor: React.FC = () => {
   const handleImportRankingDeltas = () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json';
+    input.accept = '.delta.json'; 
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;

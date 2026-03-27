@@ -1,5 +1,5 @@
 import React from 'react';
-import nationInfo from '../../config/nation_info.json';
+import { useGlobalStore } from '../../state/GlobalState';
 
 type CountryStatus = 'none' | 'host' | 'playoff';
 
@@ -14,8 +14,8 @@ const CountryDrawRow: React.FC<CountryDrawRowProps> = ({
   status,
   showRankingPts
 }) => {
-  // Get flag code and ranking points from nation_info.json
-  const nationData = nationInfo[countryName as keyof typeof nationInfo];
+  const getNationInfo = useGlobalStore(state => state.getNationInfo);
+  const nationData = getNationInfo(countryName);
   const flagCode = nationData?.flagCode || '';
   const rankingPoints = nationData?.rankingPts || 'N/A';
 

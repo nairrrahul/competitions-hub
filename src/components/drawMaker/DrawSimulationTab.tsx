@@ -210,8 +210,9 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
     }
     
     // Get competition information
-    const competitionName = teamData?.selectedCompetition || 'draw';
-    const numThrough = groupPresets[competitionName as keyof typeof groupPresets]?.numTotalThrough || 0;
+    const competitionName = teamData?.selectedCompetition ? teamData.selectedCompetition : 
+      (teamData?.presetType == 'confederation' ? `${teamData.selectedConfederation} Round Robin` : 'draw');
+    const numThrough = teamData?.selectedCompetition ? groupPresets[competitionName as keyof typeof groupPresets]?.numTotalThrough : -1;
     
     // Count total teams
     let totalTeams = 0;
@@ -245,7 +246,8 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
       compName: competitionName,
       numTeams: totalTeams,
       numThrough: numThrough,
-      compType: "GROUPKO",
+      compType: teamData?.selectedCompetition ? "GROUPKO" : "GROUP",
+      isHA: false,
       groups: groups
     };
 
@@ -260,7 +262,7 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
     const timestamp = `${year}${month}${day}${hours}${minutes}${seconds}`;
 
     // Get competition name for filename
-    const filename = `${timestamp}-${competitionName}.json`;
+    const filename = `${timestamp}-${competitionName}.comp.json`;
 
     // Create and download JSON file
     const jsonString = JSON.stringify(exportData, null, 2);
@@ -410,7 +412,7 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
             <p className="text-gray-400">Simulate the competition draw</p>
           </div>
           <div className="flex gap-3">
-            {simulationComplete && teamData?.presetType === 'competition' && (
+            {simulationComplete && (teamData?.presetType === 'competition' || teamData?.presetType === 'confederation') && (
               <button 
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
                 onClick={exportGroups}

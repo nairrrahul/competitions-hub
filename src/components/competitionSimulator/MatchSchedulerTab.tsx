@@ -54,7 +54,7 @@ const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
     // Create file input element
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
-    fileInput.accept = '.json';
+    fileInput.accept = '.comp.json';
     
     fileInput.onchange = (event) => {
       const file = (event.target as HTMLInputElement).files?.[0];

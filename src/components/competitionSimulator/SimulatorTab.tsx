@@ -302,7 +302,7 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
                   
                   const link = document.createElement('a');
                   link.href = url;
-                  link.download = `${importedCompetition?.compName || 'competition'}_ranking_deltas.json`;
+                  link.download = `${importedCompetition?.compName || 'competition'}_ranking_deltas.delta.json`;
                   document.body.appendChild(link);
                   link.click();
                   document.body.removeChild(link);

@@ -1,4 +1,4 @@
-import nationInfo from '../config/nation_info.json';
+import { useGlobalStore } from '../state/GlobalState';
 import {
   type TeamSlot,
   type GroupStructure,
@@ -16,7 +16,7 @@ export const shuffleArray = <T,>(array: T[]): T[] => {
 };
 
 export const getTeamConfederation = (team: TeamSlot): string => {
-  const nationData = nationInfo[team.name as keyof typeof nationInfo];
+  const nationData = useGlobalStore.getState().getNationInfo(team.name);
   return nationData?.confederationID || '';
 };
 
