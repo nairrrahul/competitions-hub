@@ -25,6 +25,7 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulatedGroups, setSimulatedGroups] = useState<{ [key: string]: (TeamSlot | null)[] }>({});
   const [simulationComplete, setSimulationComplete] = useState(false);
+  const [homeAwayEnabled, setHomeAwayEnabled] = useState(false);
   
   // State for calculated teams and pots (to reset properly when teamData changes)
   const [sortedTeams, setSortedTeams] = useState<TeamSlot[]>([]);
@@ -246,7 +247,7 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
       compName: competitionName,
       numTeams: totalTeams,
       numThrough: numThrough,
-      compType: teamData?.selectedCompetition ? "GROUPKO" : "GROUP",
+      compType: teamData?.selectedCompetition ? "GROUPKO" : (homeAwayEnabled ? "GROUPHA" : "GROUP"),
       isHA: false,
       groups: groups
     };
@@ -418,6 +419,14 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
                 onClick={exportGroups}
               >
                 Export
+              </button>
+            )}
+            {(teamData?.presetType === 'confederation') && (
+              <button 
+                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+                onClick={() => {setHomeAwayEnabled(!homeAwayEnabled)}}
+              >
+                Home/Away {homeAwayEnabled ? 'Enabled' : 'Disabled'}
               </button>
             )}
             <button 
