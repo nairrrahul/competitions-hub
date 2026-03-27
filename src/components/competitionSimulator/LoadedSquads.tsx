@@ -165,7 +165,7 @@ const LoadedSquads: React.FC<LoadedSquadsProps> = ({ squads, competitionType, gr
   };
 
   // For GROUPKO competitions, organize by groups
-  if (competitionType === 'GROUPKO' && groups) {
+  if ((competitionType === 'GROUPKO' || competitionType === 'GROUP' || competitionType === 'GROUPHA') && groups) {
     return (
       <div className="space-y-6">
         {Object.entries(groups).map(([groupName, nations]) => (
