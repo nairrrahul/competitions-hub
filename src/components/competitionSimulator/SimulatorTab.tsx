@@ -6,6 +6,7 @@ import type { Squad } from '../../types/rosterManager';
 import { simulateKnockoutRound, simulateMatchesForRound, type RoundType } from '../../utils/MatchEngine';
 import { generateKnockout24, generateKnockout48, generateKnockoutPO2 } from '../../utils/BracketGeneration';
 import { isPowerOfTwo } from '../../utils/playerAging';
+import RoundRobinSimulator from './ROUNDROBIN/RoundRobinSimulator';
 
 interface ImportedCompetition {
   compName: string;
@@ -151,6 +152,16 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
             transformedStandings={transformedGroups}
           />
         );
+      case 'GROUP':
+      case 'GROUPHA':
+        return (
+          <RoundRobinSimulator 
+            importedCompetition={importedCompetition} 
+            matchSchedule={simulatorSchedule}
+            competitionSquads={competitionSquads}
+            transformedStandings={transformedGroups}
+          />
+        )
       default:
         return (
           <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
@@ -162,6 +173,27 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
         );
     }
   };
+
+  const onNextRoundGroup = () => {
+    const roundMatches = simulatorSchedule[currentMatchday];
+    if (!roundMatches) return;
+
+    const result = simulateMatchesForRound(
+      roundMatches,
+      competitionSquads,
+      transformedGroups
+    );
+
+    const updatedSchedule = {
+      ...simulatorSchedule,
+      [currentMatchday]: result.matches
+    };
+
+    setSimulatorSchedule(updatedSchedule);
+    setTransformedGroups(result.standings);
+    const newMatchday = currentMatchday + 1;
+    setCurrentMatchday(newMatchday);
+  }
 
   const onNextRoundGroupKO = () => { 
     const roundMatches = simulatorSchedule[currentMatchday];
@@ -251,6 +283,10 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     switch (compType) {
       case 'GROUPKO':
         onNextRoundGroupKO();
+        break;
+      case 'GROUP':
+      case 'GROUPHA':
+        onNextRoundGroup();
         break;
       default:
         console.log(`No simulation logic for competition type: ${compType}`);

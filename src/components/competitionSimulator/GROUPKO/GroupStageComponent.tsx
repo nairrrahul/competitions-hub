@@ -18,9 +18,10 @@ interface TransformedGroups {
 interface GroupStageComponentProps {
   transformedGroups: TransformedGroups;
   importedCompetition: any; // Add competition prop to access round info
+  needNthPlace: boolean
 }
 
-const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGroups, importedCompetition }) => {
+const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGroups, importedCompetition, needNthPlace }) => {
   const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
   const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
   const totalGroups = Object.keys(transformedGroups).length; 
@@ -114,7 +115,7 @@ const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGr
       ))}
       
       {/* Nth Place Teams Table */}
-      {shouldShowBestNthPlaceTable() && (
+      {(needNthPlace && shouldShowBestNthPlaceTable()) && (
         <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
           {/* Header */}
           <div className="bg-gray-750 px-4 py-3 border-b border-gray-700">

@@ -84,7 +84,10 @@ const StagesSection: React.FC<StagesSectionProps> = ({ importedCompetition, matc
     }
 
     if (stageType === 'GROUP') {
-      return <GroupStageComponent transformedGroups={transformedGroups} importedCompetition={importedCompetition} />;
+      return <GroupStageComponent 
+      transformedGroups={transformedGroups} 
+      importedCompetition={importedCompetition}
+      needNthPlace={true} />;
     } else if (stageType === 'KO' || stageType === 'P3') {
       return <KnockoutStageComponent matchSchedule={getMatchdayFromRound()} />;
     } else {

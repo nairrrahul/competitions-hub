@@ -102,7 +102,7 @@ const DataEditor: React.FC = () => {
         Object.entries(rankingDeltas).forEach(([countryName, delta]) => {
           if (nationInfo[countryName]) {
             const currentInfo = nationInfo[countryName];
-            const newRankingPts = currentInfo.rankingPts + delta;
+            const newRankingPts = currentInfo.rankingPts + parseFloat(delta.toFixed(2));
             const updatedInfo = {
               ...currentInfo,
               rankingPts: newRankingPts
