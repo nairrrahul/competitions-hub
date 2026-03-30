@@ -556,7 +556,12 @@ export function simulateKnockoutRound(matches: MatchInformation[], squads: {[nat
       match: { 
         homeTeam: match1Winner, 
         awayTeam: match2Winner, 
-        result: null 
+        result: null,
+        matchRiggedOptions: {
+          isRigged: false,
+          homeGoals: -1,
+          awayGoals: -1
+        }
       }
     });
 
@@ -566,7 +571,12 @@ export function simulateKnockoutRound(matches: MatchInformation[], squads: {[nat
       match: { 
         homeTeam: match1Loser, 
         awayTeam: match2Loser, 
-        result: null 
+        result: null,
+        matchRiggedOptions: {
+          isRigged: false,
+          homeGoals: -1,
+          awayGoals: -1
+        } 
       }
     });
   }
