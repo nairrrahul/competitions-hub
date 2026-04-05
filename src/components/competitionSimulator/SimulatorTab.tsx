@@ -198,6 +198,7 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
   const onNextRoundGroupKO = () => { 
     const roundMatches = simulatorSchedule[currentMatchday];
     const numGSMatches = compRoundInfo.rounds[0].numMatchdays;
+    console.log
     let transferStandings = {};
     if (!roundMatches) return;
 

@@ -1,9 +1,10 @@
 import type { TransformedGroups } from '../components/competitionSimulator/GROUPKO/GroupKOSimulator';
 import type { MatchInformation } from '../components/competitionSimulator/SimulatorTab';
-import { useGlobalStore } from '../state/GlobalState';
 import type { Squad, Player } from '../types/rosterManager';
-import type { Match, RiggedMatchProps } from './SchedulerUtils';
+import type { RiggedMatchProps } from './SchedulerUtils';
 import scoreProbs from '../config/score_probs.json';
+import { calculateTeamRating, caluclateTeamPositionRatingSum, getRankingPointsFromMatch } from './RankingPts';
+import { normSDist, pickN, subProbability } from './MathUtils';
 
 const scoreProbabilities = scoreProbs as { [scoreline: string]: number };
 const SCALAR_VALUE = 4;
@@ -32,10 +33,6 @@ export interface MatchResult {
   penalties: Penalties | null;
   cleanSheetNames: Player[];
   rankingDelta: { [nation: string]: number } | null;
-  // substitutions: {
-  //   team1: Array<{ playerOut: Player; playerIn: Player; minute: number }>;
-  //   team2: Array<{ playerOut: Player; playerIn: Player; minute: number }>;
-  // };
 }
 
 export interface MatchRoundInfo {
@@ -60,99 +57,6 @@ export function penaltyResult(val: number): ('X' | 'O') {
     }
 }
 
-export function caluclateTeamPositionRatingSum(squad: Squad): [number, number, number] {
-  const defSum = squad.starters.defenders.map(p => p.player ? p.player.overall : 0).reduce((a, b) => a + b, 0);
-  const midSum = squad.starters.midfielders.map(p => p.player ? p.player.overall : 0).reduce((a, b) => a + b, 0);
-  const atkSum = squad.starters.forwards.map(p => p.player ? p.player.overall : 0).reduce((a, b) => a + b, 0);
-  return [defSum, midSum, atkSum];
-}
-
-export function calculateTeamRating(squad: Squad): number {
-  const [defenderRatings, midRatings, atkRatings] = caluclateTeamPositionRatingSum(squad);
-  const gkRating = squad.starters.gk.player.overall;
-
-  const overall = defenderRatings * 0.3 + midRatings * 0.3 + atkRatings * 0.3 + gkRating * 0.1;
-  if (gkRating > 90 || (gkRating > 1.2 * overall && gkRating < 1.5 * overall)) {
-    return overall + 1;
-  } else if (gkRating > 1.5 * overall) {
-    return overall + 2;
-  } else {
-    return overall;
-  }
-}
-
-export function normSDist(z: number): number {
-  const t = 1 / (1 + 0.2316419 * Math.abs(z));
-  const d = 0.3989423 * Math.exp(-z * z / 2);
-
-  let prob =
-    d *
-    t *
-    (0.3193815 +
-      t *
-        (-0.3565638 +
-          t * (1.781478 + t * (-1.821256 + t * 1.330274))));
-
-  if (z > 0) {
-    prob = 1 - prob;
-  }
-
-  return prob;
-}
-
-
-export function computeExpectedResult(team1Points: number, team2Points: number): number {
-  return 1/(1 + Math.pow(10, -(team1Points - team2Points)/600));
-}
-
-export function computeRankingWeight(team1: string, team2: string, res: MatchResult, roundType: RoundType): [number, number] {
-  if(roundType == 'GROUP') {
-    if(res.team1Goals > res.team2Goals) {
-      return [1, 0];
-    } else if(res.team2Goals > res.team1Goals) {
-      return [0, 1];
-    } else {
-      return [0.5, 0.5];
-    }
-  } else {
-    if(res.team1Goals > res.team2Goals) {
-      return [1, 0];
-    } else if(res.team2Goals > res.team1Goals) {
-      return [0, 1];
-    } else {
-      const winner = parseKnockoutWinner(team1, team2, res, true);
-      if(winner === team1) {
-        return [0.75, 0.5];
-      } else {
-        return [0.5, 0.75];
-      }
-    }
-  }
-}
-
-export function getRankingPointsFromMatch(res: MatchResult, roundType: RoundType, team1Name: string, team2Name: string): {[nation: string]: number} {
-  const getNationInfo = useGlobalStore.getState().getNationInfo;
-  const nationOneInfo = getNationInfo(team1Name);
-  const nationTwoInfo = getNationInfo(team2Name);
-
-  const team1Expected = computeExpectedResult(nationOneInfo.rankingPts, nationTwoInfo.rankingPts);
-  const team2Expected = computeExpectedResult(nationTwoInfo.rankingPts, nationOneInfo.rankingPts);
-
-  const matchPoints = computeRankingWeight(team1Name, team2Name, res, roundType);
-
-  if(roundType == 'GROUP') {
-    return {
-      [team1Name]: 15 * (matchPoints[0] - team1Expected),
-      [team2Name]: 15 * (matchPoints[1] - team2Expected)
-    }
-  } else {
-    return {
-      [team1Name]: 40 * (matchPoints[0] - team1Expected),
-      [team2Name]: 40 * (matchPoints[1] - team2Expected)
-    }
-  }
-}
-
 export function pickRandomScoreline(scoreChances: { [scoreline: string]: number }): string {
   const rand = Math.random();
   
@@ -166,24 +70,6 @@ export function pickRandomScoreline(scoreChances: { [scoreline: string]: number 
   }
 
   return entries[entries.length - 1][0];
-}
-
-function pickN(start: number, stop: number, n: number): number[] {
-  if (n > stop - start + 1) {
-    throw new Error("Cannot pick more unique numbers than the size of the range");
-  }
-
-  // Create an array with numbers from start to stop
-  const arr = Array.from({ length: stop - start + 1 }, (_, i) => start + i);
-
-  // Fisher-Yates shuffle
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-
-  // Take first n numbers
-  return arr.slice(0, n);
 }
 
 export function generateStarterScoringProbability(squad: Squad): Map<Player, number> {
@@ -261,7 +147,6 @@ export function generateSubstituteScoringProbability(squad: Squad): Map<Player, 
   );
 }
 
-
 export function pickGoalScorerFromMinute(starterScoringProb: Map<Player, number>, subScoringProb: Map<Player, number>, minute: number) : Player {
   const subProb = subProbability(minute);
   const isSub = Math.random();
@@ -291,10 +176,6 @@ export function pickGoalScorerFromMinute(starterScoringProb: Map<Player, number>
     }
     return entries[entries.length-1][0];
   }
-}
-
-export function subProbability(minute: number): number {
-  return Math.pow(26.16518 + (24434.3127/Math.exp(0.0751492*minute)),-0.234021);
 }
 
 export function penaltyShootout(): Penalties {
@@ -590,7 +471,6 @@ export function simulateKnockoutRound(matches: MatchInformation[], squads: {[nat
   };
 }
 
-
 export function simulateMatchesForRound(matches: MatchInformation[], squads: { [nation: string]: Squad }, standings: TransformedGroups): MatchRoundInfo{
   const newMatches: MatchInformation[] = matches.map(matchInfo => {
     const team1Squad = squads[matchInfo.match.homeTeam];
@@ -645,22 +525,3 @@ export function simulateMatchesForRound(matches: MatchInformation[], squads: { [
   };
 
 }
-
-export function renderScoreline(match: Match): string {
-  const res = match.result;
-  if (!res) {
-    return 'N/A'
-  } else {
-    const maxGoalMin = Math.max(...[...res.team1GoalInfo, ...res.team2GoalInfo].map((goalInfo) => goalInfo.minute));
-    const pens = res.penalties;
-    if(pens != null) {
-      const team1PenCount = pens.team1Results.filter(pen => pen === 'O').length;
-      const team2PenCount = pens.team2Results.filter(pen => pen === 'O').length;
-      return `${res.team1Goals} - ${res.team2Goals} (${team1PenCount} - ${team2PenCount} PSO)`
-    }
-    if(maxGoalMin > 90) {
-      return `${res.team1Goals} - ${res.team2Goals} a.e.t.`
-    }
-    return `${res.team1Goals} - ${res.team2Goals}`;
-  }
-};

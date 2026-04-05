@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { renderScoreline, type MatchResult } from "../../utils/MatchEngine";
+import { type MatchResult } from "../../utils/MatchEngine";
 import type { Match } from "../../utils/SchedulerUtils";
 import MatchFlag from "./MatchFlag";
 import MatchResultCard from "./MatchResultCard";
 import RigMatchDialog from "./RigMatchDialog";
+import { renderScoreline } from '../../utils/MathUtils';
 
 interface MatchRowProps {
   match: Match;
