@@ -3,6 +3,7 @@ import { renderScoreline, type MatchResult } from "../../utils/MatchEngine";
 import type { Match } from "../../utils/SchedulerUtils";
 import MatchFlag from "./MatchFlag";
 import MatchResultCard from "./MatchResultCard";
+import RigMatchDialog from "./RigMatchDialog";
 
 interface MatchRowProps {
   match: Match;
@@ -11,6 +12,7 @@ interface MatchRowProps {
 
 const MatchRow: React.FC<MatchRowProps> = ({ match, index }) => {
   const [showModal, setShowModal] = useState(false);
+  const [showRigDialog, setShowRigDialog] = useState(false);
 
   const handleOpenModal = () => {
     if (match.result) {
@@ -22,12 +24,32 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, index }) => {
     setShowModal(false);
   };
 
+  const handleRightClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!match.result) {
+      setShowRigDialog(true);
+    }
+  };
+
+  const handleCloseRigDialog = () => {
+    setShowRigDialog(false);
+  };
+
+  const handleRigConfirm = (homeGoals: number, awayGoals: number) => {
+    match.matchRiggedOptions.isRigged = true;
+    match.matchRiggedOptions.homeGoals = homeGoals;
+    match.matchRiggedOptions.awayGoals = awayGoals;
+  };
+
   return (
     <>
       <div
         key={index}
-        className="flex cursor-pointer items-center justify-between bg-gray-700 rounded p-3 relative hover:bg-gray-600 transition-colors"
+        className={`flex cursor-pointer items-center justify-between bg-gray-700 rounded p-3 relative hover:bg-gray-600 transition-colors ${
+          match.matchRiggedOptions.isRigged ? 'border border-green-700' : ''
+        }`}
         onClick={handleOpenModal}
+        onContextMenu={handleRightClick}
       >
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
@@ -50,6 +72,14 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, index }) => {
           team2={match.awayTeam}
           matchResult={match.result as MatchResult}
           onClose={handleCloseModal}
+        />
+      )}
+
+      {showRigDialog && !match.result && (
+        <RigMatchDialog
+          match={match}
+          onClose={handleCloseRigDialog}
+          onConfirm={handleRigConfirm}
         />
       )}
     </>

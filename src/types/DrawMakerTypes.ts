@@ -7,7 +7,7 @@ export interface TeamSlot {
 }
 
 export interface TeamData {
-  presetType: 'manual' | 'confederation' | 'competition';
+  presetType: PresetType;
   selectedCompetition: string;
   selectedConfederation: string;
   manualTeams: number;
@@ -30,3 +30,6 @@ export interface DisplayGroup {
   teams: (TeamSlot | null)[];
   maxTeams: number;
 }
+
+export type PresetType = 'manual' | 'confederation' | 'competition' | 'homeaway';
+export type Confederation = 'AFC' | 'CAF' | 'OFC' | 'UEFA' | 'CONCACAF' | 'CONMEBOL';

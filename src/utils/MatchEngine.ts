@@ -2,7 +2,7 @@ import type { TransformedGroups } from '../components/competitionSimulator/GROUP
 import type { MatchInformation } from '../components/competitionSimulator/SimulatorTab';
 import { useGlobalStore } from '../state/GlobalState';
 import type { Squad, Player } from '../types/rosterManager';
-import type { Match } from './SchedulerUtils';
+import type { Match, RiggedMatchProps } from './SchedulerUtils';
 import scoreProbs from '../config/score_probs.json';
 
 const scoreProbabilities = scoreProbs as { [scoreline: string]: number };
@@ -392,7 +392,7 @@ export function simulateRegulationMatch(goalSum: number, team1GoalCount: number,
   };
 }
 
-export function simulateMatch(team1Squad: Squad, team2Squad: Squad, roundType: RoundType): MatchResult {
+export function simulateMatch(team1Squad: Squad, team2Squad: Squad, roundType: RoundType, riggedOptions: RiggedMatchProps): MatchResult {
   console.log(team1Squad.starters);
   
   const team1InitRating = calculateTeamRating(team1Squad);
@@ -413,8 +413,10 @@ export function simulateMatch(team1Squad: Squad, team2Squad: Squad, roundType: R
     .map(([scoreline, skew]) => ([scoreline, normSDist(skew) ])));
 
   const finalScoreline = pickRandomScoreline(scorelineChances);
-  const team1GoalCount = +finalScoreline.split('-')[0];
-  const team2GoalCount = +finalScoreline.split('-')[1];
+
+  const team1GoalCount = riggedOptions.isRigged ? riggedOptions.homeGoals : +finalScoreline.split('-')[0];
+  const team2GoalCount = riggedOptions.isRigged ? riggedOptions.awayGoals : +finalScoreline.split('-')[1];
+  
   const goalSum = team1GoalCount + team2GoalCount;
   const lesserGoals = Math.min(team1GoalCount, team2GoalCount);
 
@@ -429,7 +431,7 @@ export function simulateMatch(team1Squad: Squad, team2Squad: Squad, roundType: R
     return simulateRegulationMatch(goalSum, team1GoalCount, team2GoalCount, team1Squad, team2Squad, team1StartScoreInfo, team1SubScoreInfo, team2StartScoreInfo, team2SubScoreInfo);
 
   } else {
-    const penalties = +finalScoreline.split('-')[0] === +finalScoreline.split('-')[1];
+    const penalties = team1GoalCount === team2GoalCount;
     if(penalties) {
       const result = simulateRegulationMatch(goalSum, team1GoalCount, team2GoalCount, team1Squad, team2Squad, team1StartScoreInfo, team1SubScoreInfo, team2StartScoreInfo, team2SubScoreInfo);
       return {
@@ -522,7 +524,7 @@ export function simulateKnockoutRound(matches: MatchInformation[], squads: {[nat
     const team2Squad = squads[matchInfo.match.awayTeam];
     const matchType = matchInfo.stage;
 
-    const matchResult = simulateMatch(team1Squad, team2Squad, matchType);
+    const matchResult = simulateMatch(team1Squad, team2Squad, matchType, matchInfo.match.matchRiggedOptions);
     matchResult.rankingDelta = getRankingPointsFromMatch(matchResult, matchType, matchInfo.match.homeTeam, matchInfo.match.awayTeam);
 
     return {
@@ -595,7 +597,7 @@ export function simulateMatchesForRound(matches: MatchInformation[], squads: { [
     const team2Squad = squads[matchInfo.match.awayTeam];
     const matchType = matchInfo.stage;
 
-    const matchResult = simulateMatch(team1Squad, team2Squad, matchType);
+    const matchResult = simulateMatch(team1Squad, team2Squad, matchType, matchInfo.match.matchRiggedOptions);
     matchResult.rankingDelta = getRankingPointsFromMatch(matchResult, matchType, matchInfo.match.homeTeam, matchInfo.match.awayTeam);
 
     return {

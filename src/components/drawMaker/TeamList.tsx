@@ -1,11 +1,10 @@
 import React  from 'react';
 import drawPresets from '../../config/draw_presets.json';
 import { useGlobalStore } from '../../state/GlobalState';
-import { type TeamSlot } from '../../types/DrawMakerTypes';
+import { type Confederation, type PresetType, type TeamSlot } from '../../types/DrawMakerTypes';
 import CountryCell from './CountryCell';
 
-type PresetType = 'manual' | 'confederation' | 'competition';
-type Confederation = 'AFC' | 'CAF' | 'OFC' | 'UEFA' | 'CONCACAF' | 'CONMEBOL';
+
 
 
 interface TeamListProps {

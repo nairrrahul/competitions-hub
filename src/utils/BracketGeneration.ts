@@ -53,22 +53,22 @@ export function generateKnockout48(standings: TransformedGroups, getThirdPlacing
   const thirdPlaceKeys = getThirdPlacings(thirdPlaceList.join(''));
 
   return [
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['E'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(3)][2].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['I'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(5)][2].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['A'][1].countryName, awayTeam: sortedStandings['B'][1].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['F'][0].countryName, awayTeam: sortedStandings['C'][1].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['K'][1].countryName, awayTeam: sortedStandings['L'][1].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['H'][0].countryName, awayTeam: sortedStandings['J'][1].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['D'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(2)][2].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['G'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(4)][2].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['C'][0].countryName, awayTeam: sortedStandings['F'][1].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['E'][1].countryName, awayTeam: sortedStandings['I'][1].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['A'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(0)][2].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['L'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(7)][2].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['J'][0].countryName, awayTeam: sortedStandings['H'][1].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['D'][1].countryName, awayTeam: sortedStandings['G'][1].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['B'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(1)][2].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['K'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(6)][2].countryName, result: null }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['E'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(3)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['I'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(5)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['A'][1].countryName, awayTeam: sortedStandings['B'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['F'][0].countryName, awayTeam: sortedStandings['C'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['K'][1].countryName, awayTeam: sortedStandings['L'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['H'][0].countryName, awayTeam: sortedStandings['J'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['D'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(2)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['G'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(4)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['C'][0].countryName, awayTeam: sortedStandings['F'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['E'][1].countryName, awayTeam: sortedStandings['I'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['A'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(0)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['L'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(7)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['J'][0].countryName, awayTeam: sortedStandings['H'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['D'][1].countryName, awayTeam: sortedStandings['G'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['B'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(1)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['K'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(6)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
   ];
 }
 
@@ -100,14 +100,14 @@ export function generateKnockout24(standings: TransformedGroups, getThirdPlacing
 
 
   return [
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['A'][1].countryName, awayTeam: sortedStandings['C'][1].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['D'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(3)][2].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['B'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(1)][2].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['F'][0].countryName, awayTeam: sortedStandings['E'][1].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['C'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(2)][2].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['E'][0].countryName, awayTeam: sortedStandings['D'][1].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['A'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(0)][2].countryName, result: null }},
-    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['B'][1].countryName, awayTeam: sortedStandings['F'][1].countryName, result: null }}
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['A'][1].countryName, awayTeam: sortedStandings['C'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['D'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(3)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['B'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(1)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['F'][0].countryName, awayTeam: sortedStandings['E'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['C'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(2)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['E'][0].countryName, awayTeam: sortedStandings['D'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['A'][0].countryName, awayTeam: sortedStandings[thirdPlaceKeys!.charAt(0)][2].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }},
+    {stage: 'KO', group: null, match: { homeTeam: sortedStandings['B'][1].countryName, awayTeam: sortedStandings['F'][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }}
   ];
 }
 
@@ -121,8 +121,8 @@ export function generateKnockoutPO2(standings: TransformedGroups): MatchInformat
   let oddsPos = 0;
   let evensPos = groupNamesSorted.length - 1;
   while(oddsPos < groupNamesSorted.length -1 && evensPos > 0) {
-    oddBracket.push({stage: 'KO', group: null, match: { homeTeam: sortedStandings[groupNamesSorted[oddsPos]][0].countryName, awayTeam: sortedStandings[groupNamesSorted[oddsPos+1]][1].countryName, result: null }});
-    evenBracket.unshift({stage: 'KO', group: null, match: { homeTeam: sortedStandings[groupNamesSorted[evensPos]][0].countryName, awayTeam: sortedStandings[groupNamesSorted[evensPos - 1]][1].countryName, result: null }});
+    oddBracket.push({stage: 'KO', group: null, match: { homeTeam: sortedStandings[groupNamesSorted[oddsPos]][0].countryName, awayTeam: sortedStandings[groupNamesSorted[oddsPos+1]][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }});
+    evenBracket.unshift({stage: 'KO', group: null, match: { homeTeam: sortedStandings[groupNamesSorted[evensPos]][0].countryName, awayTeam: sortedStandings[groupNamesSorted[evensPos - 1]][1].countryName, result: null, matchRiggedOptions: {isRigged: false, homeGoals: -1, awayGoals: -1} }});
     oddsPos += 2;
     evensPos -= 2;
   }

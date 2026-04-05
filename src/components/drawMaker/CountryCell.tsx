@@ -1,7 +1,5 @@
 import React from 'react';
-import { type TeamSlot } from '../../types/DrawMakerTypes';
-
-type PresetType = 'manual' | 'confederation' | 'competition';
+import { type PresetType, type TeamSlot } from '../../types/DrawMakerTypes';
 
 interface CountryCellProps {
   team: TeamSlot;

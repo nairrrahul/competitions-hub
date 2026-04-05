@@ -3,10 +3,7 @@ import drawPresets from '../../config/draw_presets.json';
 import { useGlobalStore } from '../../state/GlobalState';
 import PresetSelection from './PresetSelection';
 import TeamList from './TeamList';
-import { type TeamSlot, type TeamData } from '../../types/DrawMakerTypes';
-
-type PresetType = 'manual' | 'confederation' | 'competition';
-type Confederation = 'AFC' | 'CAF' | 'OFC' | 'UEFA' | 'CONCACAF' | 'CONMEBOL';
+import { type TeamSlot, type TeamData, type PresetType, type Confederation } from '../../types/DrawMakerTypes';
 
 
 interface TeamSelectionTabProps {

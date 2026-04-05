@@ -1,8 +1,6 @@
 import React from 'react';
 import drawPresets from '../../config/draw_presets.json';
-
-type PresetType = 'manual' | 'confederation' | 'competition';
-type Confederation = 'AFC' | 'CAF' | 'OFC' | 'UEFA' | 'CONCACAF' | 'CONMEBOL';
+import type { Confederation, PresetType } from '../../types/DrawMakerTypes';
 
 interface PresetSelectionProps {
   presetType: PresetType;
@@ -38,6 +36,9 @@ const PresetSelection: React.FC<PresetSelectionProps> = ({
   return (
     <div className="w-80 bg-gray-800 rounded-lg border border-gray-700 p-4">
       <h2 className="text-lg font-bold mb-4 text-green-400">SELECT PRESET</h2>
+
+      <h3 className="text-lg font-bold mb-4 text-green-400">Knockouts</h3>
+      <h3 className="text-lg font-bold mb-4 text-green-400">Groups</h3>
       
       {/* Manual Option */}
       <div className="mb-4">

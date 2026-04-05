@@ -55,13 +55,13 @@ export const calculateOverallChange = (player: Player): number => {
     if (age < 19) {
       newOverall = Math.min(potential, overall + Math.floor(0.6 * RANDINT(3, 5) * (19 - age)))
     } else {
-      newOverall = Math.min(potential, overall + Math.floor(0.5 * RANDINT(4, 7 + (age - 18)) / (age - 18)))
+      newOverall = Math.min(potential, overall + Math.floor(0.7 * RANDINT(4, 7 + (age - 18)) / (age - 18)))
     }
   }
   // Case 2: Within Peak Range
   else if (age >= peakStart && age <= peakEnd) {
-    if (overall < 0.7 * potential) {
-      newOverall = overall + 0.3 * (potential - overall)
+    if (overall < 0.75 * potential || overall < (potential - 11)) {
+      newOverall = overall + 0.25 * (potential - overall)
     } else {
       newOverall = Math.min(overall + RANDINT(-2, 2), potential)
     }
