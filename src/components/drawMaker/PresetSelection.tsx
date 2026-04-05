@@ -15,6 +15,8 @@ interface PresetSelectionProps {
   setManualGroups: React.Dispatch<React.SetStateAction<number>>;
   confederationGroups: number;
   setConfederationGroups: React.Dispatch<React.SetStateAction<number>>;
+  homeAwayPairs: number;
+  setHomeAwayPairs: React.Dispatch<React.SetStateAction<number>>;
   onCompetitionPresetSelect: () => void;
 }
 
@@ -31,6 +33,8 @@ const PresetSelection: React.FC<PresetSelectionProps> = ({
   setManualGroups,
   confederationGroups,
   setConfederationGroups,
+  homeAwayPairs,
+  setHomeAwayPairs,
   onCompetitionPresetSelect
 }) => {
   return (
@@ -38,6 +42,39 @@ const PresetSelection: React.FC<PresetSelectionProps> = ({
       <h2 className="text-lg font-bold mb-4 text-green-400">SELECT PRESET</h2>
 
       <h3 className="text-lg font-bold mb-4 text-green-400">Knockouts</h3>
+      
+      {/* Home and Away Option */}
+      <div className="mb-4">
+        <label className="flex items-center mb-3 cursor-pointer">
+          <input
+            type="radio"
+            name="preset"
+            checked={presetType === 'homeaway'}
+            onChange={() => setPresetType('homeaway')}
+            className="mr-2 text-green-400"
+          />
+          <span className="font-medium">HOME AND AWAY</span>
+        </label>
+        {presetType === 'homeaway' && (
+          <div className="ml-6 space-y-2">
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-300 w-24">Pairs:</label>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                value={homeAwayPairs}
+                onChange={(e) => {
+                  const newValue = Math.max(1, Math.min(100, parseInt(e.target.value) || 1));
+                  setHomeAwayPairs(newValue);
+                }}
+                className="bg-gray-700 text-white px-2 py-1 rounded w-20"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+      
       <h3 className="text-lg font-bold mb-4 text-green-400">Groups</h3>
       
       {/* Manual Option */}

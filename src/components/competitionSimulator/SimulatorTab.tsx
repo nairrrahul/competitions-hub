@@ -7,6 +7,7 @@ import { simulateKnockoutRound, simulateMatchesForRound, type RoundType } from '
 import { generateKnockout24, generateKnockout48, generateKnockoutPO2 } from '../../utils/BracketGeneration';
 import { isPowerOfTwo } from '../../utils/playerAging';
 import RoundRobinSimulator from './ROUNDROBIN/RoundRobinSimulator';
+import { formatDateTimeStamp } from '../../utils/MathUtils';
 
 interface ImportedCompetition {
   compName: string;
@@ -332,6 +333,10 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
               <button
                 className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-medium"
                 onClick={() => {
+
+                  const now = new Date();
+                  const timestamp = formatDateTimeStamp(now);
+                      
                   const rankingData = totalMatchDeltas();
                   const jsonString = JSON.stringify(rankingData, null, 2);
                   const blob = new Blob([jsonString], { type: 'application/json' });
@@ -339,7 +344,7 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
                   
                   const link = document.createElement('a');
                   link.href = url;
-                  link.download = `${importedCompetition?.compName || 'competition'}_ranking_deltas.delta.json`;
+                  link.download = `${timestamp}-${importedCompetition?.compName || 'competition'}_ranking_deltas.delta.json`;
                   document.body.appendChild(link);
                   link.click();
                   document.body.removeChild(link);

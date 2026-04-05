@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { useGlobalStore } from "../state/GlobalState";
 import MatchFlag from "../components/competitionSimulator/MatchFlag";
 import type { NationInfo } from "../types/rosterManager";
+import { formatDateTimeStamp } from "../utils/MathUtils";
 
 const CONFEDERATIONS = ["All", "AFC", "CAF", "CONCACAF", "CONMEBOL", "OFC", "UEFA"];
 
@@ -38,13 +39,17 @@ const DataEditor: React.FC = () => {
   const { updateNationInfo } = useGlobalStore();
 
   const handleExportData = () => {
+
+    const now = new Date();
+    const timestamp = formatDateTimeStamp(now);
+    
     const jsonString = JSON.stringify(nationInfo, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'nationInfo.nt.json';
+    link.download = `nationInfo_${timestamp}.nt.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

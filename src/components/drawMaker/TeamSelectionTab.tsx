@@ -24,6 +24,7 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
   const [manualTeams, setManualTeams] = useState<number>(initialData?.manualTeams || 16);
   const [manualGroups, setManualGroups] = useState<number>(initialData?.manualGroups || 4);
   const [confederationGroups, setConfederationGroups] = useState<number>(initialData?.confederationGroups || 4);
+  const [homeAwayPairs, setHomeAwayPairs] = useState<number>(initialData?.homeAwayPairs || 4);
 
   // Get global state functions
   const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
@@ -36,7 +37,7 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
   // Update validation state whenever relevant data changes
   useEffect(() => {
     onValidationUpdate(canNavigateToDrawSimulator());
-  }, [presetType, teamSlots, manualTeams, manualGroups]);
+  }, [presetType, teamSlots, manualTeams, manualGroups, homeAwayPairs]);
 
   // Expose getCurrentTeamData method to parent
   useImperativeHandle(ref, () => ({
@@ -50,10 +51,11 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
         manualTeams,
         manualGroups,
         confederationGroups,
+        homeAwayPairs,
         teamSlots: [...teamSlots]
       };
     }
-  }), [presetType, selectedCompetition, selectedConfederation, manualTeams, manualGroups, confederationGroups, teamSlots]);
+  }), [presetType, selectedCompetition, selectedConfederation, manualTeams, manualGroups, confederationGroups, homeAwayPairs, teamSlots]);
 
   // Handle switching to competition mode with auto-selection
   const handleCompetitionPresetSelect = () => {
@@ -63,7 +65,11 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
 
   // Validation functions for navigation
   const canNavigateToDrawSimulator = (): boolean => {
-    if (presetType === 'manual') {
+    if (presetType === 'homeaway') {
+      // Home and Away mode: all teams must be filled out
+      const allTeamsFilled = teamSlots.every(slot => slot.name.trim() !== '');
+      return allTeamsFilled;
+    } else if (presetType === 'manual') {
       // Manual mode: all teams must be filled out, and groups <= teams
       const allTeamsFilled = teamSlots.every(slot => slot.name.trim() !== '');
       const groupsValid = manualGroups <= manualTeams;
@@ -162,6 +168,24 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
     }
   }, [selectedCompetition, presetType, initialData]);
 
+  // Initialize team slots for home and away mode (only if no initial data)
+  useEffect(() => {
+    if (presetType === 'homeaway' && (!initialData || initialData.presetType !== 'homeaway' || initialData.homeAwayPairs !== homeAwayPairs)) {
+      const newSlots: TeamSlot[] = [];
+      const totalTeams = homeAwayPairs * 2;
+      
+      for (let i = 0; i < totalTeams; i++) {
+        newSlots.push({
+          id: `homeaway-${i}`,
+          name: '',
+          flagCode: ''
+        });
+      }
+      
+      setTeamSlots(newSlots);
+    }
+  }, [homeAwayPairs, presetType, initialData]);
+
 
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen w-full">
@@ -180,6 +204,8 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
             setManualGroups={setManualGroups}
             confederationGroups={confederationGroups}
             setConfederationGroups={setConfederationGroups}
+            homeAwayPairs={homeAwayPairs}
+            setHomeAwayPairs={setHomeAwayPairs}
             onCompetitionPresetSelect={handleCompetitionPresetSelect}
           />
           

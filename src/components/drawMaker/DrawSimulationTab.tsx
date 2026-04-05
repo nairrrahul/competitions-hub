@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import groupPresets from '../../config/group_presets.json';
 import PotsDisplay from './PotsDisplay';
 import GroupsDisplay from './GroupsDisplay';
+import HomeAwayDrawSimulator from './HomeAwayDrawSimulator';
 import {
   performWorldCupDraw,
   performStandardDraw
@@ -11,6 +12,7 @@ import {
   type TeamData
 } from '../../types/DrawMakerTypes';
 import { useGlobalStore } from '../../state/GlobalState';
+import { formatDateTimeStamp } from '../../utils/MathUtils';
 
 
 interface DrawSimulationTabProps {
@@ -254,13 +256,7 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
 
     // Generate timestamp in YYYYMMDDHHMMSS format
     const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    const timestamp = `${year}${month}${day}${hours}${minutes}${seconds}`;
+    const timestamp = formatDateTimeStamp(now);
 
     // Get competition name for filename
     const filename = `${timestamp}-${competitionName}.comp.json`;
@@ -402,6 +398,11 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
   };
 
   const displayGroups = generateDisplayGroups();
+
+  // Render HomeAwayDrawSimulator for homeaway preset type
+  if (teamData?.presetType === 'homeaway') {
+    return <HomeAwayDrawSimulator teamSlots={teamData.teamSlots} />;
+  }
 
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen">

@@ -267,6 +267,8 @@ const TeamList: React.FC<TeamListProps> = ({
       }
 
       return sections;
+    } else if (presetType === 'homeaway') {
+      return [{ title: 'TEAMS', teams: teamSlots }];
     }
 
     return [];

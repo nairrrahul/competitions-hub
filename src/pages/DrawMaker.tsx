@@ -2,31 +2,18 @@ import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import TeamSelectionTab from '../components/drawMaker/TeamSelectionTab'
 import DrawSimulationTab from '../components/drawMaker/DrawSimulationTab'
+import { type TeamData } from '../types/DrawMakerTypes'
 
 // Types for team data
-interface TeamSlot {
-  id: string;
-  name: string;
-  flagCode: string;
-  isSelected?: boolean;
-  isHost?: boolean;
-}
-
-interface TeamData {
-  presetType: 'manual' | 'confederation' | 'competition';
-  selectedCompetition: string;
-  selectedConfederation: string;
-  manualTeams: number;
-  manualGroups: number;
-  confederationGroups: number;
-  teamSlots: TeamSlot[];
+interface TeamSelectionTabRef {
+  getCurrentTeamData: () => TeamData | null;
 }
 
 const DrawMaker: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'team-selection' | 'draw-simulation'>('team-selection')
   const [teamData, setTeamData] = useState<TeamData | null>(null)
   const [canAccessDrawSimulator, setCanAccessDrawSimulator] = useState(false)
-  const teamSelectionRef = useRef<{ getCurrentTeamData: () => TeamData | null }>(null)
+  const teamSelectionRef = useRef<TeamSelectionTabRef>(null)
 
   const handleMoveToDrawSimulator = (data: TeamData) => {
     setTeamData(data)

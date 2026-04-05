@@ -13,6 +13,7 @@ export interface TeamData {
   manualTeams: number;
   manualGroups: number;
   confederationGroups: number;
+  homeAwayPairs: number;
   teamSlots: TeamSlot[];
 }
 
