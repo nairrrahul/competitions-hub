@@ -11,9 +11,12 @@ export function caluclateTeamPositionRatingSum(squad: Squad): [number, number, n
 
 export function calculateTeamRating(squad: Squad): number {
   const [defenderRatings, midRatings, atkRatings] = caluclateTeamPositionRatingSum(squad);
+  const defCount = squad.starters.defenders.length;
+  const midCount = squad.starters.midfielders.length;
+  const atkCount = squad.starters.forwards.length;
   const gkRating = squad.starters.gk.player.overall;
 
-  const overall = defenderRatings * 0.3 + midRatings * 0.3 + atkRatings * 0.3 + gkRating * 0.1;
+  const overall = defenderRatings / defCount * 0.3 + midRatings / midCount * 0.3 + atkRatings / atkCount * 0.3 + gkRating * 0.1;
   if (gkRating > 90 || (gkRating > 1.2 * overall && gkRating < 1.5 * overall)) {
     return overall + 1;
   } else if (gkRating > 1.5 * overall) {

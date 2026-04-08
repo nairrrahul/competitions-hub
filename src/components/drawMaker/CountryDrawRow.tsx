@@ -17,7 +17,7 @@ const CountryDrawRow: React.FC<CountryDrawRowProps> = ({
   const getNationInfo = useGlobalStore(state => state.getNationInfo);
   const nationData = getNationInfo(countryName);
   const flagCode = nationData?.flagCode || '';
-  const rankingPoints = nationData?.rankingPts || 'N/A';
+  const rankingPoints = nationData?.rankingPts || 0;
 
   // Render status badge based on status prop
   const renderStatusBadge = () => {
@@ -51,7 +51,7 @@ const CountryDrawRow: React.FC<CountryDrawRowProps> = ({
         {renderStatusBadge()}
         {showRankingPts && (
           <span className="text-xs text-gray-400">
-            {rankingPoints} pts
+            {rankingPoints.toFixed(2)} pts
           </span>
         )}
       </div>

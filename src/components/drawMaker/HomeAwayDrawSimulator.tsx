@@ -178,7 +178,7 @@ const HomeAwayDrawSimulator: React.FC<HomeAwayDrawSimulatorProps> = ({ teamSlots
       <MatchFlag countryName={team.name} w={7} h={5} s={1.4} />
       <span className="text-white font-medium">{team.name}</span>
       <span className="text-gray-300 text-sm">
-        ({getNationInfo(team.name)?.rankingPts || 0} pts)
+        ({getNationInfo(team.name)?.rankingPts.toFixed(2) || 0} pts)
       </span>
     </div>
   );

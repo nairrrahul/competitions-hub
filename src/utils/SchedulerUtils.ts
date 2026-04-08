@@ -84,7 +84,11 @@ export function leagueScheduler(teams: string[], homeAway: boolean, offset: numb
         homeTeam: firstMatch.awayTeam,
         awayTeam: firstMatch.homeTeam,
         result: null,
-        matchRiggedOptions: firstMatch.matchRiggedOptions
+        matchRiggedOptions: {
+          isRigged: false,
+          homeGoals: -1,
+          awayGoals: -1
+        }
       };
     }
   });

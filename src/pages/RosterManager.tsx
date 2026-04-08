@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import PlayersTab from '../components/rosterManager/PlayersTab'
 import RosterTab from '../components/rosterManager/RosterTab'
+import RosterRankingTab from '../components/rosterManager/RosterRankingTab'
 
 const RosterManager: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'players' | 'roster'>('players')
+  const [activeTab, setActiveTab] = useState<'players' | 'roster' | 'rosterRanking'>('players')
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -48,6 +49,16 @@ const RosterManager: React.FC = () => {
               >
                 Roster
               </button>
+              <button
+                onClick={() => setActiveTab('rosterRanking')}
+                className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
+                  activeTab === 'rosterRanking'
+                    ? 'bg-gray-900 text-green-400 border-b-2 border-green-400'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                }`}
+              >
+                Roster Ranking
+              </button>
             </nav>
           </div>
         </div>
@@ -58,6 +69,7 @@ const RosterManager: React.FC = () => {
         <div className="p-6">
           {activeTab === 'players' && <PlayersTab />}
           {activeTab === 'roster' && <RosterTab />}
+          {activeTab === 'rosterRanking' && <RosterRankingTab />}
         </div>
       </main>
     </div>

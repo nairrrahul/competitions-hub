@@ -329,7 +329,7 @@ const PlayersTab: React.FC = () => {
             
             {/* Dropdown */}
             {isPositionDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-gray-700 border border-gray-600 rounded-md max-h-60 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-gray-700 border border-gray-600 rounded-md max-h-60 overflow-y-auto">
                 {positionOptions.map(({ group, positions }) => (
                   <div key={group} className="border-b border-gray-600 last:border-b-0">
                     {/* Group header - separator only */}
