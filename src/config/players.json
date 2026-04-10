@@ -76064,16 +76064,6 @@
                 "position": "RB"
             },
             {
-                "playerid": 7598,
-                "firstName": "Angelo",
-                "lastName": "Fulgini",
-                "commonName": "",
-                "age": 29,
-                "overall": 73,
-                "potential": 73,
-                "position": "CAM"
-            },
-            {
                 "playerid": 7599,
                 "firstName": "Benjamin",
                 "lastName": "Pavard",
@@ -81252,6 +81242,330 @@
                 "overall": 64,
                 "potential": 84,
                 "position": "ST"
+            }
+        ]
+    },
+    "New Caledonia": {
+        "players": [
+            {
+                "playerid": 7598,
+                "firstName": "Angelo",
+                "lastName": "Fulgini",
+                "commonName": "",
+                "age": 29,
+                "overall": 73,
+                "potential": 73,
+                "position": "CAM"
+            },
+            {
+                "playerid": 21886,
+                "firstName": "Jekob",
+                "lastName": "Jeno",
+                "commonName": "",
+                "age": 25,
+                "overall": 61,
+                "potential": 65,
+                "position": "CDM"
+            },
+            {
+                "playerid": 21887,
+                "firstName": "Jaushua",
+                "lastName": "Sotirio",
+                "commonName": "",
+                "age": 30,
+                "overall": 62,
+                "potential": 62,
+                "position": "RM"
+            },
+            {
+                "playerid": 21888,
+                "firstName": "Georges",
+                "lastName": "Gope-Fenepej",
+                "commonName": "",
+                "age": 37,
+                "overall": 64,
+                "potential": 64,
+                "position": "LM"
+            },
+            {
+                "playerid": 21889,
+                "firstName": "Roy",
+                "lastName": "Kayara",
+                "commonName": "",
+                "age": 35,
+                "overall": 48,
+                "potential": 52,
+                "position": "RW"
+            },
+            {
+                "playerid": 21890,
+                "firstName": "César",
+                "lastName": "Zeoula",
+                "commonName": "",
+                "age": 36,
+                "overall": 66,
+                "potential": 69,
+                "position": "RW"
+            },
+            {
+                "playerid": 21891,
+                "firstName": "Rocky",
+                "lastName": "Nyikeine",
+                "commonName": "",
+                "age": 33,
+                "overall": 52,
+                "potential": 56,
+                "position": "GK"
+            },
+            {
+                "playerid": 21892,
+                "firstName": "Judikael",
+                "lastName": "Ixoéé",
+                "commonName": "",
+                "age": 35,
+                "overall": 48,
+                "potential": 52,
+                "position": "CM"
+            },
+            {
+                "playerid": 21893,
+                "firstName": "Émile",
+                "lastName": "Béaruné",
+                "commonName": "",
+                "age": 35,
+                "overall": 51,
+                "potential": 55,
+                "position": "CB"
+            },
+            {
+                "playerid": 21894,
+                "firstName": "Mickaël",
+                "lastName": "Ulile",
+                "commonName": "",
+                "age": 28,
+                "overall": 52,
+                "potential": 53,
+                "position": "GK"
+            },
+            {
+                "playerid": 21895,
+                "firstName": "Jean-Gilles",
+                "lastName": "Hnamuko",
+                "commonName": "",
+                "age": 29,
+                "overall": 50,
+                "potential": 50,
+                "position": "GK"
+            },
+            {
+                "playerid": 21896,
+                "firstName": "William",
+                "lastName": "Rokaud",
+                "commonName": "",
+                "age": 24,
+                "overall": 53,
+                "potential": 57,
+                "position": "LB"
+            },
+            {
+                "playerid": 21897,
+                "firstName": "Jean-Brice",
+                "lastName": "Wadriako",
+                "commonName": "",
+                "age": 32,
+                "overall": 56,
+                "potential": 56,
+                "position": "LB"
+            },
+            {
+                "playerid": 21898,
+                "firstName": "Robert",
+                "lastName": "Neoere",
+                "commonName": "",
+                "age": 29,
+                "overall": 50,
+                "potential": 51,
+                "position": "CAM"
+            },
+            {
+                "playerid": 21899,
+                "firstName": "Jean-Luc",
+                "lastName": "Decoire",
+                "commonName": "",
+                "age": 29,
+                "overall": 54,
+                "potential": 55,
+                "position": "RB"
+            },
+            {
+                "playerid": 21900,
+                "firstName": "Pierre",
+                "lastName": "Kauma",
+                "commonName": "",
+                "age": 30,
+                "overall": 53,
+                "potential": 54,
+                "position": "CB"
+            },
+            {
+                "playerid": 21901,
+                "firstName": "Joseph",
+                "lastName": "Athale",
+                "commonName": "",
+                "age": 30,
+                "overall": 55,
+                "potential": 55,
+                "position": "RB"
+            },
+            {
+                "playerid": 21902,
+                "firstName": "Cedric",
+                "lastName": "Sansot",
+                "commonName": "",
+                "age": 36,
+                "overall": 57,
+                "potential": 57,
+                "position": "CDM"
+            },
+            {
+                "playerid": 21903,
+                "firstName": "Cedric",
+                "lastName": "Decoire",
+                "commonName": "",
+                "age": 31,
+                "overall": 58,
+                "potential": 58,
+                "position": "CAM"
+            },
+            {
+                "playerid": 21904,
+                "firstName": "Jordan",
+                "lastName": "Wetria",
+                "commonName": "",
+                "age": 31,
+                "overall": 50,
+                "potential": 50,
+                "position": "RW"
+            },
+            {
+                "playerid": 21905,
+                "firstName": "Louis",
+                "lastName": "Piaa",
+                "commonName": "",
+                "age": 31,
+                "overall": 52,
+                "potential": 52,
+                "position": "CDM"
+            },
+            {
+                "playerid": 21906,
+                "firstName": "Titouan",
+                "lastName": "Richard",
+                "commonName": "",
+                "age": 25,
+                "overall": 51,
+                "potential": 54,
+                "position": "CM"
+            },
+            {
+                "playerid": 21907,
+                "firstName": "Richard",
+                "lastName": "Sele",
+                "commonName": "",
+                "age": 36,
+                "overall": 54,
+                "potential": 54,
+                "position": "RM"
+            },
+            {
+                "playerid": 21908,
+                "firstName": "Pierre",
+                "lastName": "Bako",
+                "commonName": "",
+                "age": 24,
+                "overall": 51,
+                "potential": 54,
+                "position": "CM"
+            },
+            {
+                "playerid": 21909,
+                "firstName": "Germain",
+                "lastName": "Haewegene",
+                "commonName": "",
+                "age": 29,
+                "overall": 50,
+                "potential": 51,
+                "position": "ST"
+            },
+            {
+                "playerid": 21910,
+                "firstName": "Joris",
+                "lastName": "Kenon",
+                "commonName": "",
+                "age": 27,
+                "overall": 52,
+                "potential": 56,
+                "position": "LW"
+            },
+            {
+                "playerid": 21911,
+                "firstName": "Jean-Philippe",
+                "lastName": "Saiko",
+                "commonName": "",
+                "age": 35,
+                "overall": 60,
+                "potential": 60,
+                "position": "ST"
+            },
+            {
+                "playerid": 23710,
+                "firstName": "Josue",
+                "lastName": "Welepane",
+                "commonName": "",
+                "age": 25,
+                "overall": 54,
+                "potential": 60,
+                "position": "CB"
+            },
+            {
+                "playerid": 23711,
+                "firstName": "Wadria",
+                "lastName": "Haye",
+                "commonName": "",
+                "age": 19,
+                "overall": 49,
+                "potential": 59,
+                "position": "CB"
+            },
+            {
+                "playerid": 23712,
+                "firstName": "Timotei",
+                "lastName": "Zeter",
+                "commonName": "",
+                "age": 19,
+                "overall": 48,
+                "potential": 59,
+                "position": "CB"
+            },
+            {
+                "playerid": 23713,
+                "firstName": "Antony",
+                "lastName": "Levy",
+                "commonName": "",
+                "age": 19,
+                "overall": 46,
+                "potential": 57,
+                "position": "CM"
+            },
+            {
+                "playerid": 23714,
+                "firstName": "Nolhann",
+                "lastName": "Alebate",
+                "commonName": "",
+                "age": 19,
+                "overall": 48,
+                "potential": 63,
+                "position": "LW"
             }
         ]
     },
@@ -107960,6 +108274,46 @@
                 "overall": 60,
                 "potential": 71,
                 "position": "CAM"
+            },
+            {
+                "playerid": 23731,
+                "firstName": "Khalil",
+                "lastName": "Ayari",
+                "commonName": "",
+                "age": 21,
+                "overall": 64,
+                "potential": 77,
+                "position": "RW"
+            },
+            {
+                "playerid": 23732,
+                "firstName": "Nacim",
+                "lastName": "Dendani",
+                "commonName": "",
+                "age": 19,
+                "overall": 61,
+                "potential": 72,
+                "position": "RW"
+            },
+            {
+                "playerid": 23733,
+                "firstName": "Yassin",
+                "lastName": "Jemai",
+                "commonName": "",
+                "age": 20,
+                "overall": 60,
+                "potential": 72,
+                "position": "LB"
+            },
+            {
+                "playerid": 23734,
+                "firstName": "Anis",
+                "lastName": "Doubal",
+                "commonName": "",
+                "age": 19,
+                "overall": 61,
+                "potential": 74,
+                "position": "LB"
             }
         ]
     },
@@ -137660,6 +138014,26 @@
                 "overall": 66,
                 "potential": 66,
                 "position": "ST"
+            },
+            {
+                "playerid": 23729,
+                "firstName": "Callum",
+                "lastName": "Burnside",
+                "commonName": "",
+                "age": 19,
+                "overall": 56,
+                "potential": 67,
+                "position": "LW"
+            },
+            {
+                "playerid": 23730,
+                "firstName": "Cole",
+                "lastName": "Brannigan",
+                "commonName": "",
+                "age": 18,
+                "overall": 58,
+                "potential": 74,
+                "position": "LW"
             }
         ]
     },
@@ -217866,6 +218240,66 @@
                 "overall": 59,
                 "potential": 59,
                 "position": "CAM"
+            },
+            {
+                "playerid": 23693,
+                "firstName": "Okeri",
+                "lastName": "Nguarambuka",
+                "commonName": "",
+                "age": 22,
+                "overall": 54,
+                "potential": 64,
+                "position": "CM"
+            },
+            {
+                "playerid": 23694,
+                "firstName": "Paulus",
+                "lastName": "Amutenya",
+                "commonName": "",
+                "age": 23,
+                "overall": 58,
+                "potential": 65,
+                "position": "CM"
+            },
+            {
+                "playerid": 23695,
+                "firstName": "Nestor",
+                "lastName": "Iyambo",
+                "commonName": "",
+                "age": 25,
+                "overall": 57,
+                "potential": 62,
+                "position": "RW"
+            },
+            {
+                "playerid": 23696,
+                "firstName": "Andriano",
+                "lastName": "Gawab",
+                "commonName": "",
+                "age": 17,
+                "overall": 45,
+                "potential": 59,
+                "position": "LW"
+            },
+            {
+                "playerid": 23697,
+                "firstName": "Promise",
+                "lastName": "Haitamba",
+                "commonName": "",
+                "age": 17,
+                "overall": 44,
+                "potential": 60,
+                "position": "LB"
+            },
+            {
+                "playerid": 23698,
+                "firstName": "Rodriques",
+                "lastName": "Ganeb",
+                "commonName": "",
+                "age": 18,
+                "overall": 43,
+                "potential": 59,
+                "position": "GK"
             }
         ]
     },
@@ -220227,270 +220661,6 @@
             }
         ]
     },
-    "New Caledonia": {
-        "players": [
-            {
-                "playerid": 21886,
-                "firstName": "Jekob",
-                "lastName": "Jeno",
-                "commonName": "",
-                "age": 25,
-                "overall": 61,
-                "potential": 65,
-                "position": "CDM"
-            },
-            {
-                "playerid": 21887,
-                "firstName": "Jaushua",
-                "lastName": "Sotirio",
-                "commonName": "",
-                "age": 30,
-                "overall": 62,
-                "potential": 62,
-                "position": "RM"
-            },
-            {
-                "playerid": 21888,
-                "firstName": "Georges",
-                "lastName": "Gope-Fenepej",
-                "commonName": "",
-                "age": 37,
-                "overall": 64,
-                "potential": 64,
-                "position": "LM"
-            },
-            {
-                "playerid": 21889,
-                "firstName": "Roy",
-                "lastName": "Kayara",
-                "commonName": "",
-                "age": 35,
-                "overall": 48,
-                "potential": 52,
-                "position": "RW"
-            },
-            {
-                "playerid": 21890,
-                "firstName": "César",
-                "lastName": "Zeoula",
-                "commonName": "",
-                "age": 36,
-                "overall": 66,
-                "potential": 69,
-                "position": "RW"
-            },
-            {
-                "playerid": 21891,
-                "firstName": "Rocky",
-                "lastName": "Nyikeine",
-                "commonName": "",
-                "age": 33,
-                "overall": 52,
-                "potential": 56,
-                "position": "GK"
-            },
-            {
-                "playerid": 21892,
-                "firstName": "Judikael",
-                "lastName": "Ixoéé",
-                "commonName": "",
-                "age": 35,
-                "overall": 48,
-                "potential": 52,
-                "position": "CM"
-            },
-            {
-                "playerid": 21893,
-                "firstName": "Émile",
-                "lastName": "Béaruné",
-                "commonName": "",
-                "age": 35,
-                "overall": 51,
-                "potential": 55,
-                "position": "CB"
-            },
-            {
-                "playerid": 21894,
-                "firstName": "Mickaël",
-                "lastName": "Ulile",
-                "commonName": "",
-                "age": 28,
-                "overall": 52,
-                "potential": 53,
-                "position": "GK"
-            },
-            {
-                "playerid": 21895,
-                "firstName": "Jean-Gilles",
-                "lastName": "Hnamuko",
-                "commonName": "",
-                "age": 29,
-                "overall": 50,
-                "potential": 50,
-                "position": "GK"
-            },
-            {
-                "playerid": 21896,
-                "firstName": "William",
-                "lastName": "Rokaud",
-                "commonName": "",
-                "age": 24,
-                "overall": 53,
-                "potential": 57,
-                "position": "LB"
-            },
-            {
-                "playerid": 21897,
-                "firstName": "Jean-Brice",
-                "lastName": "Wadriako",
-                "commonName": "",
-                "age": 32,
-                "overall": 56,
-                "potential": 56,
-                "position": "LB"
-            },
-            {
-                "playerid": 21898,
-                "firstName": "Robert",
-                "lastName": "Neoere",
-                "commonName": "",
-                "age": 29,
-                "overall": 50,
-                "potential": 51,
-                "position": "CAM"
-            },
-            {
-                "playerid": 21899,
-                "firstName": "Jean-Luc",
-                "lastName": "Decoire",
-                "commonName": "",
-                "age": 29,
-                "overall": 54,
-                "potential": 55,
-                "position": "RB"
-            },
-            {
-                "playerid": 21900,
-                "firstName": "Pierre",
-                "lastName": "Kauma",
-                "commonName": "",
-                "age": 30,
-                "overall": 53,
-                "potential": 54,
-                "position": "CB"
-            },
-            {
-                "playerid": 21901,
-                "firstName": "Joseph",
-                "lastName": "Athale",
-                "commonName": "",
-                "age": 30,
-                "overall": 55,
-                "potential": 55,
-                "position": "RB"
-            },
-            {
-                "playerid": 21902,
-                "firstName": "Cedric",
-                "lastName": "Sansot",
-                "commonName": "",
-                "age": 36,
-                "overall": 57,
-                "potential": 57,
-                "position": "CDM"
-            },
-            {
-                "playerid": 21903,
-                "firstName": "Cedric",
-                "lastName": "Decoire",
-                "commonName": "",
-                "age": 31,
-                "overall": 58,
-                "potential": 58,
-                "position": "CAM"
-            },
-            {
-                "playerid": 21904,
-                "firstName": "Jordan",
-                "lastName": "Wetria",
-                "commonName": "",
-                "age": 31,
-                "overall": 50,
-                "potential": 50,
-                "position": "RW"
-            },
-            {
-                "playerid": 21905,
-                "firstName": "Louis",
-                "lastName": "Piaa",
-                "commonName": "",
-                "age": 31,
-                "overall": 52,
-                "potential": 52,
-                "position": "CDM"
-            },
-            {
-                "playerid": 21906,
-                "firstName": "Titouan",
-                "lastName": "Richard",
-                "commonName": "",
-                "age": 25,
-                "overall": 51,
-                "potential": 54,
-                "position": "CM"
-            },
-            {
-                "playerid": 21907,
-                "firstName": "Richard",
-                "lastName": "Sele",
-                "commonName": "",
-                "age": 36,
-                "overall": 54,
-                "potential": 54,
-                "position": "RM"
-            },
-            {
-                "playerid": 21908,
-                "firstName": "Pierre",
-                "lastName": "Bako",
-                "commonName": "",
-                "age": 24,
-                "overall": 51,
-                "potential": 54,
-                "position": "CM"
-            },
-            {
-                "playerid": 21909,
-                "firstName": "Germain",
-                "lastName": "Haewegene",
-                "commonName": "",
-                "age": 29,
-                "overall": 50,
-                "potential": 51,
-                "position": "ST"
-            },
-            {
-                "playerid": 21910,
-                "firstName": "Joris",
-                "lastName": "Kenon",
-                "commonName": "",
-                "age": 27,
-                "overall": 52,
-                "potential": 56,
-                "position": "LW"
-            },
-            {
-                "playerid": 21911,
-                "firstName": "Jean-Philippe",
-                "lastName": "Saiko",
-                "commonName": "",
-                "age": 35,
-                "overall": 60,
-                "potential": 60,
-                "position": "ST"
-            }
-        ]
-    },
     "Puerto Rico": {
         "players": [
             {
@@ -221065,6 +221235,46 @@
                 "age": 33,
                 "overall": 47,
                 "potential": 51,
+                "position": "CM"
+            },
+            {
+                "playerid": 23689,
+                "firstName": "Pau",
+                "lastName": "Babot",
+                "commonName": "",
+                "age": 22,
+                "overall": 56,
+                "potential": 66,
+                "position": "CDM"
+            },
+            {
+                "playerid": 23690,
+                "firstName": "Hugo",
+                "lastName": "Ferreira",
+                "commonName": "",
+                "age": 21,
+                "overall": 52,
+                "potential": 67,
+                "position": "CDM"
+            },
+            {
+                "playerid": 23691,
+                "firstName": "Dani",
+                "lastName": "de Sa",
+                "commonName": "",
+                "age": 18,
+                "overall": 44,
+                "potential": 62,
+                "position": "LB"
+            },
+            {
+                "playerid": 23692,
+                "firstName": "Ot",
+                "lastName": "Remolins",
+                "commonName": "",
+                "age": 21,
+                "overall": 52,
+                "potential": 60,
                 "position": "CM"
             }
         ]
@@ -223807,6 +224017,56 @@
                 "age": 29,
                 "overall": 55,
                 "potential": 56,
+                "position": "LW"
+            },
+            {
+                "playerid": 23724,
+                "firstName": "Winilson",
+                "lastName": "Lopes",
+                "commonName": "",
+                "age": 19,
+                "overall": 45,
+                "potential": 59,
+                "position": "RW"
+            },
+            {
+                "playerid": 23725,
+                "firstName": "Helder Samuel Landa",
+                "lastName": "Fernandes",
+                "commonName": "Samuca",
+                "age": 19,
+                "overall": 44,
+                "potential": 58,
+                "position": "RB"
+            },
+            {
+                "playerid": 23726,
+                "firstName": "Anderson",
+                "lastName": "Quaresma Estevao",
+                "commonName": "",
+                "age": 19,
+                "overall": 43,
+                "potential": 60,
+                "position": "CDM"
+            },
+            {
+                "playerid": 23727,
+                "firstName": "Kelve",
+                "lastName": "Semedo",
+                "commonName": "",
+                "age": 21,
+                "overall": 44,
+                "potential": 58,
+                "position": "ST"
+            },
+            {
+                "playerid": 23728,
+                "firstName": "Sergio",
+                "lastName": "Male",
+                "commonName": "",
+                "age": 21,
+                "overall": 45,
+                "potential": 60,
                 "position": "LW"
             }
         ]
@@ -228030,6 +228290,46 @@
                 "overall": 56,
                 "potential": 57,
                 "position": "CDM"
+            },
+            {
+                "playerid": 23685,
+                "firstName": "Azham",
+                "lastName": "Rasheed",
+                "commonName": "",
+                "age": 18,
+                "overall": 45,
+                "potential": 60,
+                "position": "CM"
+            },
+            {
+                "playerid": 23686,
+                "firstName": "Hassam Haisham",
+                "lastName": "Hamid",
+                "commonName": "",
+                "age": 19,
+                "overall": 44,
+                "potential": 61,
+                "position": "CM"
+            },
+            {
+                "playerid": 23687,
+                "firstName": "Mohammed",
+                "lastName": "Ilan",
+                "commonName": "",
+                "age": 17,
+                "overall": 45,
+                "potential": 65,
+                "position": "ST"
+            },
+            {
+                "playerid": 23688,
+                "firstName": "Edyhan",
+                "lastName": "Ahmed",
+                "commonName": "",
+                "age": 18,
+                "overall": 43,
+                "potential": 61,
+                "position": "CB"
             }
         ]
     },
@@ -228363,6 +228663,56 @@
                 "age": 35,
                 "overall": 59,
                 "potential": 59,
+                "position": "CB"
+            },
+            {
+                "playerid": 23680,
+                "firstName": "Sohbet",
+                "lastName": "Durdyyev",
+                "commonName": "",
+                "age": 21,
+                "overall": 50,
+                "potential": 64,
+                "position": "RW"
+            },
+            {
+                "playerid": 23681,
+                "firstName": "Begench",
+                "lastName": "Mamiyev",
+                "commonName": "",
+                "age": 22,
+                "overall": 50,
+                "potential": 63,
+                "position": "RW"
+            },
+            {
+                "playerid": 23682,
+                "firstName": "Arslan",
+                "lastName": "Saparov",
+                "commonName": "",
+                "age": 23,
+                "overall": 53,
+                "potential": 62,
+                "position": "CAM"
+            },
+            {
+                "playerid": 23683,
+                "firstName": "Magtymberdi",
+                "lastName": "Berenov",
+                "commonName": "",
+                "age": 20,
+                "overall": 54,
+                "potential": 66,
+                "position": "LW"
+            },
+            {
+                "playerid": 23684,
+                "firstName": "Beglihuhammet",
+                "lastName": "Bekmyradov",
+                "commonName": "",
+                "age": 19,
+                "overall": 50,
+                "potential": 66,
                 "position": "CB"
             }
         ]
@@ -229216,6 +229566,46 @@
                 "overall": 57,
                 "potential": 60,
                 "position": "ST"
+            },
+            {
+                "playerid": 23706,
+                "firstName": "Nguametua",
+                "lastName": "Tuakana",
+                "commonName": "",
+                "age": 21,
+                "overall": 50,
+                "potential": 58,
+                "position": "LM"
+            },
+            {
+                "playerid": 23707,
+                "firstName": "John",
+                "lastName": "Noovao",
+                "commonName": "",
+                "age": 21,
+                "overall": 46,
+                "potential": 59,
+                "position": "CB"
+            },
+            {
+                "playerid": 23708,
+                "firstName": "Shane",
+                "lastName": "Tutueru",
+                "commonName": "",
+                "age": 19,
+                "overall": 40,
+                "potential": 56,
+                "position": "CM"
+            },
+            {
+                "playerid": 23709,
+                "firstName": "Hubert",
+                "lastName": "Tou",
+                "commonName": "",
+                "age": 22,
+                "overall": 47,
+                "potential": 59,
+                "position": "RM"
             }
         ]
     },
@@ -230392,6 +230782,26 @@
                 "overall": 51,
                 "potential": 51,
                 "position": "ST"
+            },
+            {
+                "playerid": 23722,
+                "firstName": "Neliswa",
+                "lastName": "Dlamini",
+                "commonName": "",
+                "age": 23,
+                "overall": 45,
+                "potential": 56,
+                "position": "CM"
+            },
+            {
+                "playerid": 23723,
+                "firstName": "Mpendulo",
+                "lastName": "Lungelo Tfomo",
+                "commonName": "",
+                "age": 26,
+                "overall": 50,
+                "potential": 52,
+                "position": "CM"
             }
         ]
     },
@@ -231972,6 +232382,76 @@
                 "overall": 47,
                 "potential": 47,
                 "position": "CM"
+            },
+            {
+                "playerid": 23699,
+                "firstName": "Levi",
+                "lastName": "Berg",
+                "commonName": "",
+                "age": 17,
+                "overall": 44,
+                "potential": 57,
+                "position": "LW"
+            },
+            {
+                "playerid": 23700,
+                "firstName": "Josiah",
+                "lastName": "Jones",
+                "commonName": "",
+                "age": 19,
+                "overall": 43,
+                "potential": 56,
+                "position": "GK"
+            },
+            {
+                "playerid": 23701,
+                "firstName": "Jacob",
+                "lastName": "Toves",
+                "commonName": "",
+                "age": 19,
+                "overall": 44,
+                "potential": 58,
+                "position": "GK"
+            },
+            {
+                "playerid": 23702,
+                "firstName": "Riku",
+                "lastName": "Meyar",
+                "commonName": "",
+                "age": 19,
+                "overall": 45,
+                "potential": 57,
+                "position": "CM"
+            },
+            {
+                "playerid": 23703,
+                "firstName": "Shuntaro",
+                "lastName": "Suzuki",
+                "commonName": "",
+                "age": 20,
+                "overall": 46,
+                "potential": 56,
+                "position": "CAM"
+            },
+            {
+                "playerid": 23704,
+                "firstName": "Levi",
+                "lastName": "Buckwalter",
+                "commonName": "",
+                "age": 21,
+                "overall": 47,
+                "potential": 55,
+                "position": "CB"
+            },
+            {
+                "playerid": 23705,
+                "firstName": "Kai",
+                "lastName": "Pahl",
+                "commonName": "",
+                "age": 21,
+                "overall": 46,
+                "potential": 57,
+                "position": "RB"
             }
         ]
     },
@@ -233388,6 +233868,76 @@
                 "overall": 44,
                 "potential": 44,
                 "position": "ST"
+            },
+            {
+                "playerid": 23715,
+                "firstName": "Tijvari",
+                "lastName": "Leveret-Francisca",
+                "commonName": "",
+                "age": 16,
+                "overall": 40,
+                "potential": 49,
+                "position": "CM"
+            },
+            {
+                "playerid": 23716,
+                "firstName": "Tarique",
+                "lastName": "Jackson",
+                "commonName": "",
+                "age": 16,
+                "overall": 40,
+                "potential": 50,
+                "position": "ST"
+            },
+            {
+                "playerid": 23717,
+                "firstName": "Shemor",
+                "lastName": "Browne",
+                "commonName": "",
+                "age": 17,
+                "overall": 40,
+                "potential": 51,
+                "position": "GK"
+            },
+            {
+                "playerid": 23718,
+                "firstName": "Nathaniel",
+                "lastName": "Owen",
+                "commonName": "",
+                "age": 18,
+                "overall": 40,
+                "potential": 49,
+                "position": "CB"
+            },
+            {
+                "playerid": 23719,
+                "firstName": "Keante",
+                "lastName": "Brooks",
+                "commonName": "",
+                "age": 19,
+                "overall": 40,
+                "potential": 50,
+                "position": "CB"
+            },
+            {
+                "playerid": 23720,
+                "firstName": "Jared",
+                "lastName": "Smeins",
+                "commonName": "",
+                "age": 19,
+                "overall": 40,
+                "potential": 50,
+                "position": "CM"
+            },
+            {
+                "playerid": 23721,
+                "firstName": "Malachi",
+                "lastName": "Gumbs",
+                "commonName": "",
+                "age": 19,
+                "overall": 40,
+                "potential": 51,
+                "position": "CM"
             }
         ]
     },

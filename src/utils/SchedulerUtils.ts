@@ -98,11 +98,15 @@ export function leagueScheduler(teams: string[], homeAway: boolean, offset: numb
   if (homeAway) {
     // Add reversed fixtures for home-away format
     shiftedMatchdays.forEach(matchday => {
-      const reversedMatches = matchday.map(({ homeTeam, awayTeam, result, matchRiggedOptions }) => ({
+      const reversedMatches = matchday.map(({ homeTeam, awayTeam, result }) => ({
         homeTeam: awayTeam,
         awayTeam: homeTeam,
         result,
-        matchRiggedOptions: matchRiggedOptions
+        matchRiggedOptions: {
+          isRigged: false,
+          homeGoals: -1,
+          awayGoals: -1
+        }
       }));
       allMatchdays.push(reversedMatches);
     });
