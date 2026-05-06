@@ -81,14 +81,14 @@
     "confederationID": "AFC",
     "flagCode": "au",
     "threeLetterCode": "AUS",
-    "youthRating": 90
+    "youthRating": 100
   },
   "Austria": {
     "rankingPts": 1585.51,
     "confederationID": "UEFA",
     "flagCode": "at",
     "threeLetterCode": "AUT",
-    "youthRating": 79
+    "youthRating": 98
   },
   "Azerbaijan": {
     "rankingPts": 1153.73,
@@ -256,7 +256,7 @@
     "confederationID": "CAF",
     "flagCode": "cv",
     "threeLetterCode": "CPV",
-    "youthRating": 46
+    "youthRating": 60
   },
   "Cayman Islands": {
     "rankingPts": 912.38,
@@ -312,7 +312,7 @@
     "confederationID": "CAF",
     "flagCode": "km",
     "threeLetterCode": "COM",
-    "youthRating": 7
+    "youthRating": 45
   },
   "Congo": {
     "rankingPts": 1189.43,
@@ -349,12 +349,12 @@
     "threeLetterCode": "CUB",
     "youthRating": 51
   },
-  "Cura\u00e7ao": {
+  "Curaçao": {
     "rankingPts": 1347.89,
     "confederationID": "CONCACAF",
     "flagCode": "cw",
     "threeLetterCode": "CUW",
-    "youthRating": 35
+    "youthRating": 50
   },
   "Cyprus": {
     "rankingPts": 1160.55,
@@ -396,7 +396,7 @@
     "confederationID": "CONCACAF",
     "flagCode": "do",
     "threeLetterCode": "DOM",
-    "youthRating": 35
+    "youthRating": 55
   },
   "DR Congo": {
     "rankingPts": 1393.54,
@@ -501,7 +501,7 @@
     "confederationID": "CAF",
     "flagCode": "ga",
     "threeLetterCode": "GAB",
-    "youthRating": 49
+    "youthRating": 55
   },
   "Gambia": {
     "rankingPts": 1202.14,
@@ -515,7 +515,7 @@
     "confederationID": "UEFA",
     "flagCode": "ge",
     "threeLetterCode": "GEO",
-    "youthRating": 65
+    "youthRating": 70
   },
   "Germany": {
     "rankingPts": 1730.37,
@@ -613,7 +613,7 @@
     "confederationID": "UEFA",
     "flagCode": "hu",
     "threeLetterCode": "HUN",
-    "youthRating": 68
+    "youthRating": 74
   },
   "Iceland": {
     "rankingPts": 1368.98,
@@ -627,14 +627,14 @@
     "confederationID": "AFC",
     "flagCode": "in",
     "threeLetterCode": "IND",
-    "youthRating": 86
+    "youthRating": 78
   },
   "Indonesia": {
     "rankingPts": 1109.31,
     "confederationID": "AFC",
     "flagCode": "id",
     "threeLetterCode": "IDN",
-    "youthRating": 56
+    "youthRating": 68
   },
   "Iran": {
     "rankingPts": 1620.05,
@@ -648,7 +648,7 @@
     "confederationID": "AFC",
     "flagCode": "iq",
     "threeLetterCode": "IRQ",
-    "youthRating": 103
+    "youthRating": 92
   },
   "Israel": {
     "rankingPts": 1352.19,
@@ -683,7 +683,7 @@
     "confederationID": "AFC",
     "flagCode": "jp",
     "threeLetterCode": "JPN",
-    "youthRating": 112
+    "youthRating": 121
   },
   "Jordan": {
     "rankingPts": 1372.11,
@@ -725,7 +725,7 @@
     "confederationID": "AFC",
     "flagCode": "kg",
     "threeLetterCode": "KGZ",
-    "youthRating": 17
+    "youthRating": 37
   },
   "Laos": {
     "rankingPts": 907.88,
@@ -900,7 +900,7 @@
     "confederationID": "CAF",
     "flagCode": "ma",
     "threeLetterCode": "MAR",
-    "youthRating": 115
+    "youthRating": 120
   },
   "Mozambique": {
     "rankingPts": 1181.88,
@@ -949,7 +949,7 @@
     "confederationID": "OFC",
     "flagCode": "nz",
     "threeLetterCode": "NZL",
-    "youthRating": 88
+    "youthRating": 95
   },
   "Nicaragua": {
     "rankingPts": 1125.39,
@@ -977,7 +977,7 @@
     "confederationID": "AFC",
     "flagCode": "kp",
     "threeLetterCode": "PRK",
-    "youthRating": 84
+    "youthRating": 65
   },
   "Northern Ireland": {
     "rankingPts": 1349.01,
@@ -991,7 +991,7 @@
     "confederationID": "UEFA",
     "flagCode": "no",
     "threeLetterCode": "NOR",
-    "youthRating": 82
+    "youthRating": 105
   },
   "Oman": {
     "rankingPts": 1347.54,
@@ -1019,7 +1019,7 @@
     "confederationID": "CONCACAF",
     "flagCode": "pa",
     "threeLetterCode": "PAN",
-    "youthRating": 49
+    "youthRating": 60
   },
   "Papua New Guinea": {
     "rankingPts": 1009.22,
@@ -1075,7 +1075,7 @@
     "confederationID": "AFC",
     "flagCode": "qa",
     "threeLetterCode": "QAT",
-    "youthRating": 105
+    "youthRating": 90
   },
   "Republic of Ireland": {
     "rankingPts": 1364.83,
@@ -1096,7 +1096,7 @@
     "confederationID": "UEFA",
     "flagCode": "ru",
     "threeLetterCode": "RUS",
-    "youthRating": 118
+    "youthRating": 81
   },
   "Rwanda": {
     "rankingPts": 1123.77,
@@ -1152,7 +1152,7 @@
     "confederationID": "AFC",
     "flagCode": "sa",
     "threeLetterCode": "KSA",
-    "youthRating": 105
+    "youthRating": 95
   },
   "Scotland": {
     "rankingPts": 1507.66,
@@ -1166,7 +1166,7 @@
     "confederationID": "CAF",
     "flagCode": "sn",
     "threeLetterCode": "SEN",
-    "youthRating": 95
+    "youthRating": 110
   },
   "Serbia": {
     "rankingPts": 1508.65,
@@ -1271,7 +1271,7 @@
     "confederationID": "CONCACAF",
     "flagCode": "sr",
     "threeLetterCode": "SUR",
-    "youthRating": 47
+    "youthRating": 67
   },
   "Sweden": {
     "rankingPts": 1514.77,
@@ -1397,14 +1397,14 @@
     "confederationID": "AFC",
     "flagCode": "ae",
     "threeLetterCode": "UAE",
-    "youthRating": 97
+    "youthRating": 90
   },
   "United States": {
     "rankingPts": 1665.27,
     "confederationID": "CONCACAF",
     "flagCode": "us",
     "threeLetterCode": "USA",
-    "youthRating": 110
+    "youthRating": 118
   },
   "Uruguay": {
     "rankingPts": 1674.32,
@@ -1425,7 +1425,7 @@
     "confederationID": "AFC",
     "flagCode": "uz",
     "threeLetterCode": "UZB",
-    "youthRating": 75
+    "youthRating": 84
   },
   "Vanuatu": {
     "rankingPts": 1021.83,
