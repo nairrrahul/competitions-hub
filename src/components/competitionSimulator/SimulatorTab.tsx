@@ -182,7 +182,10 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     const result = simulateMatchesForRound(
       roundMatches,
       competitionSquads,
-      transformedGroups
+      transformedGroups,
+      currentMatchday,
+      importedCompetition?.compType || '',
+      importedCompetition?.compName || ''
     );
 
     const updatedSchedule = {
@@ -207,7 +210,10 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
       const result = simulateMatchesForRound(
         roundMatches,
         competitionSquads,
-        transformedGroups
+        transformedGroups,
+        currentMatchday,
+        importedCompetition?.compType || '',
+        importedCompetition?.compName || ''
       );
 
       transferStandings = result.standings;
@@ -221,7 +227,7 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
       setTransformedGroups(result.standings);
     } else {
       //check if we are in F or P3 or not
-      const {oldMatches, newRound, loserInfo} = simulateKnockoutRound(roundMatches, competitionSquads);
+      const {oldMatches, newRound, loserInfo} = simulateKnockoutRound(roundMatches, competitionSquads, currentMatchday, importedCompetition?.compType || '', importedCompetition?.compName || '');
       if(roundMatches.length == 1) {
         const updatedSchedule = {
           ...simulatorSchedule,

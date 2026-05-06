@@ -396,17 +396,18 @@ export function parseKnockoutWinner(team1: string, team2: string, match: MatchRe
   }
 }
 
-export function simulateKnockoutRound(matches: MatchInformation[], squads: {[nation: string]: Squad}): KOMatchRoundResult {
+export function simulateKnockoutRound(matches: MatchInformation[], squads: {[nation: string]: Squad}, matchdayNumber: number, competitionType: string, competitionName: string): KOMatchRoundResult {
   let winners = [];
   let losers = [];
 
   const newKOMatches: MatchInformation[] = matches.map(matchInfo => {
+    console.log(matchInfo);
     const team1Squad = squads[matchInfo.match.homeTeam];
     const team2Squad = squads[matchInfo.match.awayTeam];
     const matchType = matchInfo.stage;
 
     const matchResult = simulateMatch(team1Squad, team2Squad, matchType, matchInfo.match.matchRiggedOptions);
-    matchResult.rankingDelta = getRankingPointsFromMatch(matchResult, matchType, matchInfo.match.homeTeam, matchInfo.match.awayTeam);
+    matchResult.rankingDelta = getRankingPointsFromMatch(matchResult, matchType, matchInfo.match.homeTeam, matchInfo.match.awayTeam, matchdayNumber, competitionType, competitionName);
 
     return {
       ...matchInfo,
@@ -471,14 +472,15 @@ export function simulateKnockoutRound(matches: MatchInformation[], squads: {[nat
   };
 }
 
-export function simulateMatchesForRound(matches: MatchInformation[], squads: { [nation: string]: Squad }, standings: TransformedGroups): MatchRoundInfo{
+export function simulateMatchesForRound(matches: MatchInformation[], squads: { [nation: string]: Squad }, standings: TransformedGroups, matchdayNumber: number, competitionType: string, competitionName: string): MatchRoundInfo{
   const newMatches: MatchInformation[] = matches.map(matchInfo => {
+    console.log(matchInfo);
     const team1Squad = squads[matchInfo.match.homeTeam];
     const team2Squad = squads[matchInfo.match.awayTeam];
     const matchType = matchInfo.stage;
 
     const matchResult = simulateMatch(team1Squad, team2Squad, matchType, matchInfo.match.matchRiggedOptions);
-    matchResult.rankingDelta = getRankingPointsFromMatch(matchResult, matchType, matchInfo.match.homeTeam, matchInfo.match.awayTeam);
+    matchResult.rankingDelta = getRankingPointsFromMatch(matchResult, matchType, matchInfo.match.homeTeam, matchInfo.match.awayTeam, matchdayNumber, competitionType, competitionName);
 
     return {
       ...matchInfo,

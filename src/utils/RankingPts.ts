@@ -55,7 +55,8 @@ export function computeRankingWeight(team1: string, team2: string, res: MatchRes
   }
 }
 
-export function getRankingPointsFromMatch(res: MatchResult, roundType: RoundType, team1Name: string, team2Name: string): {[nation: string]: number} {
+export function getRankingPointsFromMatch(res: MatchResult, roundType: RoundType, team1Name: string, team2Name: string, matchdayNumber: number, competitionType: string, competitionName: string): {[nation: string]: number} {
+  
   const getNationInfo = useGlobalStore.getState().getNationInfo;
   const nationOneInfo = getNationInfo(team1Name);
   const nationTwoInfo = getNationInfo(team2Name);
@@ -64,16 +65,26 @@ export function getRankingPointsFromMatch(res: MatchResult, roundType: RoundType
   const team2Expected = computeExpectedResult(nationTwoInfo.rankingPts, nationOneInfo.rankingPts);
 
   const matchPoints = computeRankingWeight(team1Name, team2Name, res, roundType);
+  const coeff = getRankingCoeff(matchdayNumber, roundType, competitionType, competitionName);
 
-  if(roundType == 'GROUP') {
-    return {
-      [team1Name]: 15 * (matchPoints[0] - team1Expected),
-      [team2Name]: 15 * (matchPoints[1] - team2Expected)
-    }
+  return {
+    [team1Name]: coeff * (matchPoints[0] - team1Expected),
+    [team2Name]: coeff * (matchPoints[1] - team2Expected)
+  };
+
+}
+
+export function getRankingCoeff(matchdayNumber: number, roundType: RoundType, competitionType: string, competitionName: string): number {
+  if(competitionType != 'GROUPKO') {
+    return 15;
   } else {
-    return {
-      [team1Name]: 40 * (matchPoints[0] - team1Expected),
-      [team2Name]: 40 * (matchPoints[1] - team2Expected)
+    const curCompInfo = useGlobalStore.getState().roundInfoPresets[competitionName];
+    if(roundType == 'GROUP') {
+      return curCompInfo.rounds[0].rankingPts;
+    } else {
+      const numGSMatches = curCompInfo.rounds[0].numMatchdays;
+      const roundIdx = matchdayNumber - numGSMatches;
+      return roundIdx > curCompInfo.rounds.length ? 40 : curCompInfo.rounds[roundIdx].rankingPts;
     }
   }
 }
