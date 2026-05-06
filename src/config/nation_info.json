@@ -249,7 +249,7 @@
     "confederationID": "CONCACAF",
     "flagCode": "ca",
     "threeLetterCode": "CAN",
-    "youthRating": 54
+    "youthRating": 85
   },
   "Cape Verde": {
     "rankingPts": 1354.77,
@@ -900,7 +900,7 @@
     "confederationID": "CAF",
     "flagCode": "ma",
     "threeLetterCode": "MAR",
-    "youthRating": 85
+    "youthRating": 115
   },
   "Mozambique": {
     "rankingPts": 1181.88,
@@ -1040,7 +1040,7 @@
     "confederationID": "CONMEBOL",
     "flagCode": "pe",
     "threeLetterCode": "PER",
-    "youthRating": 97
+    "youthRating": 85
   },
   "Philippines": {
     "rankingPts": 1141.09,
@@ -1140,7 +1140,7 @@
     "threeLetterCode": "SMR",
     "youthRating": 29
   },
-  "S\u00e3o Tom\u00e9 e Pr\u00edncipe": {
+  "São Tomé e Príncipe": {
     "rankingPts": 889.11,
     "confederationID": "CAF",
     "flagCode": "st",
@@ -1166,7 +1166,7 @@
     "confederationID": "CAF",
     "flagCode": "sn",
     "threeLetterCode": "SEN",
-    "youthRating": 80
+    "youthRating": 95
   },
   "Serbia": {
     "rankingPts": 1508.65,
@@ -1425,7 +1425,7 @@
     "confederationID": "AFC",
     "flagCode": "uz",
     "threeLetterCode": "UZB",
-    "youthRating": 55
+    "youthRating": 75
   },
   "Vanuatu": {
     "rankingPts": 1021.83,

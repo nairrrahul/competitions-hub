@@ -38,6 +38,42 @@ const DataEditor: React.FC = () => {
 
   const { updateNationInfo } = useGlobalStore();
 
+  // State for in-place editing
+  const [editingCountry, setEditingCountry] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<string>('');
+
+  const startEditing = (countryName: string, currentValue: number) => {
+    setEditingCountry(countryName);
+    setEditValue(currentValue.toString());
+  };
+
+  const saveEdit = (countryName: string) => {
+    const newValue = Number(editValue);
+    if (!isNaN(newValue) && newValue >= 1 && newValue <= 200) {
+      const countryInfo = nationInfo[countryName];
+      const updatedInfo = {
+        ...countryInfo,
+        youthRating: newValue
+      };
+      updateNationInfo(countryName, updatedInfo);
+    }
+    setEditingCountry(null);
+    setEditValue('');
+  };
+
+  const cancelEdit = () => {
+    setEditingCountry(null);
+    setEditValue('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, countryName: string) => {
+    if (e.key === 'Enter') {
+      saveEdit(countryName);
+    } else if (e.key === 'Escape') {
+      cancelEdit();
+    }
+  };
+
   const handleExportData = () => {
 
     const now = new Date();
@@ -72,11 +108,14 @@ const DataEditor: React.FC = () => {
         // Update each country in nationInfo with imported data
         Object.entries(importedData).forEach(([countryName, importedInfo]) => {
           if (nationInfo[countryName]) {
-            // Merge imported data (rankingPts and confederationID) with existing data
+            // Merge imported data (rankingPts, confederationID, threeLetterCode, and youthRating) with existing data
             const updatedInfo = {
               ...nationInfo[countryName],
               rankingPts: importedInfo.rankingPts,
-              confederationID: importedInfo.confederationID
+              confederationID: importedInfo.confederationID,
+              flagCode: importedInfo.flagCode,
+              threeLetterCode: importedInfo.threeLetterCode,
+              youthRating: importedInfo.youthRating
             };
             updateNationInfo(countryName, updatedInfo);
           }
@@ -225,6 +264,7 @@ const DataEditor: React.FC = () => {
                   <th className="text-left text-lg py-3 px-4 font-semibold text-green-400">Country</th>
                   <th className="text-left text-lg py-3 px-4 font-semibold text-green-400">Confederation</th>
                   <th className="text-right text-lg py-3 px-4 font-semibold text-green-400">Ranking Points</th>
+                  <th className="text-right text-lg py-3 px-4 font-semibold text-green-400">Youth Rating</th>
                 </tr>
               </thead>
               <tbody>
@@ -243,6 +283,26 @@ const DataEditor: React.FC = () => {
                     <td className="py-3 px-4 text-gray-300">{info.confederationID}</td>
                     <td className="py-3 px-4 text-right">
                       <span className="text-green-200 text-base font-medium">{info.rankingPts.toFixed(2)}</span>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      {editingCountry === countryName ? (
+                        <input
+                          type="number"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onKeyDown={(e) => handleKeyDown(e, countryName)}
+                          onBlur={() => saveEdit(countryName)}
+                          className="w-20 px-2 py-1 bg-gray-700 border border-blue-400 rounded text-white text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 text-right"
+                          autoFocus
+                        />
+                      ) : (
+                        <button
+                          onClick={() => startEditing(countryName, info.youthRating)}
+                          className="text-blue-300 text-base font-medium hover:text-blue-200 hover:bg-gray-600 px-2 py-1 rounded transition-colors cursor-pointer"
+                        >
+                          {info.youthRating}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
