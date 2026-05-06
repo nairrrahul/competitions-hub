@@ -144,6 +144,19 @@ const TeamList: React.FC<TeamListProps> = ({
     ));
   };
 
+  // Toggle all teams selection for confederation mode
+  const toggleAllTeamSelection = () => {
+    const allCleared = teamSlots.every(slot => !slot.isSelected);
+    setTeamSlots(prev => prev.map(slot => 
+      ({ ...slot, isSelected: allCleared })
+    ));
+  };
+
+  // Check if all teams are cleared
+  const areAllTeamsCleared = () => {
+    return teamSlots.length > 0 && teamSlots.every(slot => !slot.isSelected);
+  };
+
   // Clear team selection for manual/competition modes
   const clearTeam = (slotId: string) => {
     setTeamSlots(prev => prev.map(slot => 
@@ -287,7 +300,21 @@ const TeamList: React.FC<TeamListProps> = ({
 
   return (
     <div className="flex-1 bg-gray-800 rounded-lg border border-gray-700 p-4">
-      <h2 className="text-lg font-bold mb-4 text-green-400">TEAMS</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-bold text-green-400">TEAMS</h2>
+        {presetType === 'confederation' && (
+          <button 
+            onClick={toggleAllTeamSelection}
+            className={`font-bold py-2 px-4 rounded-lg transition-colors ${
+              areAllTeamsCleared()
+                ? 'bg-green-600 hover:bg-green-700 text-white'
+                : 'bg-red-600 hover:bg-red-700 text-white'
+            }`}
+          >
+            {areAllTeamsCleared() ? 'Unclear All' : 'Clear All'}
+          </button>
+        )}
+      </div>
       
       <div className="flex flex-wrap gap-6 w-full">
         {teamSections.map((section, sectionIndex) => {

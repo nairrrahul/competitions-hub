@@ -6,6 +6,7 @@ import PlayerViewModal from './PlayerViewModal'
 import BatchAddPlayersModal from './BatchAddPlayersModal'
 import PlayerRow from './PlayerRow'
 import type { Player } from '../../types/rosterManager'
+import { generateRegenClass } from '../../utils/newgen/NewgenName'
 
 const PlayersTab: React.FC = () => {
 
@@ -132,6 +133,158 @@ const PlayersTab: React.FC = () => {
     }
   }, [ageYears, ageAllPlayers])
 
+  const handleExportRegens = useCallback(() => {
+    try {
+      // Generate regen class
+      const regens = generateRegenClass()
+      
+      // Create CSV content
+      const headers = ['firstName', 'lastName', 'commonName', 'nationality', 'age', 'overall', 'potential', 'position']
+      const csvContent = [
+        headers.join(','),
+        ...regens.map(player => [
+          `"${player.firstName}"`,
+          `"${player.lastName}"`,
+          `"${player.commonName}"`,
+          `"${player.nationality}"`,
+          player.age,
+          player.overall,
+          player.potential,
+          `"${player.position}"`
+        ].join(','))
+      ].join('\n')
+      
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+      
+      // Generate filename with timestamp
+      const now = new Date()
+      const timestamp = now.getFullYear().toString() +
+                       (now.getMonth() + 1).toString().padStart(2, '0') +
+                       now.getDate().toString().padStart(2, '0') +
+                       now.getHours().toString().padStart(2, '0') +
+                       now.getMinutes().toString().padStart(2, '0') +
+                       now.getSeconds().toString().padStart(2, '0')
+      
+      link.setAttribute('href', url)
+      link.setAttribute('download', `regen_class_${timestamp}.csv`)
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      setShowToast(`Exported ${regens.length} regens to CSV`)
+      setTimeout(() => setShowToast(''), 3000)
+    } catch (error) {
+      alert(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }, [])
+
+  const handleImportCSV = useCallback(() => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.csv'
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (file) {
+        try {
+          const stream = file.stream()
+          const reader = stream.getReader()
+          const decoder = new TextDecoder()
+          let csvText = ''
+          let isFirstChunk = true
+          let headers: string[] = []
+          let importedPlayers: Omit<Player, 'playerid'>[] = []
+          
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            
+            const chunk = decoder.decode(value, { stream: true })
+            csvText += chunk
+            
+            // Process complete lines
+            const lines = csvText.split('\n')
+            const lastLine = lines.pop() // Keep incomplete line for next chunk
+            
+            for (let i = 0; i < lines.length; i++) {
+              const line = lines[i].trim()
+              if (!line) continue
+              
+              if (isFirstChunk && i === 0) {
+                // Parse headers
+                headers = line.split(',').map(h => h.trim().replace(/"/g, ''))
+                const requiredHeaders = ['firstName', 'lastName', 'commonName', 'nationality', 'age', 'overall', 'potential', 'position']
+                
+                if (!requiredHeaders.every(header => headers.includes(header))) {
+                  alert(`CSV must contain these headers: ${requiredHeaders.join(', ')}`)
+                  return
+                }
+                
+                isFirstChunk = false
+              } else if (!isFirstChunk) {
+                // Parse player data
+                const values = line.split(',').map(v => v.trim().replace(/"/g, ''))
+                
+                if (values.length >= 8) {
+                  const player: Omit<Player, 'playerid'> = {
+                    firstName: values[0],
+                    lastName: values[1],
+                    commonName: values[2],
+                    age: parseInt(values[4]) || 0,
+                    overall: parseInt(values[5]) || 0,
+                    potential: parseInt(values[6]) || 0,
+                    position: values[7],
+                    nationality: values[3]
+                  }
+                  importedPlayers.push(player)
+                }
+              }
+            }
+            
+            // Keep incomplete line for next chunk
+            csvText = lastLine || ''
+          }
+            
+          // Process any remaining text
+          if (csvText.trim()) {
+            const line = csvText.trim()
+            const values = line.split(',').map(v => v.trim().replace(/"/g, ''))
+            
+            if (values.length >= 8) {
+              const player: Omit<Player, 'playerid'> = {
+                firstName: values[0],
+                lastName: values[1],
+                commonName: values[2],
+                age: parseInt(values[4]) || 0,
+                overall: parseInt(values[5]) || 0,
+                potential: parseInt(values[6]) || 0,
+                position: values[7],
+                nationality: values[3]
+              }
+              importedPlayers.push(player)
+            }
+          }
+          
+          if (importedPlayers.length > 0) {
+            // Batch update to global state (single re-render)
+            useGlobalStore.getState().addPlayers(importedPlayers)
+            
+            setShowToast(`Imported ${importedPlayers.length} players successfully`)
+            setTimeout(() => setShowToast(''), 3000)
+          } else {
+            alert('No valid players found in CSV file')
+          }
+        } catch (error) {
+          alert(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        }
+      }
+    }
+    input.click()
+  }, [allPlayers])
+
   // Virtual scrolling setup
   const parentRef = useRef<HTMLDivElement>(null)
   
@@ -198,6 +351,20 @@ const PlayersTab: React.FC = () => {
               className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors"
             >
               Batch Add Players
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={handleExportRegens}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+            >
+              Export Regens
+            </button>
+            <button 
+              onClick={handleImportCSV}
+              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors"
+            >
+              Import from CSV
             </button>
           </div>
         </div>

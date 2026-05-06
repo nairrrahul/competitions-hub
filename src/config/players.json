@@ -186602,6 +186602,16 @@
                 "overall": 65,
                 "potential": 82,
                 "position": "RM"
+            },
+            {
+                "playerid": 23581,
+                "firstName": "Sebastian",
+                "lastName": "Pech",
+                "commonName": "",
+                "age": 16,
+                "overall": 54,
+                "potential": 76,
+                "position": "CB"
             }
         ]
     },
@@ -238170,20 +238180,6 @@
                 "overall": 57,
                 "potential": 57,
                 "position": "CM"
-            }
-        ]
-    },
-    "Czech Republlic": {
-        "players": [
-            {
-                "playerid": 23581,
-                "firstName": "Sebastian",
-                "lastName": "Pech",
-                "commonName": "",
-                "age": 16,
-                "overall": 54,
-                "potential": 76,
-                "position": "CB"
             }
         ]
     }

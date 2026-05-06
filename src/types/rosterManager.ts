@@ -15,6 +15,8 @@ export interface NationInfo {
     rankingPts: number
     confederationID: string
     flagCode: string
+    threeLetterCode: string
+    youthRating: number
   }
 }
 

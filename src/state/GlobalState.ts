@@ -46,6 +46,7 @@ interface PlayersState {
   revertToOriginalData: () => void
   updatePlayer: (playerId: number, updates: Partial<Player>) => void
   addPlayer: (player: Omit<Player, 'playerid'>) => void
+  addPlayers: (players: Omit<Player, 'playerid'>[]) => void
   updateSquad: (nation: string, squad: Squad) => void
   getPlayerById: (id: number) => Player | undefined
   getPlayersByNation: (nation: string) => Player[]
@@ -385,6 +386,45 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
       playersByNation: updatedPlayersByNation,
       playersByPosition: updatedPlayersByPosition,
       numPlayersAdded: numPlayersAdded + 1
+    })
+  },
+  
+  // Add multiple new players at once (batch update for performance)
+  addPlayers: (playersData: Omit<Player, 'playerid'>[]) => {
+    const { allPlayers, playersByNation, playersByPosition, highestPlayerID, numPlayersAdded } = get()
+    
+    // Generate IDs for all new players
+    const playersWithIds = playersData.map((player, index) => ({
+      ...player,
+      playerid: highestPlayerID + numPlayersAdded + index + 1
+    }))
+    
+    // Update all players array
+    const updatedAllPlayers = [...allPlayers, ...playersWithIds]
+    
+    // Update playersByNation
+    const updatedPlayersByNation = JSON.parse(JSON.stringify(playersByNation))
+    playersWithIds.forEach(player => {
+      if (!updatedPlayersByNation[player.nationality]) {
+        updatedPlayersByNation[player.nationality] = []
+      }
+      updatedPlayersByNation[player.nationality].push(player)
+    })
+    
+    // Update playersByPosition
+    const updatedPlayersByPosition = JSON.parse(JSON.stringify(playersByPosition))
+    playersWithIds.forEach(player => {
+      if (!updatedPlayersByPosition[player.position]) {
+        updatedPlayersByPosition[player.position] = []
+      }
+      updatedPlayersByPosition[player.position].push(player)
+    })
+    
+    set({
+      allPlayers: updatedAllPlayers,
+      playersByNation: updatedPlayersByNation,
+      playersByPosition: updatedPlayersByPosition,
+      numPlayersAdded: numPlayersAdded + playersData.length
     })
   },
   
