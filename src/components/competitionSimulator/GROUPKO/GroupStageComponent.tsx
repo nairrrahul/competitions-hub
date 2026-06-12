@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGlobalStore } from '../../../state/GlobalState';
 import { calculateNthPlaceTeams, calculateStats, getBestNthPlaceCount, getNthPlaceSuffix, sortTeams } from '../../../utils/GroupSort';
 
@@ -24,8 +24,45 @@ interface GroupStageComponentProps {
 const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGroups, importedCompetition, needNthPlace }) => {
   const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
   const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
-  const totalGroups = Object.keys(transformedGroups).length; 
+  const totalGroups = Object.keys(transformedGroups).length;
   const groupStageRound = getRoundInfo(importedCompetition.compName)?.rounds?.find((round: any) => round.type === 'GROUP');
+  const [showToast, setShowToast] = useState(false);
+
+  const handleGroupRightClick = (e: React.MouseEvent, teams: GroupTeamStats[]) => {
+    e.preventDefault();
+
+    // Build header row
+    let clipboardText = 'Country\tGP\tPTS\tW\tD\tL\tGD\n';
+
+    // Build data rows
+    sortTeams(teams).forEach(team => {
+      const stats = calculateStats(team);
+      clipboardText += `${team.countryName}\t${stats.gamesPlayed}\t${stats.points}\t${team.wins}\t${team.draws}\t${team.losses}\t${stats.goalDifference > 0 ? '+' : ''}${stats.goalDifference}\n`;
+    });
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(clipboardText.trim());
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const handleNthPlaceRightClick = (e: React.MouseEvent, nthPlaceTeams: GroupTeamStats[]) => {
+    e.preventDefault();
+
+    // Build header row
+    let clipboardText = 'Country\tGP\tPTS\tW\tD\tL\tGD\n';
+
+    // Build data rows
+    nthPlaceTeams.forEach(team => {
+      const stats = calculateStats(team);
+      clipboardText += `${team.countryName}\t${stats.gamesPlayed}\t${stats.points}\t${team.wins}\t${team.draws}\t${team.losses}\t${stats.goalDifference > 0 ? '+' : ''}${stats.goalDifference}\n`;
+    });
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(clipboardText.trim());
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
 
 
   const TeamFlag: React.FC<{ countryName: string }> = ({ countryName }) => {
@@ -63,7 +100,11 @@ const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGr
   return (
     <div className="h-full overflow-y-auto space-y-4">
       {Object.entries(transformedGroups).sort(([a], [b]) => a.localeCompare(b)).map(([groupName, teams]) => (
-        <div key={groupName} className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+        <div
+          key={groupName}
+          className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden hover:border-gray-600 transition-colors cursor-pointer"
+          onContextMenu={(e) => handleGroupRightClick(e, teams)}
+        >
           {/* Group Header */}
           <div className="bg-gray-750 px-4 py-3 border-b border-gray-700">
             <h3 className="font-semibold text-green-400">Group {groupName}</h3>
@@ -116,7 +157,10 @@ const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGr
       
       {/* Nth Place Teams Table */}
       {(needNthPlace && shouldShowBestNthPlaceTable()) && (
-        <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+        <div
+          className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden hover:border-gray-600 transition-colors cursor-pointer"
+          onContextMenu={(e) => handleNthPlaceRightClick(e, calculateNthPlaceTeams(transformedGroups, groupStageRound?.numThrough || totalGroups * 2))}
+        >
           {/* Header */}
           <div className="bg-gray-750 px-4 py-3 border-b border-gray-700">
             <h3 className="font-semibold text-green-400">{getBestNthPlaceCount(totalGroups, groupStageRound?.numThrough || totalGroups * 2)}{getNthPlaceSuffix(getBestNthPlaceCount(totalGroups, groupStageRound?.numThrough || totalGroups * 2))} place teams</h3>
@@ -164,6 +208,13 @@ const GroupStageComponent: React.FC<GroupStageComponentProps> = ({ transformedGr
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out">
+          Group data copied to clipboard
         </div>
       )}
     </div>
