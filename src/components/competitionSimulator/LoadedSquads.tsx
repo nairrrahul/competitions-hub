@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import type { Squad } from '../../types/rosterManager';
 import type { Player } from '../../types/rosterManager';
 import { useGlobalStore } from '../../state/GlobalState';
+import { calculateTeamRating } from '../../utils/RankingPts';
+import { getRatingColor } from '../../utils/rosterManager';
 
 interface LoadedSquadsProps {
   squads: { [nation: string]: Squad };
@@ -49,6 +51,8 @@ const LoadedSquads: React.FC<LoadedSquadsProps> = ({ squads, competitionType, gr
 
   const renderSquadContainer = (nation: string, squad: Squad) => {
     const flagCode = getNationFlagCode(nation);
+    const overallRating = calculateTeamRating(squad);
+    const ratingColor = getRatingColor(overallRating);
     
     return (
       <div key={nation} className="bg-gray-800 rounded-lg border border-gray-700">
@@ -71,16 +75,22 @@ const LoadedSquads: React.FC<LoadedSquadsProps> = ({ squads, competitionType, gr
             </div>
             <span className="text-green-400 font-bold text-lg">{nation}</span>
           </div>
-          <svg 
-            className={`w-5 h-5 text-gray-400 transition-transform ${
-              expandedNations.has(nation) ? 'rotate-180' : ''
-            }`}
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          <div className="flex items-center gap-3">
+            {/* Overall Rating Square */}
+            <span className={`px-3 py-2 rounded text-base font-medium ${ratingColor.bg} ${ratingColor.text}`}>
+              {overallRating.toFixed(0)}
+            </span>
+            <svg 
+              className={`w-5 h-5 text-gray-400 transition-transform ${
+                expandedNations.has(nation) ? 'rotate-180' : ''
+              }`}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
         
         {expandedNations.has(nation) && (
