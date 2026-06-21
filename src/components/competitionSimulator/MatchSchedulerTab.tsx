@@ -1,6 +1,6 @@
 import React from 'react';
-import { GroupStageMatchScheduler, supportsGroupStage, shouldUseHomeAway, getTotalMatchdays } from '../../utils/SchedulerUtils';
-import type { CompetitionSchedule } from '../../utils/SchedulerUtils';
+import { GroupStageMatchScheduler, supportsGroupStage, shouldUseHomeAway, getTotalMatchdays, HomeAwayMatchScheduler } from '../../utils/SchedulerUtils';
+import type { CompetitionSchedule, HomeAwaySchedule } from '../../utils/SchedulerUtils';
 import TeamsView from './TeamsView';
 import MatchesView from './MatchesView';
 
@@ -9,7 +9,9 @@ interface ImportedCompetition {
   numTeams: number;
   numThrough: number;
   compType: string;
-  groups: { [key: string]: string[] };
+  isHA?: boolean;
+  groups?: { [key: string]: string[] };
+  pairs?: { home: string; away: string }[];
 }
 
 interface MatchSchedulerTabProps {
@@ -20,12 +22,13 @@ interface MatchSchedulerTabProps {
   setImportError: React.Dispatch<React.SetStateAction<string | null>>;
   viewMode: 'teams' | 'matches';
   setViewMode: React.Dispatch<React.SetStateAction<'teams' | 'matches'>>;
-  matchSchedule: CompetitionSchedule | null;
-  setMatchSchedule: React.Dispatch<React.SetStateAction<CompetitionSchedule | null>>;
+  matchSchedule: CompetitionSchedule | HomeAwaySchedule | null;
+  setMatchSchedule: React.Dispatch<React.SetStateAction<CompetitionSchedule | HomeAwaySchedule | null>>;
   expandedGroups: Set<string>;
   setExpandedGroups: React.Dispatch<React.SetStateAction<Set<string>>>;
-  currentMatchday: number;
   setCurrentMatchday: React.Dispatch<React.SetStateAction<number>>;
+  viewMatchday: number;
+  setViewMatchday: React.Dispatch<React.SetStateAction<number>>;
   totalMatchdays: number;
   setTotalMatchdays: React.Dispatch<React.SetStateAction<number>>;
   resetSimulatorState: () => void;
@@ -43,8 +46,9 @@ const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
   setMatchSchedule,
   expandedGroups,
   setExpandedGroups,
-  currentMatchday,
   setCurrentMatchday,
+  viewMatchday,
+  setViewMatchday,
   totalMatchdays,
   setTotalMatchdays,
   resetSimulatorState,
@@ -75,6 +79,31 @@ const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
             setImportedCompetition(null);
             setMatchSchedule(null);
             onValidationUpdate(false);
+            return;
+          }
+
+          // Validate competition type and schedule accordingly
+          if (data.compType === 'HOMEAWAY') {
+            // Validate pairs for HOMEAWAY format
+            if (!data.pairs || !Array.isArray(data.pairs)) {
+              setImportError('Import failed: Invalid or missing pairs data for HOMEAWAY format');
+              setImportedCompetition(null);
+              setMatchSchedule(null);
+              onValidationUpdate(false);
+              return;
+            }
+
+            // Schedule matches using HomeAwayMatchScheduler
+            const schedule = HomeAwayMatchScheduler(data.pairs);
+            setImportedCompetition(data);
+            setMatchSchedule(schedule);
+            setViewMode('teams');
+            setTotalMatchdays(2);
+            setCurrentMatchday(1);
+            setViewMatchday(1);
+            setImportError(null);
+            onValidationUpdate(true);
+            resetSimulatorState();
             return;
           }
 
@@ -202,8 +231,8 @@ const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
             <MatchesView 
               importedCompetition={importedCompetition}
               matchSchedule={matchSchedule}
-              currentMatchday={currentMatchday}
-              setCurrentMatchday={setCurrentMatchday}
+              currentMatchday={viewMatchday}
+              setCurrentMatchday={setViewMatchday}
               totalMatchdays={totalMatchdays}
             />
           )

@@ -1,6 +1,7 @@
 import React from 'react';
 import GroupKOSimulator from './GROUPKO/GroupKOSimulator';
-import type { CompetitionSchedule, Match } from '../../utils/SchedulerUtils';
+import HomeAwaySimulator from './HOMEAWAY/HomeAwaySimulator';
+import type { CompetitionSchedule, Match, HomeAwaySchedule } from '../../utils/SchedulerUtils';
 import { useGlobalStore } from '../../state/GlobalState';
 import type { Squad } from '../../types/rosterManager';
 import { simulateKnockoutRound, simulateMatchesForRound, type RoundType } from '../../utils/MatchEngine';
@@ -14,19 +15,23 @@ interface ImportedCompetition {
   numTeams: number;
   numThrough: number;
   compType: string;
-  groups: { [key: string]: string[] };
+  isHA?: boolean;
+  groups?: { [key: string]: string[] };
+  pairs?: { home: string; away: string }[];
 }
 
 interface SimulatorTabProps {
   hasData: boolean;
   importedCompetition: ImportedCompetition | null;
-  matchSchedule: CompetitionSchedule | null;
+  matchSchedule: CompetitionSchedule | HomeAwaySchedule | null;
   simulatorSchedule: RearrangedSchedule;
   setSimulatorSchedule: React.Dispatch<React.SetStateAction<RearrangedSchedule>>;
   transformedGroups: TransformedGroups;
   setTransformedGroups: React.Dispatch<React.SetStateAction<TransformedGroups>>;
   currentMatchday: number;
   setCurrentMatchday: React.Dispatch<React.SetStateAction<number>>;
+  viewMatchday: number;
+  setViewMatchday: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export interface GroupTeamStats {
@@ -36,6 +41,19 @@ export interface GroupTeamStats {
   losses: number;
   goalsFor: number;
   goalsAgainst: number;
+}
+
+export interface PairTeamStats {
+  homeTeam: string;
+  awayTeam: string;
+  homeGoals: number;
+  awayGoals: number;
+  homeLegPlayed: boolean;
+  awayLegPlayed: boolean;
+  firstLegHomeGoals: number;
+  firstLegAwayGoals: number;
+  secondLegHomeGoals: number;
+  secondLegAwayGoals: number;
 }
 
 interface TransformedGroups {
@@ -52,7 +70,7 @@ export interface RearrangedSchedule {
   [matchday: number]: MatchInformation[];
 }
 
-const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetition, matchSchedule, simulatorSchedule, setSimulatorSchedule, transformedGroups, setTransformedGroups, currentMatchday, setCurrentMatchday }) => {
+const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetition, matchSchedule, simulatorSchedule, setSimulatorSchedule, transformedGroups, setTransformedGroups, currentMatchday, setCurrentMatchday, viewMatchday, setViewMatchday }) => {
   const { getSquad } = useGlobalStore();
   const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
   const getThirdPlacings = useGlobalStore(state => state.getThirdPlaceFor24);
@@ -65,8 +83,13 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     
     const squads: { [nation: string]: Squad } = {};
     
-    // Get all nations from all groups
-    const allNations = Object.values(importedCompetition.groups).flat();
+    // Get all nations from all groups or pairs
+    let allNations: string[] = [];
+    if (importedCompetition.groups) {
+      allNations = Object.values(importedCompetition.groups).flat();
+    } else if (importedCompetition.pairs) {
+      allNations = importedCompetition.pairs.flatMap(pair => [pair.home, pair.away]);
+    }
     
     // Load squad for each nation
     allNations.forEach(nation => {
@@ -79,11 +102,17 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     return squads;
   };
 
-  const convertToMatchdayList = (input: CompetitionSchedule): RearrangedSchedule => {
+  const convertToMatchdayList = (input: CompetitionSchedule | HomeAwaySchedule): RearrangedSchedule => {
     const result: RearrangedSchedule = {};
 
-    for (const [outerKey, innerObj] of Object.entries(input)) {
-      for (const [numKeyStr, arr] of Object.entries(innerObj)) {
+    // Check if it's a HomeAwaySchedule (has numeric keys directly)
+    const firstKey = Object.keys(input)[0];
+    const isHomeAway = firstKey && !isNaN(Number(firstKey));
+
+    if (isHomeAway) {
+      // Handle HomeAwaySchedule structure
+      const homeAwaySchedule = input as HomeAwaySchedule;
+      for (const [numKeyStr, arr] of Object.entries(homeAwaySchedule)) {
         const numKey = Number(numKeyStr);
 
         if (!result[numKey]) {
@@ -92,10 +121,30 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
 
         for (const item of arr) {
           result[numKey].push({
-            stage: "GROUP",
-            group: outerKey,
+            stage: "HOMEAWAY",
+            group: null,
             match: item,
           });
+        }
+      }
+    } else {
+      // Handle CompetitionSchedule structure (groups)
+      const competitionSchedule = input as CompetitionSchedule;
+      for (const [outerKey, innerObj] of Object.entries(competitionSchedule)) {
+        for (const [numKeyStr, arr] of Object.entries(innerObj)) {
+          const numKey = Number(numKeyStr);
+
+          if (!result[numKey]) {
+            result[numKey] = [];
+          }
+
+          for (const item of arr) {
+            result[numKey].push({
+              stage: "GROUP",
+              group: outerKey,
+              match: item,
+            });
+          }
         }
       }
     }
@@ -107,28 +156,39 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     if (!importedCompetition) return {};
     const transformed: TransformedGroups = {};
     
-    Object.entries(importedCompetition.groups).forEach(([groupName, countries]) => {
-      transformed[groupName] = countries.map(country => ({
-        countryName: country,
-        wins: 0,
-        draws: 0,
-        losses: 0,
-        goalsFor: 0,
-        goalsAgainst: 0
-      }));
-    });
+    if (importedCompetition.groups) {
+      Object.entries(importedCompetition.groups).forEach(([groupName, countries]) => {
+        transformed[groupName] = countries.map(country => ({
+          countryName: country,
+          wins: 0,
+          draws: 0,
+          losses: 0,
+          goalsFor: 0,
+          goalsAgainst: 0
+        }));
+      });
+    }
     
     return transformed;
   };
 
   const competitionSquads = getCompetitionSquads();
   React.useEffect(() => {
-    if (importedCompetition && matchSchedule && Object.keys(transformedGroups).length === 0) {
-      setTransformedGroups(transformGroupsData());
-      const converted = convertToMatchdayList(matchSchedule);
-      setSimulatorSchedule(converted);
+    if (importedCompetition && matchSchedule) {
+      // Only initialize if simulatorSchedule is empty (first load)
+      if (Object.keys(simulatorSchedule).length === 0) {
+        if (importedCompetition.compType === 'HOMEAWAY') {
+          const converted = convertToMatchdayList(matchSchedule);
+          setSimulatorSchedule(converted);
+          setCurrentMatchday(1);
+        } else {
+          setTransformedGroups(transformGroupsData());
+          const converted = convertToMatchdayList(matchSchedule);
+          setSimulatorSchedule(converted);
+        }
+      }
     }
-  }, [importedCompetition, matchSchedule, transformedGroups, setSimulatorSchedule, setTransformedGroups]);
+  }, [importedCompetition, matchSchedule, setSimulatorSchedule, setTransformedGroups, setCurrentMatchday, simulatorSchedule]);
 
   const renderSimulatorContent = () => {
     if (!hasData || !importedCompetition) {
@@ -162,7 +222,17 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
             competitionSquads={competitionSquads}
             transformedStandings={transformedGroups}
           />
-        )
+        );
+      case 'HOMEAWAY':
+        return (
+          <HomeAwaySimulator
+            importedCompetition={importedCompetition}
+            matchSchedule={simulatorSchedule}
+            competitionSquads={competitionSquads}
+            viewMatchday={viewMatchday}
+            setViewMatchday={setViewMatchday}
+          />
+        );
       default:
         return (
           <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
@@ -197,6 +267,31 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     setTransformedGroups(result.standings);
     const newMatchday = currentMatchday + 1;
     setCurrentMatchday(newMatchday);
+    setViewMatchday(newMatchday);
+  }
+
+  const onNextRoundHomeAway = () => {
+    const roundMatches = simulatorSchedule[currentMatchday];
+    if (!roundMatches) return;
+
+    const result = simulateMatchesForRound(
+      roundMatches,
+      competitionSquads,
+      {}, // Empty standings since HOMEAWAY uses different structure
+      currentMatchday,
+      importedCompetition?.compType || '',
+      importedCompetition?.compName || ''
+    );
+
+    const updatedSchedule = {
+      ...simulatorSchedule,
+      [currentMatchday]: result.matches
+    };
+
+    setSimulatorSchedule(updatedSchedule);
+    const newMatchday = currentMatchday + 1;
+    setCurrentMatchday(newMatchday);
+    setViewMatchday(newMatchday);
   }
 
   const onNextRoundGroupKO = () => { 
@@ -295,6 +390,9 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
       case 'GROUP':
       case 'GROUPHA':
         onNextRoundGroup();
+        break;
+      case 'HOMEAWAY':
+        onNextRoundHomeAway();
         break;
       default:
         console.log(`No simulation logic for competition type: ${compType}`);

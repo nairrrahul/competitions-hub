@@ -22,6 +22,10 @@ export interface CompetitionSchedule {
   [groupName: string]: GroupMatchSchedule;
 }
 
+export interface HomeAwaySchedule {
+  [matchday: number]: Match[];
+}
+
 /**
  * Generates a round-robin schedule for a group of teams
  * @param teams Array of team names
@@ -204,4 +208,42 @@ export function getTotalMatchdays(schedule: CompetitionSchedule): number {
   });
   
   return maxMatchday;
+}
+
+/**
+ * Generates a home-away match schedule for pairs of teams
+ * @param pairs Array of home-away team pairs
+ * @returns Object with matchdays as keys and arrays of matches as values
+ */
+export function HomeAwayMatchScheduler(pairs: { home: string; away: string }[]): HomeAwaySchedule {
+  const schedule: HomeAwaySchedule = {};
+  
+  // First leg: all home teams play at home
+  const firstLegMatches: Match[] = pairs.map(pair => ({
+    homeTeam: pair.home,
+    awayTeam: pair.away,
+    result: null,
+    matchRiggedOptions: {
+      isRigged: false,
+      homeGoals: -1,
+      awayGoals: -1
+    }
+  }));
+  
+  // Second leg: all away teams play at home (reverse fixture)
+  const secondLegMatches: Match[] = pairs.map(pair => ({
+    homeTeam: pair.away,
+    awayTeam: pair.home,
+    result: null,
+    matchRiggedOptions: {
+      isRigged: false,
+      homeGoals: -1,
+      awayGoals: -1
+    }
+  }));
+  
+  schedule[1] = firstLegMatches;
+  schedule[2] = secondLegMatches;
+  
+  return schedule;
 }

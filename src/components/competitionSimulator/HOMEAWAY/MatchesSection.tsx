@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { Match } from '../../../utils/SchedulerUtils';
 import type { RearrangedSchedule } from '../SimulatorTab';
 import MatchRow from '../MatchRow';
@@ -16,11 +16,11 @@ interface ImportedCompetition {
 interface MatchesSectionProps {
   importedCompetition: ImportedCompetition;
   matchSchedule: RearrangedSchedule | null;
+  currentMatchday: number;
+  setCurrentMatchday: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, matchSchedule }) => {
-  //const getRoundInfo = useGlobalStore(state => state.getRoundInfo);
-  const [currentMatchday, setCurrentMatchday] = useState(1);
+const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, matchSchedule, currentMatchday, setCurrentMatchday }) => {
 
   const getAllMatchdays = () => {
     if (!matchSchedule) return [];
@@ -30,12 +30,12 @@ const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, ma
       .sort((a, b) => a - b);
   };
 
-
-
   const getCurrentMatchdayMatches = () => {
     if (!matchSchedule) return [];
     
-    const matchdaySchedules = matchSchedule[currentMatchday];
+    const allMatchdays = getAllMatchdays();
+    const displayMatchday = currentMatchday > allMatchdays.length ? allMatchdays.length : currentMatchday;
+    const matchdaySchedules = matchSchedule[displayMatchday];
     if (!matchdaySchedules) return [];
     
     return matchdaySchedules.map(item => item.match);
@@ -50,6 +50,7 @@ const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, ma
 
   const renderMatchdayNavigation = () => {
     const allMatchdays = getAllMatchdays();
+    const displayMatchday = currentMatchday > allMatchdays.length ? allMatchdays.length : currentMatchday;
     
     return (
       <div className="mb-6 flex justify-center items-center space-x-4">
@@ -66,7 +67,9 @@ const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, ma
         </button>
         
         <div className="bg-gray-800 px-4 py-2 rounded-lg border border-gray-700">
-          <span className="text-green-400 font-medium">Matchday {currentMatchday}</span>
+          <span className="text-green-400 font-medium">
+            {displayMatchday === 1 ? 'First Leg' : 'Second Leg'}
+          </span>
         </div>
         
         <button
@@ -95,58 +98,19 @@ const MatchesSection: React.FC<MatchesSectionProps> = ({ importedCompetition, ma
 
     const currentMatches = getCurrentMatchdayMatches();
     
-    // Determine stage based on the first match of the current matchday
-    const isGroupStage = currentMatches.length > 0 && matchSchedule[currentMatchday]?.[0]?.stage === 'GROUP';
-
-    if (isGroupStage) {
-      // Group stage: separate matches by group
-      const matchesByGroup: { [groupName: string]: Match[] } = {};
-      
-      matchSchedule[currentMatchday]?.forEach(item => {
-        if (item.stage === 'GROUP') {
-          if (!matchesByGroup[item.group!]) {
-            matchesByGroup[item.group!] = [];
-          }
-          matchesByGroup[item.group!].push(item.match);
-        }
-      });
-
-      return (
-        <div className="w-full">
-          {renderMatchdayNavigation()}
-          
-          <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-            <div className="space-y-4">
-              {Object.entries(matchesByGroup).sort(([a], [b]) => a.localeCompare(b)).map(([groupName, matches]) => (
-                <div key={groupName}>
-                  <h3 className="text-center text-green-400 font-semibold mb-2">Group {groupName}</h3>
-                  <div className="space-y-2">
-                    {matches.map((match: Match, index: number) => (
-                      <MatchRow index={`group${groupName}-match${index}`} match={match} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+    return (
+      <div className="w-full">
+        {renderMatchdayNavigation()}
+        
+        <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+          <div className="space-y-2">
+            {currentMatches.map((match: Match, index: number) => (
+              <MatchRow key={index} index={index} match={match} />
+            ))}
           </div>
         </div>
-      );
-    } else {
-      // Knockout stage: show all matches together
-      return (
-        <div className="w-full">
-          {renderMatchdayNavigation()}
-          
-          <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-            <div className="space-y-2">
-              {currentMatches.map((match: Match, index: number) => (
-                <MatchRow index={index} match={match} />
-              ))}
-            </div>
-          </div>
-        </div>
-      );
-    }
+      </div>
+    );
   };
 
   return (

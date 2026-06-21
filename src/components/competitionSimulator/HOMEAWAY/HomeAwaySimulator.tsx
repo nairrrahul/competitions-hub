@@ -1,7 +1,7 @@
 import React from 'react';
-import StagesSection from './StagesSection';
-import MatchesSection from './MatchesSection';
-import PlayerStatsSection from './PlayerStatsSection';
+import StagesSection from './StagesSection.tsx';
+import MatchesSection from './MatchesSection.tsx';
+import PlayerStatsSection from './PlayerStatsSection.tsx';
 import type { Squad } from '../../../types/rosterManager';
 import type { RearrangedSchedule } from '../SimulatorTab';
 
@@ -15,48 +15,35 @@ interface ImportedCompetition {
   pairs?: { home: string; away: string }[];
 }
 
-interface GroupTeamStats {
-  countryName: string;
-  wins: number;
-  draws: number;
-  losses: number;
-  goalsFor: number;
-  goalsAgainst: number;
-}
-
-export interface TransformedGroups {
-  [groupName: string]: GroupTeamStats[];
-}
-
-interface GroupKOSimulatorProps {
+interface HomeAwaySimulatorProps {
   importedCompetition: ImportedCompetition;
   matchSchedule: RearrangedSchedule;
   competitionSquads: { [nation: string]: Squad };
-  transformedStandings: TransformedGroups
+  viewMatchday: number;
+  setViewMatchday: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const GroupKOSimulator: React.FC<GroupKOSimulatorProps> = ({ importedCompetition, matchSchedule, competitionSquads, transformedStandings }) => {
+const HomeAwaySimulator: React.FC<HomeAwaySimulatorProps> = ({ importedCompetition, matchSchedule, competitionSquads, viewMatchday, setViewMatchday }) => {
   const [selectedStage, setSelectedStage] = React.useState<string>('');
 
-  console.log(competitionSquads);
-  
+  console.log("hola", competitionSquads);
+
   return (
     <div className="flex h-full p-6 gap-4">
       {/* Left Panel - Stages (full height) */}
       <div className="w-3/8 h-full">
-        <StagesSection 
-          importedCompetition={importedCompetition} 
+        <StagesSection
+          importedCompetition={importedCompetition}
           matchSchedule={matchSchedule}
-          transformedGroups={transformedStandings}
           selectedStage={selectedStage}
           setSelectedStage={setSelectedStage}
         />
       </div>
-      
+
       {/* Right Panel - Matches and Player Stats (stacked) */}
       <div className="w-5/8 h-full flex flex-col gap-4">
         <div className="h-1/2">
-          <MatchesSection importedCompetition={importedCompetition} matchSchedule={matchSchedule} />
+          <MatchesSection importedCompetition={importedCompetition} matchSchedule={matchSchedule} currentMatchday={viewMatchday} setCurrentMatchday={setViewMatchday} />
         </div>
         <div className="h-1/2">
           <PlayerStatsSection importedCompetition={importedCompetition} matchSchedule={matchSchedule} />
@@ -66,4 +53,4 @@ const GroupKOSimulator: React.FC<GroupKOSimulatorProps> = ({ importedCompetition
   );
 };
 
-export default GroupKOSimulator;
+export default HomeAwaySimulator;

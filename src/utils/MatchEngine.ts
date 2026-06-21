@@ -47,7 +47,7 @@ export interface KOMatchRoundResult {
   loserInfo: MatchInformation[];
 }
 
-export type RoundType = 'GROUP' | 'KO' | 'P3';
+export type RoundType = 'GROUP' | 'KO' | 'P3' | 'HOMEAWAY';
 
 export function penaltyResult(val: number): ('X' | 'O') {
     if(val <= 10) {
@@ -308,7 +308,7 @@ export function simulateMatch(team1Squad: Squad, team2Squad: Squad, roundType: R
   const team2SubScoreInfo = generateSubstituteScoringProbability(team2Squad);
   
   
-  if(roundType == 'GROUP') {
+  if(roundType == 'GROUP' || roundType == 'HOMEAWAY') {
     return simulateRegulationMatch(goalSum, team1GoalCount, team2GoalCount, team1Squad, team2Squad, team1StartScoreInfo, team1SubScoreInfo, team2StartScoreInfo, team2SubScoreInfo);
 
   } else {
@@ -390,8 +390,11 @@ export function parseKnockoutWinner(team1: string, team2: string, match: MatchRe
   }else if(match.team2Goals > match.team1Goals) {
     return winnerProg ? team2 : team1;
   } else {
-    let team1PensMade = match.penalties!.team1Results.filter(pen => pen === 'O').length;
-    let team2PensMade = match.penalties!.team2Results.filter(pen => pen === 'O').length;
+    if (!match.penalties) {
+      return winnerProg ? team1 : team2;
+    }
+    let team1PensMade = match.penalties.team1Results.filter(pen => pen === 'O').length;
+    let team2PensMade = match.penalties.team2Results.filter(pen => pen === 'O').length;
     return (team1PensMade > team2PensMade === winnerProg) ? team1 : team2;
   }
 }

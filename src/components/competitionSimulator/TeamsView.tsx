@@ -1,18 +1,21 @@
 import React from 'react';
-import type { CompetitionSchedule } from '../../utils/SchedulerUtils';
+import type { CompetitionSchedule, HomeAwaySchedule } from '../../utils/SchedulerUtils';
 import GroupDisplayContainer from './GroupDisplayContainer';
+import MatchFlag from './MatchFlag';
 
 interface ImportedCompetition {
   compName: string;
   numTeams: number;
   numThrough: number;
   compType: string;
-  groups: { [key: string]: string[] };
+  isHA?: boolean;
+  groups?: { [key: string]: string[] };
+  pairs?: { home: string; away: string }[];
 }
 
 interface TeamsViewProps {
   importedCompetition: ImportedCompetition | null;
-  matchSchedule: CompetitionSchedule | null;
+  matchSchedule: CompetitionSchedule | HomeAwaySchedule | null;
   expandedGroups: Set<string>;
   setExpandedGroups: React.Dispatch<React.SetStateAction<Set<string>>>;
 }
@@ -34,7 +37,9 @@ const TeamsView: React.FC<TeamsViewProps> = ({
   };
 
   const renderGroup = (groupName: string, teams: string[]) => {
-    const groupSchedule = matchSchedule?.[groupName] || {};
+    // Type guard to check if this is a CompetitionSchedule (has string keys)
+    const isCompetitionSchedule = matchSchedule && Object.keys(matchSchedule).some(key => isNaN(Number(key)));
+    const groupSchedule = isCompetitionSchedule ? (matchSchedule as CompetitionSchedule)?.[groupName] || {} : {};
     const isExpanded = expandedGroups.has(groupName);
     
     return (
@@ -49,8 +54,40 @@ const TeamsView: React.FC<TeamsViewProps> = ({
     );
   };
 
+  const renderPairsGrid = () => {
+    if (!importedCompetition || !importedCompetition.pairs) return null;
+
+    return (
+      <div className="flex flex-wrap gap-4 p-4 justify-center">
+        {importedCompetition.pairs.map((pair, index) => (
+          <div key={index} className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden w-full min-w-md max-w-xl">
+            {/* Matchups Header */}
+            <div className="bg-gray-750 px-4 py-3 border-b border-gray-700">
+              <h3 className="font-semibold text-green-400">Matchups</h3>
+            </div>
+            
+            {/* Teams List */}
+            <div className="p-4 space-y-2">
+              {[
+                { teamName: pair.home, isHome: true },
+                { teamName: pair.away, isHome: false }
+              ].map((team, teamIndex) => {
+                return (
+                  <div key={teamIndex} className="flex items-center space-x-3 bg-gray-700 rounded p-3">
+                    <MatchFlag countryName={team.teamName} w={7} h={5} s={1.5} />
+                    <span className="text-white font-medium">{team.teamName}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const renderGroupsGrid = () => {
-    if (!importedCompetition) return null;
+    if (!importedCompetition || !importedCompetition.groups) return null;
 
     const groupNames = Object.keys(importedCompetition.groups).sort();
     
@@ -58,12 +95,16 @@ const TeamsView: React.FC<TeamsViewProps> = ({
       <div className="flex flex-wrap gap-4 p-4 justify-center">
         {groupNames.map(groupName => 
           <div key={groupName} className="flex flex-col min-w-md max-w-xl">
-            {renderGroup(groupName, importedCompetition.groups[groupName])}
+            {renderGroup(groupName, importedCompetition.groups![groupName])}
           </div>
         )}
       </div>
     );
   };
+
+  if (importedCompetition?.compType === 'HOMEAWAY') {
+    return renderPairsGrid();
+  }
 
   return renderGroupsGrid();
 };

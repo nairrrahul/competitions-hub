@@ -8,7 +8,9 @@ interface ImportedCompetition {
   numTeams: number;
   numThrough: number;
   compType: string;
-  groups: { [key: string]: string[] };
+  isHA?: boolean;
+  groups?: { [key: string]: string[] };
+  pairs?: { home: string; away: string }[];
 }
 
 interface GroupTeamStats {

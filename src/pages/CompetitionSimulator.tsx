@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import MatchSchedulerTab from '../components/competitionSimulator/MatchSchedulerTab';
 import SimulatorTab from '../components/competitionSimulator/SimulatorTab';
 import LoadedSquads from '../components/competitionSimulator/LoadedSquads';
-import type { CompetitionSchedule } from '../utils/SchedulerUtils';
+import type { CompetitionSchedule, HomeAwaySchedule } from '../utils/SchedulerUtils';
 import { useGlobalStore } from '../state/GlobalState';
 
 interface ImportedCompetition {
@@ -11,7 +11,9 @@ interface ImportedCompetition {
   numTeams: number;
   numThrough: number;
   compType: string;
-  groups: { [key: string]: string[] };
+  isHA?: boolean;
+  groups?: { [key: string]: string[] };
+  pairs?: { home: string; away: string }[];
 }
 
 const CompetitionSimulator: React.FC = () => {
@@ -22,10 +24,11 @@ const CompetitionSimulator: React.FC = () => {
   const [importedCompetition, setImportedCompetition] = useState<ImportedCompetition | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'teams' | 'matches'>('teams');
-  const [matchSchedule, setMatchSchedule] = useState<CompetitionSchedule | null>(null);
+  const [matchSchedule, setMatchSchedule] = useState<CompetitionSchedule | HomeAwaySchedule | null>(null);
   const [simulatorSchedule, setSimulatorSchedule] = useState<import('../components/competitionSimulator/SimulatorTab').RearrangedSchedule>({});
   const [transformedGroups, setTransformedGroups] = useState<import('../components/competitionSimulator/GROUPKO/GroupKOSimulator').TransformedGroups>({});
   const [currentMatchday, setCurrentMatchday] = useState(1);
+  const [viewMatchday, setViewMatchday] = useState(1);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [totalMatchdays, setTotalMatchdays] = useState(0);
 
@@ -43,6 +46,7 @@ const CompetitionSimulator: React.FC = () => {
     setSimulatorSchedule({});
     setTransformedGroups({});
     setCurrentMatchday(1);
+    setViewMatchday(1);
   };
 
   // Load squad information for Loaded Squads tab
@@ -51,8 +55,13 @@ const CompetitionSimulator: React.FC = () => {
     
     const squads: { [nation: string]: any } = {};
     
-    // Get all nations from all groups
-    const allNations = Object.values(importedCompetition.groups).flat();
+    // Get all nations from all groups or pairs
+    let allNations: string[] = [];
+    if (importedCompetition.groups) {
+      allNations = Object.values(importedCompetition.groups).flat();
+    } else if (importedCompetition.pairs) {
+      allNations = importedCompetition.pairs.flatMap(pair => [pair.home, pair.away]);
+    }
     
     // Load squad for each nation
     allNations.forEach(nation => {
@@ -145,8 +154,9 @@ const CompetitionSimulator: React.FC = () => {
             setMatchSchedule={setMatchSchedule}
             expandedGroups={expandedGroups}
             setExpandedGroups={setExpandedGroups}
-            currentMatchday={currentMatchday}
             setCurrentMatchday={setCurrentMatchday}
+            viewMatchday={viewMatchday}
+            setViewMatchday={setViewMatchday}
             totalMatchdays={totalMatchdays}
             setTotalMatchdays={setTotalMatchdays}
             resetSimulatorState={resetSimulatorState}
@@ -165,6 +175,8 @@ const CompetitionSimulator: React.FC = () => {
             setTransformedGroups={setTransformedGroups}
             currentMatchday={currentMatchday}
             setCurrentMatchday={setCurrentMatchday}
+            viewMatchday={viewMatchday}
+            setViewMatchday={setViewMatchday}
           />
         )}
 
