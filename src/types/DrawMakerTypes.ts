@@ -14,6 +14,7 @@ export interface TeamData {
   manualGroups: number;
   confederationGroups: number;
   homeAwayPairs: number;
+  bracketTeams: number;
   teamSlots: TeamSlot[];
 }
 
@@ -32,5 +33,5 @@ export interface DisplayGroup {
   maxTeams: number;
 }
 
-export type PresetType = 'manual' | 'confederation' | 'competition' | 'homeaway';
+export type PresetType = 'manual' | 'confederation' | 'competition' | 'homeaway' | 'bracket';
 export type Confederation = 'AFC' | 'CAF' | 'OFC' | 'UEFA' | 'CONCACAF' | 'CONMEBOL';

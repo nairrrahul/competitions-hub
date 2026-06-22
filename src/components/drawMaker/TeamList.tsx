@@ -233,20 +233,20 @@ const TeamList: React.FC<TeamListProps> = ({
       if (!competition) return [];
 
       const sections: { title: string; teams: TeamSlot[] }[] = [];
-      
+
       // Group existing teamSlots by their section
       const slotsBySection: { [key: string]: TeamSlot[] } = {};
-      
+
       // Initialize sections with existing slots
       teamSlots.forEach(slot => {
         const parts = slot.id.split('-');
         const sectionId = parts[0]; // e.g., "WorldCup" from "WorldCup-UEFA-0"
         const slotConfederation = parts[1]; // e.g., "UEFA" from "WorldCup-UEFA-0"
-        
+
         // Check if this is a playoff slot
         const isIntlPlayoff = sectionId === 'intl';
         const isUEFAPlayoff = sectionId === 'euro';
-        
+
         let sectionKey = '';
         if (isIntlPlayoff) {
           sectionKey = 'Intl. Playoff';
@@ -255,13 +255,13 @@ const TeamList: React.FC<TeamListProps> = ({
         } else {
           sectionKey = slotConfederation;
         }
-        
+
         if (!slotsBySection[sectionKey]) {
           slotsBySection[sectionKey] = [];
         }
         slotsBySection[sectionKey].push(slot);
       });
-      
+
       // Add confederation sections
       Object.entries(competition.confederations).forEach(([confed, _]) => {
         const sectionSlots = slotsBySection[confed] || [];
@@ -281,6 +281,8 @@ const TeamList: React.FC<TeamListProps> = ({
 
       return sections;
     } else if (presetType === 'homeaway') {
+      return [{ title: 'TEAMS', teams: teamSlots }];
+    } else if (presetType === 'bracket') {
       return [{ title: 'TEAMS', teams: teamSlots }];
     }
 

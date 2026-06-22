@@ -3,6 +3,7 @@ import groupPresets from '../../config/group_presets.json';
 import PotsDisplay from './PotsDisplay';
 import GroupsDisplay from './GroupsDisplay';
 import HomeAwayDrawSimulator from './HomeAwayDrawSimulator';
+import BracketDrawSimulator from './BracketDrawSimulator';
 import {
   performWorldCupDraw,
   performStandardDraw
@@ -329,15 +330,23 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
       case 'manual':
         // Show all filled out teams
         return teamData.teamSlots.filter(slot => slot.name.trim() !== '');
-      
+
       case 'confederation':
         // Show only selected teams (not deselected)
         return teamData.teamSlots.filter(slot => slot.isSelected);
-      
+
       case 'competition':
         // Show all filled out teams
         return teamData.teamSlots.filter(slot => slot.name.trim() !== '');
-      
+
+      case 'homeaway':
+        // Show all filled out teams
+        return teamData.teamSlots.filter(slot => slot.name.trim() !== '');
+
+      case 'bracket':
+        // Show all filled out teams
+        return teamData.teamSlots.filter(slot => slot.name.trim() !== '');
+
       default:
         return [];
     }
@@ -402,6 +411,11 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
   // Render HomeAwayDrawSimulator for homeaway preset type
   if (teamData?.presetType === 'homeaway') {
     return <HomeAwayDrawSimulator teamSlots={teamData.teamSlots} />;
+  }
+
+  // Render BracketDrawSimulator for bracket preset type
+  if (teamData?.presetType === 'bracket') {
+    return <BracketDrawSimulator teamSlots={teamData.teamSlots} />;
   }
 
   return (

@@ -17,6 +17,8 @@ interface PresetSelectionProps {
   setConfederationGroups: React.Dispatch<React.SetStateAction<number>>;
   homeAwayPairs: number;
   setHomeAwayPairs: React.Dispatch<React.SetStateAction<number>>;
+  bracketTeams: number;
+  setBracketTeams: React.Dispatch<React.SetStateAction<number>>;
   onCompetitionPresetSelect: () => void;
 }
 
@@ -35,6 +37,8 @@ const PresetSelection: React.FC<PresetSelectionProps> = ({
   setConfederationGroups,
   homeAwayPairs,
   setHomeAwayPairs,
+  bracketTeams,
+  setBracketTeams,
   onCompetitionPresetSelect
 }) => {
   return (
@@ -67,6 +71,38 @@ const PresetSelection: React.FC<PresetSelectionProps> = ({
                 onChange={(e) => {
                   const newValue = Math.max(1, Math.min(100, parseInt(e.target.value) || 1));
                   setHomeAwayPairs(newValue);
+                }}
+                className="bg-gray-700 text-white px-2 py-1 rounded w-20"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bracket Option */}
+      <div className="mb-4">
+        <label className="flex items-center mb-3 cursor-pointer">
+          <input
+            type="radio"
+            name="preset"
+            checked={presetType === 'bracket'}
+            onChange={() => setPresetType('bracket')}
+            className="mr-2 text-green-400"
+          />
+          <span className="font-medium">BRACKET</span>
+        </label>
+        {presetType === 'bracket' && (
+          <div className="ml-6 space-y-2">
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-300 w-24">Teams:</label>
+              <input
+                type="number"
+                min="2"
+                max="128"
+                value={bracketTeams}
+                onChange={(e) => {
+                  const newValue = Math.max(2, Math.min(128, parseInt(e.target.value) || 2));
+                  setBracketTeams(newValue);
                 }}
                 className="bg-gray-700 text-white px-2 py-1 rounded w-20"
               />

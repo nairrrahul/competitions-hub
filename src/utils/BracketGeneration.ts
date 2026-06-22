@@ -2,6 +2,8 @@ import type { TransformedGroups } from "../components/competitionSimulator/GROUP
 import type { MatchInformation } from "../components/competitionSimulator/SimulatorTab";
 import { calculateNthPlaceTeams, sortTeams } from './GroupSort';
 
+type MatchEntry = string | number;
+
 function generateBalancedSeeds(P: number): number[] {
   if (P === 1) return [1];
 
@@ -25,6 +27,74 @@ export function generateBracketPositions(N: number) {
   const bracket = ordering.map((seed) => seed > N ? null : seed);
 
   return bracket;
+}
+
+export function roundInfoFromBracket(bracket: (string | null)[]) {
+    const nullCount = bracket.filter(x => x === null).length;
+
+    const res: Record<number, Record<number, MatchEntry[]>> = {};
+
+    // no byes
+    if (nullCount === 0) {
+        res[1] = {};
+
+        for (let i = 0; i < bracket.length; i += 2) {
+            res[1][i / 2 + 1] = [
+                bracket[i]!,
+                bracket[i + 1]!
+            ];
+        }
+
+        return res;
+    }
+
+    res[1] = {};
+    res[2] = {};
+
+    let round1MatchNum = 1;
+    let round2MatchNum = 1;
+
+    // process groups of four
+    for (let i = 0; i < bracket.length; i += 4) {
+
+        const pair1 = [bracket[i], bracket[i + 1]];
+        const pair2 = [bracket[i + 2], bracket[i + 3]];
+
+        const advancers: MatchEntry[] = [];
+
+        for (const pair of [pair1, pair2]) {
+
+            const teams = pair.filter(x => x !== null) as string[];
+
+            if (teams.length === 2) {
+                // create round 1 match
+                res[1][round1MatchNum] = teams;
+
+                // winner represented by match number
+                advancers.push(round1MatchNum);
+
+                round1MatchNum++;
+            }
+            else if (teams.length === 1) {
+                // bye
+                advancers.push(teams[0]);
+            }
+        }
+
+        // If both pairings were byes (case 1 second group),
+        // the two surviving teams play in round 2.
+        if (advancers.length === 2) {
+            res[2][round2MatchNum] = advancers;
+            round2MatchNum++;
+        }
+    }
+
+    // remove empty round1 if none existed
+    if (Object.keys(res[1]).length === 0) {
+        delete res[1];
+    }
+
+    return res;
 }
 
 export function generateKnockout48(standings: TransformedGroups, getThirdPlacings: (key: string) => string | undefined): MatchInformation[] {
