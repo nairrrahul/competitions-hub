@@ -1,6 +1,7 @@
 import React from 'react';
 import GroupKOSimulator from './GROUPKO/GroupKOSimulator';
 import HomeAwaySimulator from './HOMEAWAY/HomeAwaySimulator';
+import KOSimulator from './KNOCKOUT/KOSimulator';
 import type { CompetitionSchedule, Match, HomeAwaySchedule } from '../../utils/SchedulerUtils';
 import { useGlobalStore } from '../../state/GlobalState';
 import type { Squad } from '../../types/rosterManager';
@@ -18,6 +19,7 @@ interface ImportedCompetition {
   isHA?: boolean;
   groups?: { [key: string]: string[] };
   pairs?: { home: string; away: string }[];
+  bracket?: Record<number, Record<number, (string | number)[]>>;
 }
 
 interface SimulatorTabProps {
@@ -83,12 +85,23 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     
     const squads: { [nation: string]: Squad } = {};
     
-    // Get all nations from all groups or pairs
+    // Get all nations from all groups, pairs, or bracket
     let allNations: string[] = [];
     if (importedCompetition.groups) {
       allNations = Object.values(importedCompetition.groups).flat();
     } else if (importedCompetition.pairs) {
       allNations = importedCompetition.pairs.flatMap(pair => [pair.home, pair.away]);
+    } else if (importedCompetition.bracket) {
+      // Extract team names from bracket format
+      Object.values(importedCompetition.bracket).forEach((roundMatches: Record<number, (string | number)[]>) => {
+        Object.values(roundMatches).forEach((teams: (string | number)[]) => {
+          teams.forEach((team: string | number) => {
+            if (typeof team === 'string') {
+              allNations.push(team);
+            }
+          });
+        });
+      });
     }
     
     // Load squad for each nation
@@ -233,6 +246,16 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
             setViewMatchday={setViewMatchday}
           />
         );
+      case 'KO':
+        return (
+          <KOSimulator
+            importedCompetition={importedCompetition}
+            matchSchedule={simulatorSchedule}
+            competitionSquads={competitionSquads}
+            viewMatchday={viewMatchday}
+            setViewMatchday={setViewMatchday}
+          />
+        );
       default:
         return (
           <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
@@ -287,6 +310,170 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
       ...simulatorSchedule,
       [currentMatchday]: result.matches
     };
+
+    setSimulatorSchedule(updatedSchedule);
+    const newMatchday = currentMatchday + 1;
+    setCurrentMatchday(newMatchday);
+    setViewMatchday(newMatchday);
+  }
+
+  const onNextRoundKO = () => {
+    const roundMatches = simulatorSchedule[currentMatchday];
+    if (!roundMatches) return;
+
+    // Set stage to 'KO' for all matches to enable knockout simulation logic (extra time and penalties)
+    const koRoundMatches = roundMatches.map(matchInfo => ({
+      ...matchInfo,
+      stage: 'KO' as RoundType
+    }));
+
+    // Simulate matches with knockout format (extra time and penalties)
+    const result = simulateMatchesForRound(
+      koRoundMatches,
+      competitionSquads,
+      {}, // Empty standings since KO doesn't use group standings
+      currentMatchday,
+      'KO', // Force KO round type for knockout format
+      importedCompetition?.compName || ''
+    );
+
+    const updatedSchedule = {
+      ...simulatorSchedule,
+      [currentMatchday]: result.matches
+    };
+
+    // Build a complete mapping of global match numbers to winners across all simulated rounds
+    const matchNumToWinner: Record<number, string> = {};
+    
+    for (let matchday = 1; matchday <= currentMatchday; matchday++) {
+      const matches = updatedSchedule[matchday];
+      if (matches) {
+        matches.forEach((matchInfo) => {
+          const matchResult = matchInfo.match.result;
+          const originalMatchNum = matchInfo.match.matchRiggedOptions.originalBracketMatchNum;
+          
+          if (matchResult && originalMatchNum !== undefined) {
+            let winner: string;
+            if (matchResult.team1Goals > matchResult.team2Goals) {
+              winner = matchInfo.match.homeTeam;
+            } else if (matchResult.team2Goals > matchResult.team1Goals) {
+              winner = matchInfo.match.awayTeam;
+            } else {
+              // Penalty shootout
+              if (matchResult.penalties) {
+                const team1Pens = matchResult.penalties.team1Results.filter(p => p === 'O').length;
+                const team2Pens = matchResult.penalties.team2Results.filter(p => p === 'O').length;
+                winner = team1Pens > team2Pens ? matchInfo.match.homeTeam : matchInfo.match.awayTeam;
+              } else {
+                winner = matchInfo.match.homeTeam; // fallback
+              }
+            }
+            matchNumToWinner[originalMatchNum] = winner;
+          }
+        });
+      }
+    }
+
+    // Resolve match number references in all future rounds
+    for (let futureMatchday = currentMatchday + 1; futureMatchday <= Object.keys(simulatorSchedule).length; futureMatchday++) {
+      if (updatedSchedule[futureMatchday]) {
+        const futureRoundMatches = updatedSchedule[futureMatchday];
+        
+        const resolvedFutureRound = futureRoundMatches.map(matchInfo => {
+          const resolveTeam = (team: string | number): string => {
+            if (typeof team === 'number') {
+              // This is a match number reference
+              return matchNumToWinner[team] || `Winner of Match ${team}`;
+            } else if (typeof team === 'string' && team.startsWith('Winner of Match ')) {
+              // This is a string-based match number reference
+              const matchNum = parseInt(team.replace('Winner of Match ', ''));
+              return matchNumToWinner[matchNum] || team;
+            }
+            return team;
+          };
+
+          return {
+            ...matchInfo,
+            match: {
+              ...matchInfo.match,
+              homeTeam: resolveTeam(matchInfo.match.homeTeam),
+              awayTeam: resolveTeam(matchInfo.match.awayTeam)
+            }
+          };
+        });
+
+        updatedSchedule[futureMatchday] = resolvedFutureRound;
+      }
+    }
+
+    // Generate next round if current round has more than 1 match (not final) and next round doesn't exist
+    if (result.matches.length > 1 && !updatedSchedule[currentMatchday + 1]) {
+      const winners: string[] = [];
+      result.matches.forEach((matchInfo) => {
+        const matchResult = matchInfo.match.result;
+        if (matchResult) {
+          let winner: string;
+          if (matchResult.team1Goals > matchResult.team2Goals) {
+            winner = matchInfo.match.homeTeam;
+          } else if (matchResult.team2Goals > matchResult.team1Goals) {
+            winner = matchInfo.match.awayTeam;
+          } else {
+            // Penalty shootout
+            if (matchResult.penalties) {
+              const team1Pens = matchResult.penalties.team1Results.filter(p => p === 'O').length;
+              const team2Pens = matchResult.penalties.team2Results.filter(p => p === 'O').length;
+              winner = team1Pens > team2Pens ? matchInfo.match.homeTeam : matchInfo.match.awayTeam;
+            } else {
+              winner = matchInfo.match.homeTeam; // fallback
+            }
+          }
+          winners.push(winner);
+        }
+      });
+
+      // Create next round matches by pairing winners
+      const nextRoundMatches: MatchInformation[] = [];
+      let nextGlobalMatchNum = 1;
+      
+      // Get the highest global match number used so far
+      let maxGlobalMatchNum = 0;
+      for (let md = 1; md <= currentMatchday; md++) {
+        if (updatedSchedule[md]) {
+          updatedSchedule[md].forEach((matchInfo) => {
+            const matchNum = matchInfo.match.matchRiggedOptions.originalBracketMatchNum || 0;
+            if (matchNum > maxGlobalMatchNum) {
+              maxGlobalMatchNum = matchNum;
+            }
+          });
+        }
+      }
+      
+      for (let i = 0; i < winners.length; i += 2) {
+        if (i + 1 < winners.length) {
+          nextRoundMatches.push({
+            stage: 'KO' as RoundType,
+            group: null,
+            match: {
+              homeTeam: winners[i],
+              awayTeam: winners[i + 1],
+              result: null,
+              matchRiggedOptions: {
+                isRigged: false,
+                homeGoals: -1,
+                awayGoals: -1,
+                originalBracketMatchNum: maxGlobalMatchNum + nextGlobalMatchNum,
+                originalBracketRound: currentMatchday + 1
+              }
+            }
+          });
+          nextGlobalMatchNum++;
+        }
+      }
+
+      if (nextRoundMatches.length > 0) {
+        updatedSchedule[currentMatchday + 1] = nextRoundMatches;
+      }
+    }
 
     setSimulatorSchedule(updatedSchedule);
     const newMatchday = currentMatchday + 1;
@@ -393,6 +580,9 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
         break;
       case 'HOMEAWAY':
         onNextRoundHomeAway();
+        break;
+      case 'KO':
+        onNextRoundKO();
         break;
       default:
         console.log(`No simulation logic for competition type: ${compType}`);

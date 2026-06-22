@@ -1,5 +1,5 @@
 import React from 'react';
-import { GroupStageMatchScheduler, supportsGroupStage, shouldUseHomeAway, getTotalMatchdays, HomeAwayMatchScheduler } from '../../utils/SchedulerUtils';
+import { GroupStageMatchScheduler, supportsGroupStage, shouldUseHomeAway, getTotalMatchdays, HomeAwayMatchScheduler, KnockoutMatchScheduler } from '../../utils/SchedulerUtils';
 import type { CompetitionSchedule, HomeAwaySchedule } from '../../utils/SchedulerUtils';
 import TeamsView from './TeamsView';
 import MatchesView from './MatchesView';
@@ -53,6 +53,8 @@ const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
   setTotalMatchdays,
   resetSimulatorState,
 }) => {
+  // Separate state for scheduler view matchday (max 2 pre-scheduled rounds)
+  const [schedulerViewMatchday, setSchedulerViewMatchday] = React.useState(1);
 
   const handleImportInfo = () => {
     // Create file input element
@@ -101,6 +103,34 @@ const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
             setTotalMatchdays(2);
             setCurrentMatchday(1);
             setViewMatchday(1);
+            setImportError(null);
+            onValidationUpdate(true);
+            resetSimulatorState();
+            return;
+          }
+
+          // Handle KO competition type
+          if (data.compType === 'KO') {
+            // Validate bracket for KO format
+            if (!data.bracket || typeof data.bracket !== 'object') {
+              setImportError('Import failed: Invalid or missing bracket data for KO format');
+              setImportedCompetition(null);
+              setMatchSchedule(null);
+              onValidationUpdate(false);
+              return;
+            }
+
+            // Schedule matches using KnockoutMatchScheduler
+            const schedule = KnockoutMatchScheduler(data.bracket);
+            const totalRounds = Object.keys(schedule).length;
+            
+            setImportedCompetition(data);
+            setMatchSchedule(schedule);
+            setViewMode('matches');
+            setTotalMatchdays(totalRounds);
+            setCurrentMatchday(1);
+            setViewMatchday(1);
+            setSchedulerViewMatchday(1); // Reset scheduler view matchday
             setImportError(null);
             onValidationUpdate(true);
             resetSimulatorState();
@@ -231,9 +261,9 @@ const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
             <MatchesView 
               importedCompetition={importedCompetition}
               matchSchedule={matchSchedule}
-              currentMatchday={viewMatchday}
-              setCurrentMatchday={setViewMatchday}
-              totalMatchdays={totalMatchdays}
+              currentMatchday={schedulerViewMatchday}
+              setCurrentMatchday={setSchedulerViewMatchday}
+              totalMatchdays={2} // Limit to max 2 pre-scheduled rounds
             />
           )
         ) : (

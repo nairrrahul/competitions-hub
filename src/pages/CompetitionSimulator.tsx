@@ -14,6 +14,7 @@ interface ImportedCompetition {
   isHA?: boolean;
   groups?: { [key: string]: string[] };
   pairs?: { home: string; away: string }[];
+  bracket?: Record<number, Record<number, (string | number)[]>>;
 }
 
 const CompetitionSimulator: React.FC = () => {
@@ -55,12 +56,25 @@ const CompetitionSimulator: React.FC = () => {
     
     const squads: { [nation: string]: any } = {};
     
-    // Get all nations from all groups or pairs
+    // Get all nations from all groups, pairs, or bracket
     let allNations: string[] = [];
     if (importedCompetition.groups) {
       allNations = Object.values(importedCompetition.groups).flat();
     } else if (importedCompetition.pairs) {
       allNations = importedCompetition.pairs.flatMap(pair => [pair.home, pair.away]);
+    } else if (importedCompetition.bracket) {
+      // Extract team names from bracket (filter out match number references which are numbers)
+      const teamNames = new Set<string>();
+      Object.values(importedCompetition.bracket).forEach(round => {
+        Object.values(round).forEach(matchup => {
+          matchup.forEach(team => {
+            if (typeof team === 'string') {
+              teamNames.add(team);
+            }
+          });
+        });
+      });
+      allNations = Array.from(teamNames);
     }
     
     // Load squad for each nation

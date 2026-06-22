@@ -197,9 +197,9 @@ const LoadedSquads: React.FC<LoadedSquadsProps> = ({ squads, competitionType, gr
     );
   }
 
-  // For non-GROUPKO competitions, show all squads in a single column
+  // For non-GROUPKO competitions, show all squads in a grid with max 4 per row
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
       {Object.entries(squads).map(([nation, squad]) => 
         renderSquadContainer(nation, squad)
       )}

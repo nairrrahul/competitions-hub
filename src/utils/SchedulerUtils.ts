@@ -12,6 +12,8 @@ export interface RiggedMatchProps {
   isRigged: boolean;
   homeGoals: number;
   awayGoals: number;
+  originalBracketMatchNum?: number; // Store original bracket match number for resolution
+  originalBracketRound?: number; // Store original bracket round number for resolution
 }
 
 export interface GroupMatchSchedule {
@@ -244,6 +246,52 @@ export function HomeAwayMatchScheduler(pairs: { home: string; away: string }[]):
   
   schedule[1] = firstLegMatches;
   schedule[2] = secondLegMatches;
+  
+  return schedule;
+}
+
+/**
+ * Generates a knockout match schedule from bracket format
+ * @param bracket Object with round numbers as keys and match objects as values
+ * @returns Object with matchdays as keys and arrays of matches as values
+ */
+export function KnockoutMatchScheduler(bracket: Record<number, Record<number, (string | number)[]>>): HomeAwaySchedule {
+  const schedule: HomeAwaySchedule = {};
+  
+  // Convert bracket format to HomeAwaySchedule
+  // Each round in the bracket becomes a matchday
+  const sortedRounds = Object.keys(bracket).map(Number).sort((a, b) => a - b);
+  
+  let globalMatchNum = 1; // Use global match numbering across entire bracket
+  
+  sortedRounds.forEach((round, index) => {
+    const roundMatches = bracket[round];
+    const matches: Match[] = [];
+    
+    Object.entries(roundMatches).forEach(([_matchNum, teams]) => {
+      // teams array contains [homeTeam, awayTeam]
+      // These can be either team names (strings) or match number references (numbers)
+      const homeTeam = typeof teams[0] === 'string' ? teams[0] : `Winner of Match ${teams[0]}`;
+      const awayTeam = typeof teams[1] === 'string' ? teams[1] : `Winner of Match ${teams[1]}`;
+      
+      matches.push({
+        homeTeam: homeTeam,
+        awayTeam: awayTeam,
+        result: null,
+        matchRiggedOptions: {
+          isRigged: false,
+          homeGoals: -1,
+          awayGoals: -1,
+          originalBracketMatchNum: globalMatchNum, // Use global match number
+          originalBracketRound: round // Store original bracket round number
+        }
+      });
+      
+      globalMatchNum++;
+    });
+    
+    schedule[index + 1] = matches;
+  });
   
   return schedule;
 }

@@ -11,6 +11,7 @@ interface ImportedCompetition {
   isHA?: boolean;
   groups?: { [key: string]: string[] };
   pairs?: { home: string; away: string }[];
+  bracket?: Record<number, Record<number, (string | number)[]>>;
 }
 
 interface TeamsViewProps {
@@ -102,8 +103,44 @@ const TeamsView: React.FC<TeamsViewProps> = ({
     );
   };
 
+  const renderBracketTeamsGrid = () => {
+    if (!importedCompetition || !importedCompetition.bracket) return null;
+
+    // Extract all team names from the bracket
+    const teams: string[] = [];
+    Object.values(importedCompetition.bracket).forEach(roundMatches => {
+      Object.values(roundMatches).forEach(matchTeams => {
+        matchTeams.forEach(team => {
+          if (typeof team === 'string') {
+            teams.push(team);
+          }
+        });
+      });
+    });
+
+    // Remove duplicates
+    const uniqueTeams = Array.from(new Set(teams));
+
+    return (
+      <div className="p-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {uniqueTeams.map((team, index) => (
+            <div key={index} className="flex items-center space-x-3 bg-gray-800 rounded-lg border border-gray-700 p-3">
+              <MatchFlag countryName={team} w={7} h={5} s={1.5} />
+              <span className="text-white font-medium text-sm">{team}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   if (importedCompetition?.compType === 'HOMEAWAY') {
     return renderPairsGrid();
+  }
+
+  if (importedCompetition?.compType === 'KO') {
+    return renderBracketTeamsGrid();
   }
 
   return renderGroupsGrid();
