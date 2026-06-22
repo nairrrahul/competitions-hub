@@ -27,9 +27,7 @@ interface MatchSchedulerTabProps {
   expandedGroups: Set<string>;
   setExpandedGroups: React.Dispatch<React.SetStateAction<Set<string>>>;
   setCurrentMatchday: React.Dispatch<React.SetStateAction<number>>;
-  viewMatchday: number;
   setViewMatchday: React.Dispatch<React.SetStateAction<number>>;
-  totalMatchdays: number;
   setTotalMatchdays: React.Dispatch<React.SetStateAction<number>>;
   resetSimulatorState: () => void;
 }
@@ -47,9 +45,7 @@ const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
   expandedGroups,
   setExpandedGroups,
   setCurrentMatchday,
-  viewMatchday,
   setViewMatchday,
-  totalMatchdays,
   setTotalMatchdays,
   resetSimulatorState,
 }) => {

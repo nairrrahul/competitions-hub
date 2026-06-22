@@ -31,7 +31,7 @@ const CompetitionSimulator: React.FC = () => {
   const [currentMatchday, setCurrentMatchday] = useState(1);
   const [viewMatchday, setViewMatchday] = useState(1);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
-  const [totalMatchdays, setTotalMatchdays] = useState(0);
+  const [_, setTotalMatchdays] = useState(0);
 
   const { getSquad } = useGlobalStore();
 
@@ -169,9 +169,7 @@ const CompetitionSimulator: React.FC = () => {
             expandedGroups={expandedGroups}
             setExpandedGroups={setExpandedGroups}
             setCurrentMatchday={setCurrentMatchday}
-            viewMatchday={viewMatchday}
             setViewMatchday={setViewMatchday}
-            totalMatchdays={totalMatchdays}
             setTotalMatchdays={setTotalMatchdays}
             resetSimulatorState={resetSimulatorState}
           />
