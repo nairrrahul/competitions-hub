@@ -1,5 +1,5 @@
 import React from 'react';
-import type { RearrangedSchedule } from '../../SimulatorTab';
+import type { RearrangedSchedule, MatchInformation } from '../SimulatorTab';
 import MatchRow from '../MatchRow';
 
 interface Props {
@@ -14,7 +14,7 @@ const PlayoffStagesSection: React.FC<Props> = ({ matchSchedule, selectedStage, s
   const availableStages = Object.keys(matchSchedule).map(Number).sort((a, b) => a - b);
   const getPathsForRound = (matchday: number) => {
     const matchdaySchedules = matchSchedule[matchday] || [];
-    const paths = Array.from(new Set(matchdaySchedules.map(mi => mi.group).filter(Boolean))) as string[];
+    const paths = Array.from(new Set(matchdaySchedules.map((mi: MatchInformation) => mi.group).filter(Boolean))) as string[];
     return paths.sort();
   };
 
@@ -41,13 +41,13 @@ const PlayoffStagesSection: React.FC<Props> = ({ matchSchedule, selectedStage, s
             <div className="space-y-6">
               {getPathsForRound(parseInt(selectedStage)).map((pathName) => {
                 const matchdaySchedules = matchSchedule[parseInt(selectedStage)] || [];
-                const pathMatches = matchdaySchedules.filter(mi => mi.group === pathName).map(mi => mi.match);
+                const pathMatches = matchdaySchedules.filter((mi: MatchInformation) => mi.group === pathName).map((mi: MatchInformation) => mi.match);
 
                 return (
                   <div key={pathName}>
                     <h3 className="font-semibold text-gray-200 mb-2">{pathName}</h3>
                     <div className="space-y-2">
-                      {pathMatches.map((match, idx) => (
+                      {pathMatches.map((match: any, idx: number) => (
                         <MatchRow key={`${pathName}-${idx}`} index={idx} match={match} />
                       ))}
                     </div>

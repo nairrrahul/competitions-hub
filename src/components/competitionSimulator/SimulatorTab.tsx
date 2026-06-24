@@ -276,10 +276,8 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
           <PlayoffSimulator
             importedCompetition={importedCompetition}
             matchSchedule={simulatorSchedule}
-            competitionSquads={competitionSquads}
             viewMatchday={viewMatchday}
             setViewMatchday={setViewMatchday}
-            onSimulatePath={(pathName: string) => onNextRoundForPath(pathName)}
           />
         );
       default:
@@ -566,130 +564,6 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     setViewMatchday(newMatchday);
   }
 
-  const onNextRoundForPath = (pathName: string) => {
-    const roundMatches = simulatorSchedule[currentMatchday];
-    if (!roundMatches) return;
-
-    const pathRoundMatches = roundMatches.filter(mi => mi.group === pathName);
-    if (pathRoundMatches.length === 0) return;
-
-    const koRoundMatches = pathRoundMatches.map(mi => ({
-      ...mi,
-      stage: 'KO' as RoundType,
-    }));
-
-    const { oldMatches, newRound } = simulateKnockoutRound(
-      koRoundMatches,
-      competitionSquads,
-      currentMatchday,
-      importedCompetition?.compType || 'PLAYOFF',
-      importedCompetition?.compName || ''
-    );
-
-    const updatedSchedule = { ...simulatorSchedule };
-    const updatedCurrentRound = updatedSchedule[currentMatchday].map(mi => {
-      if (mi.group === pathName) {
-        return oldMatches.shift() as MatchInformation;
-      }
-      return mi;
-    });
-    updatedSchedule[currentMatchday] = updatedCurrentRound;
-
-    const winnerForMatch = (matchInfo: MatchInformation) => {
-      const result = matchInfo.match.result!;
-      if (result.team1Goals > result.team2Goals) return matchInfo.match.homeTeam;
-      if (result.team2Goals > result.team1Goals) return matchInfo.match.awayTeam;
-      if (result.penalties) {
-        const team1Pens = result.penalties.team1Results.filter(p => p === 'O').length;
-        const team2Pens = result.penalties.team2Results.filter(p => p === 'O').length;
-        return team1Pens > team2Pens ? matchInfo.match.homeTeam : matchInfo.match.awayTeam;
-      }
-      return matchInfo.match.homeTeam;
-    };
-
-    const matchNumToWinner: Record<string, string> = {};
-    for (let matchday = 1; matchday <= currentMatchday; matchday++) {
-      const matches = updatedSchedule[matchday];
-      if (!matches) continue;
-      matches.forEach(matchInfo => {
-        if (matchInfo.group !== pathName) return;
-        const matchResult = matchInfo.match.result;
-        const originalMatchNum = matchInfo.match.matchRiggedOptions.originalBracketMatchNum;
-        if (matchResult && originalMatchNum !== undefined) {
-          matchNumToWinner[`${pathName}-${originalMatchNum}`] = winnerForMatch(matchInfo);
-        }
-      });
-    }
-
-    const resolveTeam = (team: string | number, keyPrefix: string) => {
-      if (typeof team === 'number') {
-        const key = `${keyPrefix}-${team}`;
-        return matchNumToWinner[key] || `Winner of Match ${team}`;
-      }
-      if (typeof team === 'string' && team.startsWith('Winner of Match ')) {
-        const matchNum = parseInt(team.replace('Winner of Match ', ''));
-        const key = `${keyPrefix}-${matchNum}`;
-        return matchNumToWinner[key] || team;
-      }
-      return team;
-    };
-
-    const maxFuture = Math.max(0, ...Object.keys(updatedSchedule).map(Number));
-    for (let futureMatchday = currentMatchday + 1; futureMatchday <= maxFuture; futureMatchday++) {
-      if (!updatedSchedule[futureMatchday]) continue;
-      updatedSchedule[futureMatchday] = updatedSchedule[futureMatchday].map(matchInfo => {
-        if (matchInfo.group !== pathName) return matchInfo;
-
-        return {
-          ...matchInfo,
-          match: {
-            ...matchInfo.match,
-            homeTeam: resolveTeam(matchInfo.match.homeTeam, pathName),
-            awayTeam: resolveTeam(matchInfo.match.awayTeam, pathName),
-          }
-        };
-      });
-    }
-
-    const playoffPathNum = parseInt((pathName || '').toString().replace(/[^0-9]/g, '')) || undefined;
-    const nextMd = currentMatchday + 1;
-
-    if (newRound.length > 0) {
-      const pathGeneratedRound = newRound.map(mi => ({
-        ...mi,
-        group: pathName,
-        match: {
-          ...mi.match,
-          matchRiggedOptions: {
-            ...mi.match.matchRiggedOptions,
-            playoffPath: playoffPathNum
-          }
-        }
-      }));
-
-      updatedSchedule[nextMd] = updatedSchedule[nextMd] || [];
-
-      const existingPathMatches = updatedSchedule[nextMd].filter(mi => mi.group === pathName);
-      const existingCount = existingPathMatches.length;
-      const neededMatches = pathGeneratedRound.length;
-
-      if (existingCount >= neededMatches) {
-        updatedSchedule[nextMd] = updatedSchedule[nextMd].map(mi => {
-          if (mi.group !== pathName) return mi;
-          return mi;
-        });
-      } else {
-        updatedSchedule[nextMd] = updatedSchedule[nextMd].concat(pathGeneratedRound.slice(existingCount));
-      }
-    }
-
-    setSimulatorSchedule(updatedSchedule);
-    const maxScheduled = Math.max(0, ...Object.keys(updatedSchedule).map(Number));
-    const newMatchday = Math.min(currentMatchday + 1, maxScheduled || currentMatchday);
-    setCurrentMatchday(newMatchday);
-    setViewMatchday(newMatchday);
-  }
-
   const onNextRoundGroupKO = () => { 
     const roundMatches = simulatorSchedule[currentMatchday];
     const numGSMatches = compRoundInfo.rounds[0].numMatchdays;
@@ -808,8 +682,14 @@ const SimulatorTab: React.FC<SimulatorTabProps> = ({ hasData, importedCompetitio
     return currentMatches.some(matchInfo => !matchInfo.match?.result);
   };
 
+  const allMatchesPlayed = () => {
+    return Object.values(simulatorSchedule).every(matchday =>
+      matchday.every((matchInfo: MatchInformation) => matchInfo.match?.result)
+    );
+  };
+
   const canSimulate = currentMatchday <= maxMatchday && currentRoundHasUnplayedMatches();
-  const showHistoryButtons = currentMatchday > maxMatchday;
+  const showHistoryButtons = allMatchesPlayed();
 
   const totalMatchDeltas = () => {
     const deltas: { [nation: string]: number } = {};

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { RearrangedSchedule } from '../../SimulatorTab';
+import type { RearrangedSchedule } from '../SimulatorTab';
 import MatchRow from '../MatchRow';
 
 interface ImportedCompetition {
@@ -17,7 +17,7 @@ interface Props {
   setCurrentMatchday: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const PlayoffMatchesSection: React.FC<Props> = ({ importedCompetition, matchSchedule, currentMatchday, setCurrentMatchday }) => {
+const PlayoffMatchesSection: React.FC<Props> = ({ matchSchedule, currentMatchday, setCurrentMatchday }) => {
 
   const getAllMatchdays = () => {
     if (!matchSchedule) return [] as number[];

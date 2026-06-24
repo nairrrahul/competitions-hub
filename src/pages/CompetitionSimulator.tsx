@@ -15,6 +15,7 @@ interface ImportedCompetition {
   groups?: { [key: string]: string[] };
   pairs?: { home: string; away: string }[];
   bracket?: Record<number, Record<number, (string | number)[]>>;
+  playoffs?: { [path: string]: Record<number, (string | number)[]> };
 }
 
 const CompetitionSimulator: React.FC = () => {
