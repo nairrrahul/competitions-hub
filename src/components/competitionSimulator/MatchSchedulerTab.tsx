@@ -12,6 +12,7 @@ interface ImportedCompetition {
   isHA?: boolean;
   groups?: { [key: string]: string[] };
   pairs?: { home: string; away: string }[];
+  playoffs?: { [path: string]: Record<number, (string | number)[]> | any };
 }
 
 interface MatchSchedulerTabProps {
@@ -127,6 +128,49 @@ const MatchSchedulerTab: React.FC<MatchSchedulerTabProps> = ({
             setCurrentMatchday(1);
             setViewMatchday(1);
             setSchedulerViewMatchday(1); // Reset scheduler view matchday
+            setImportError(null);
+            onValidationUpdate(true);
+            resetSimulatorState();
+            return;
+          }
+
+          // Handle PLAYOFF competition type (multiple independent knockout paths)
+          if (data.compType === 'PLAYOFF') {
+            if (!data.playoffs || typeof data.playoffs !== 'object') {
+              setImportError('Import failed: Invalid or missing playoffs data for PLAYOFF format');
+              setImportedCompetition(null);
+              setMatchSchedule(null);
+              onValidationUpdate(false);
+              return;
+            }
+
+            // Build a CompetitionSchedule where each path is a group (Path 1, Path 2...)
+            const schedule: CompetitionSchedule = {};
+
+            Object.keys(data.playoffs).sort((a, b) => Number(a) - Number(b)).forEach(pathKey => {
+              const pathBracket = data.playoffs[pathKey];
+              // Each pathBracket should be rounds -> matches -> [home, away]
+              const pathSchedule = KnockoutMatchScheduler(pathBracket as Record<number, Record<number, (string | number)[]>>);
+              // Tag each match with playoffPath metadata so simulation can scope references
+              Object.entries(pathSchedule).forEach(([ _mdStr, matches ]: [string, any[]]) => {
+                matches.forEach((m: any) => {
+                  if (!m.matchRiggedOptions) m.matchRiggedOptions = { isRigged: false, homeGoals: -1, awayGoals: -1 } as any;
+                  m.matchRiggedOptions.playoffPath = Number(pathKey);
+                });
+              });
+
+              schedule[`Path ${pathKey}`] = pathSchedule;
+            });
+
+            const totalRounds = getTotalMatchdays(schedule);
+
+            setImportedCompetition(data);
+            setMatchSchedule(schedule);
+            setViewMode('matches');
+            setTotalMatchdays(totalRounds);
+            setCurrentMatchday(1);
+            setViewMatchday(1);
+            setSchedulerViewMatchday(1);
             setImportError(null);
             onValidationUpdate(true);
             resetSimulatorState();

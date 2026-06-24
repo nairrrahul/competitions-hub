@@ -56,14 +56,13 @@ const CompetitionSimulator: React.FC = () => {
     
     const squads: { [nation: string]: any } = {};
     
-    // Get all nations from all groups, pairs, or bracket
+    // Get all nations from all groups, pairs, bracket, or playoff paths
     let allNations: string[] = [];
     if (importedCompetition.groups) {
       allNations = Object.values(importedCompetition.groups).flat();
     } else if (importedCompetition.pairs) {
       allNations = importedCompetition.pairs.flatMap(pair => [pair.home, pair.away]);
     } else if (importedCompetition.bracket) {
-      // Extract team names from bracket (filter out match number references which are numbers)
       const teamNames = new Set<string>();
       Object.values(importedCompetition.bracket).forEach(round => {
         Object.values(round).forEach(matchup => {
@@ -75,9 +74,22 @@ const CompetitionSimulator: React.FC = () => {
         });
       });
       allNations = Array.from(teamNames);
+    } else if (importedCompetition.playoffs) {
+      const teamNames = new Set<string>();
+      Object.values(importedCompetition.playoffs).forEach((pathBracket: any) => {
+        Object.values(pathBracket).forEach((roundObj: any) => {
+          Object.values(roundObj).forEach((matchup: any) => {
+            matchup.forEach((team: string | number) => {
+              if (typeof team === 'string') {
+                teamNames.add(team);
+              }
+            });
+          });
+        });
+      });
+      allNations = Array.from(teamNames);
     }
     
-    // Load squad for each nation
     allNations.forEach(nation => {
       const squad = getSquad(nation);
       if (squad) {
@@ -89,6 +101,32 @@ const CompetitionSimulator: React.FC = () => {
   };
 
   const competitionSquads = getCompetitionSquads();
+
+  const competitionGroups = React.useMemo(() => {
+    if (!importedCompetition) return undefined;
+    if (importedCompetition.groups) {
+      return importedCompetition.groups;
+    }
+    if (importedCompetition.playoffs) {
+      const groups: { [key: string]: string[] } = {};
+      Object.keys(importedCompetition.playoffs).sort((a, b) => Number(a) - Number(b)).forEach(pathKey => {
+        const pathTeams = new Set<string>();
+        const pathBracket = importedCompetition.playoffs![pathKey];
+        Object.values(pathBracket).forEach((roundObj: any) => {
+          Object.values(roundObj).forEach((matchup: any) => {
+            matchup.forEach((team: string | number) => {
+              if (typeof team === 'string') {
+                pathTeams.add(team);
+              }
+            });
+          });
+        });
+        groups[pathKey] = Array.from(pathTeams);
+      });
+      return groups;
+    }
+    return undefined;
+  }, [importedCompetition]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -200,7 +238,7 @@ const CompetitionSimulator: React.FC = () => {
               <LoadedSquads 
                 squads={competitionSquads} 
                 competitionType={importedCompetition?.compType}
-                groups={importedCompetition?.groups}
+                groups={competitionGroups}
               />
             </div>
           </div>

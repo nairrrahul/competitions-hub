@@ -197,6 +197,28 @@ const LoadedSquads: React.FC<LoadedSquadsProps> = ({ squads, competitionType, gr
     );
   }
 
+  if (competitionType === 'PLAYOFF' && groups) {
+    return (
+      <div className="space-y-6">
+        {Object.entries(groups).map(([pathName, nations]) => (
+          <div key={pathName}>
+            <h3 className="text-xl font-bold text-green-400 mb-4">{pathName}</h3>
+            <div className="flex flex-wrap gap-4 w-full">
+              {nations.map(nation => {
+                const squad = squads[nation];
+                return squad ? (
+                  <div key={nation} className="flex-1 min-w-0">
+                    {renderSquadContainer(nation, squad)}
+                  </div>
+                ) : null;
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   // For non-GROUPKO competitions, show all squads in a grid with max 4 per row
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">

@@ -14,6 +14,7 @@ export interface RiggedMatchProps {
   awayGoals: number;
   originalBracketMatchNum?: number; // Store original bracket match number for resolution
   originalBracketRound?: number; // Store original bracket round number for resolution
+  playoffPath?: number; // Optional path id for PLAYOFF competitions
 }
 
 export interface GroupMatchSchedule {

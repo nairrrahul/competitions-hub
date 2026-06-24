@@ -12,6 +12,7 @@ interface ImportedCompetition {
   groups?: { [key: string]: string[] };
   pairs?: { home: string; away: string }[];
   bracket?: Record<number, Record<number, (string | number)[]>>;
+  playoffs?: { [path: string]: Record<number, Record<number, (string | number)[]>> | Record<number, (string | number)[]> };
 }
 
 interface TeamsViewProps {
@@ -135,12 +136,48 @@ const TeamsView: React.FC<TeamsViewProps> = ({
     );
   };
 
+  const renderPlayoffsGrid = () => {
+    if (!importedCompetition || !importedCompetition.playoffs) return null;
+
+    const pathKeys = Object.keys(importedCompetition.playoffs).sort((a, b) => Number(a) - Number(b));
+
+    return (
+      <div className="flex flex-wrap gap-4 p-4 justify-center">
+        {pathKeys.map(pathKey => {
+          const pathBracket = importedCompetition.playoffs![pathKey] as Record<number, Record<number, (string | number)[]>>;
+          // Collect teams for this path
+          const teams: string[] = [];
+          Object.values(pathBracket).forEach(roundMatches => {
+            Object.values(roundMatches as Record<number, (string | number)[]>).forEach(matchTeams => {
+              matchTeams.forEach(team => {
+                if (typeof team === 'string') teams.push(team);
+              });
+            });
+          });
+
+          const uniqueTeams = Array.from(new Set(teams));
+          const groupName = `Path ${pathKey}`;
+
+          return (
+            <div key={pathKey} className="flex flex-col min-w-md max-w-xl">
+              {renderGroup(groupName, uniqueTeams)}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   if (importedCompetition?.compType === 'HOMEAWAY') {
     return renderPairsGrid();
   }
 
   if (importedCompetition?.compType === 'KO') {
     return renderBracketTeamsGrid();
+  }
+
+  if (importedCompetition?.compType === 'PLAYOFF') {
+    return renderPlayoffsGrid();
   }
 
   return renderGroupsGrid();
