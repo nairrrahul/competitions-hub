@@ -15,6 +15,7 @@ interface TeamListProps {
   setTeamSlots: React.Dispatch<React.SetStateAction<TeamSlot[]>>;
   autocompleteStates: { [key: string]: { isOpen: boolean; filteredTeams: string[]; selectedIndex: number } };
   setAutocompleteStates: React.Dispatch<React.SetStateAction<{ [key: string]: { isOpen: boolean; filteredTeams: string[]; selectedIndex: number } }>>;
+  onImportJSON?: (data: any) => void;
 }
 
 const TeamList: React.FC<TeamListProps> = ({
@@ -24,12 +25,44 @@ const TeamList: React.FC<TeamListProps> = ({
   teamSlots,
   setTeamSlots,
   autocompleteStates,
-  setAutocompleteStates
+  setAutocompleteStates,
+  onImportJSON
 }) => {
   const getCountryFlagCode = useGlobalStore(state => state.getNationFlagCode);
   
   // Get all available team names for autocomplete
   const allTeamNames = useGlobalStore.getState().getAllNationalities();
+
+  // Handle JSON import
+  const handleImportJSON = () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json';
+    
+    fileInput.onchange = (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          const data = JSON.parse(content);
+          
+          if (onImportJSON) {
+            onImportJSON(data);
+          }
+        } catch (error) {
+          console.error('Import failed:', error);
+          alert('Failed to import JSON file. Please check the file format.');
+        }
+      };
+
+      reader.readAsText(file);
+    };
+
+    fileInput.click();
+  };
 
   // Filter teams for autocomplete
   const filterTeams = (input: string, currentSlotId: string): string[] => {
@@ -304,18 +337,28 @@ const TeamList: React.FC<TeamListProps> = ({
     <div className="flex-1 bg-gray-800 rounded-lg border border-gray-700 p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold text-green-400">TEAMS</h2>
-        {presetType === 'confederation' && (
-          <button 
-            onClick={toggleAllTeamSelection}
-            className={`font-bold py-2 px-4 rounded-lg transition-colors ${
-              areAllTeamsCleared()
-                ? 'bg-green-600 hover:bg-green-700 text-white'
-                : 'bg-red-600 hover:bg-red-700 text-white'
-            }`}
-          >
-            {areAllTeamsCleared() ? 'Unclear All' : 'Clear All'}
-          </button>
-        )}
+        <div className="flex gap-2">
+          {presetType === 'competition' && (
+            <button 
+              onClick={handleImportJSON}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            >
+              Import JSON
+            </button>
+          )}
+          {presetType === 'confederation' && (
+            <button 
+              onClick={toggleAllTeamSelection}
+              className={`font-bold py-2 px-4 rounded-lg transition-colors ${
+                areAllTeamsCleared()
+                  ? 'bg-green-600 hover:bg-green-700 text-white'
+                  : 'bg-red-600 hover:bg-red-700 text-white'
+              }`}
+            >
+              {areAllTeamsCleared() ? 'Unclear All' : 'Clear All'}
+            </button>
+          )}
+        </div>
       </div>
       
       <div className="flex flex-wrap gap-6 w-full">

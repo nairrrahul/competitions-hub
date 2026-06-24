@@ -3,6 +3,7 @@ import drawPresets from '../../config/draw_presets.json';
 import { useGlobalStore } from '../../state/GlobalState';
 import PresetSelection from './PresetSelection';
 import TeamList from './TeamList';
+import ValidationErrorModal from './ValidationErrorModal';
 import { type TeamSlot, type TeamData, type PresetType, type Confederation } from '../../types/DrawMakerTypes';
 
 
@@ -33,6 +34,10 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
   // Team management state
   const [teamSlots, setTeamSlots] = useState<TeamSlot[]>(initialData?.teamSlots || []);
   const [autocompleteStates, setAutocompleteStates] = useState<{ [key: string]: { isOpen: boolean; filteredTeams: string[]; selectedIndex: number } }>({});
+  
+  // Validation modal state
+  const [validationModalOpen, setValidationModalOpen] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
 
   // Update validation state whenever relevant data changes
@@ -174,6 +179,150 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
     }
   }, [selectedCompetition, presetType, initialData]);
 
+  // Handle JSON import for competition mode
+  const handleImportJSON = (data: any) => {
+    if (presetType !== 'competition') {
+      alert('JSON import is only available in competition mode.');
+      return;
+    }
+
+    const allNationalities = useGlobalStore.getState().getAllNationalities();
+    const nationInfo = useGlobalStore.getState().nationInfo;
+    const validationErrors: string[] = [];
+
+    // Get expected counts from competition preset
+    const competition = drawPresets[selectedCompetition as keyof typeof drawPresets];
+    if (!competition) {
+      alert('Could not find competition preset data.');
+      return;
+    }
+
+    // Validate and process each confederation section
+    const processedData: { [key: string]: { name: string; isHost: boolean }[] } = {};
+
+    Object.entries(data).forEach(([sectionKey, teams]) => {
+      const teamsArray = teams as string[];
+      
+      // Validate section key
+      const validSections = ['UEFA', 'AFC', 'OFC', 'CAF', 'CONMEBOL', 'CONCACAF', 'Intl Playoff', 'UEFA Playoff'];
+      if (!validSections.includes(sectionKey)) {
+        validationErrors.push(`Invalid section key: "${sectionKey}". Valid keys are: ${validSections.join(', ')}`);
+        return;
+      }
+
+      processedData[sectionKey] = [];
+
+      teamsArray.forEach((teamName) => {
+        // Check for host designation (asterisk prefix)
+        const isHost = teamName.startsWith('*');
+        const cleanName = isHost ? teamName.substring(1) : teamName;
+
+        // Validate country spelling
+        if (!allNationalities.includes(cleanName)) {
+          validationErrors.push(`Invalid country name: "${cleanName}" in section "${sectionKey}"`);
+          return;
+        }
+
+        // Get nation info for validation
+        const nationData = nationInfo[cleanName];
+        if (!nationData) {
+          validationErrors.push(`Could not find nation data for: "${cleanName}"`);
+          return;
+        }
+
+        // Validate confederation membership
+        if (sectionKey === 'Intl Playoff') {
+          // Intl Playoff: must NOT be UEFA
+          if (nationData.confederationID === 'UEFA') {
+            validationErrors.push(`"${cleanName}" is in Intl Playoff but is a UEFA nation (not allowed)`);
+            return;
+          }
+        } else if (sectionKey === 'UEFA Playoff') {
+          // UEFA Playoff: must be UEFA
+          if (nationData.confederationID !== 'UEFA') {
+            validationErrors.push(`"${cleanName}" is in UEFA Playoff but is not a UEFA nation`);
+            return;
+          }
+        } else {
+          // Regular confederation: must match
+          if (nationData.confederationID !== sectionKey) {
+            validationErrors.push(`"${cleanName}" is in section "${sectionKey}" but belongs to ${nationData.confederationID}`);
+            return;
+          }
+        }
+
+        processedData[sectionKey].push({ name: cleanName, isHost });
+      });
+
+      // Validate count matches expected
+      if (sectionKey === 'Intl Playoff') {
+        const expectedCount = competition.numIntlPlayoff;
+        if (teamsArray.length !== expectedCount) {
+          validationErrors.push(`Intl Playoff: Expected ${expectedCount} teams, got ${teamsArray.length}`);
+        }
+      } else if (sectionKey === 'UEFA Playoff') {
+        const expectedCount = competition.numEUROPlayoff;
+        if (teamsArray.length !== expectedCount) {
+          validationErrors.push(`UEFA Playoff: Expected ${expectedCount} teams, got ${teamsArray.length}`);
+        }
+      } else {
+        // Regular confederation
+        const expectedCount = competition.confederations[sectionKey as keyof typeof competition.confederations];
+        if (expectedCount !== undefined && teamsArray.length !== expectedCount) {
+          validationErrors.push(`${sectionKey}: Expected ${expectedCount} teams, got ${teamsArray.length}`);
+        }
+      }
+    });
+
+    // If validation failed, show errors in modal
+    if (validationErrors.length > 0) {
+      setValidationErrors(validationErrors);
+      setValidationModalOpen(true);
+      return;
+    }
+
+    // Map processed data to team slots
+    const assignedTeams = new Set<string>();
+    const updatedSlots = teamSlots.map(slot => {
+      const parts = slot.id.split('-');
+      const sectionId = parts[0]; // e.g., "WorldCup" from "WorldCup-UEFA-0"
+      const slotConfederation = parts[1]; // e.g., "UEFA" from "WorldCup-UEFA-0"
+
+      // Determine which section this slot belongs to
+      let sectionKey = '';
+      if (sectionId === 'intl') {
+        sectionKey = 'Intl Playoff';
+      } else if (sectionId === 'euro') {
+        sectionKey = 'UEFA Playoff';
+      } else {
+        sectionKey = slotConfederation;
+      }
+
+      // Get the team data for this section
+      const sectionTeams = processedData[sectionKey] || [];
+      
+      // Find the first unused team in this section
+      const teamIndex = sectionTeams.findIndex(t => {
+        return !assignedTeams.has(t.name);
+      });
+
+      if (teamIndex !== -1) {
+        const teamData = sectionTeams[teamIndex];
+        assignedTeams.add(teamData.name);
+        return {
+          ...slot,
+          name: teamData.name,
+          flagCode: getNationFlagCode(teamData.name),
+          isHost: teamData.isHost
+        };
+      }
+
+      return slot;
+    });
+
+    setTeamSlots(updatedSlots);
+  };
+
   // Initialize team slots for home and away mode (only if no initial data)
   useEffect(() => {
     if (presetType === 'homeaway' && (!initialData || initialData.presetType !== 'homeaway' || initialData.homeAwayPairs !== homeAwayPairs)) {
@@ -242,9 +391,16 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
             setTeamSlots={setTeamSlots}
             autocompleteStates={autocompleteStates}
             setAutocompleteStates={setAutocompleteStates}
+            onImportJSON={handleImportJSON}
           />
         </div>
       </div>
+      
+      <ValidationErrorModal
+        isOpen={validationModalOpen}
+        errors={validationErrors}
+        onClose={() => setValidationModalOpen(false)}
+      />
     </div>
   );
 });
