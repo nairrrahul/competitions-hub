@@ -27,6 +27,8 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
   const [confederationGroups, setConfederationGroups] = useState<number>(initialData?.confederationGroups || 4);
   const [homeAwayPairs, setHomeAwayPairs] = useState<number>(initialData?.homeAwayPairs || 4);
   const [bracketTeams, setBracketTeams] = useState<number>(initialData?.bracketTeams || 8);
+  const [playoffPathsTeams, setPlayoffPathsTeams] = useState<number>(initialData?.bracketTeams || 8);
+  const [playoffPaths, setPlayoffPaths] = useState<number>(initialData?.playoffPaths || 2);
 
   // Get global state functions
   const getNationFlagCode = useGlobalStore(state => state.getNationFlagCode);
@@ -43,7 +45,7 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
   // Update validation state whenever relevant data changes
   useEffect(() => {
     onValidationUpdate(canNavigateToDrawSimulator());
-  }, [presetType, teamSlots, manualTeams, manualGroups, homeAwayPairs, bracketTeams]);
+  }, [presetType, teamSlots, manualTeams, manualGroups, homeAwayPairs, bracketTeams, playoffPathsTeams, playoffPaths]);
 
   // Expose getCurrentTeamData method to parent
   useImperativeHandle(ref, () => ({
@@ -59,10 +61,11 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
         confederationGroups,
         homeAwayPairs,
         bracketTeams,
+        playoffPaths: presetType === 'playoffpaths' ? playoffPaths : undefined,
         teamSlots: [...teamSlots]
       };
     }
-  }), [presetType, selectedCompetition, selectedConfederation, manualTeams, manualGroups, confederationGroups, homeAwayPairs, bracketTeams, teamSlots]);
+  }), [presetType, selectedCompetition, selectedConfederation, manualTeams, manualGroups, confederationGroups, homeAwayPairs, bracketTeams, playoffPaths, teamSlots]);
 
   // Handle switching to competition mode with auto-selection
   const handleCompetitionPresetSelect = () => {
@@ -72,7 +75,12 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
 
   // Validation functions for navigation
   const canNavigateToDrawSimulator = (): boolean => {
-    if (presetType === 'homeaway') {
+    if (presetType === 'playoffpaths') {
+      // Playoff Paths mode: all teams must be filled out, and paths < teams
+      const allTeamsFilled = teamSlots.every(slot => slot.name.trim() !== '');
+      const pathsValid = playoffPaths < playoffPathsTeams;
+      return allTeamsFilled && pathsValid;
+    } else if (presetType === 'homeaway') {
       // Home and Away mode: all teams must be filled out
       const allTeamsFilled = teamSlots.every(slot => slot.name.trim() !== '');
       return allTeamsFilled;
@@ -358,6 +366,23 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
     }
   }, [bracketTeams, presetType, initialData]);
 
+  // Initialize team slots for playoff paths mode (only if no initial data)
+  useEffect(() => {
+    if (presetType === 'playoffpaths' && (!initialData || initialData.presetType !== 'playoffpaths' || initialData.bracketTeams !== playoffPathsTeams)) {
+      const newSlots: TeamSlot[] = [];
+
+      for (let i = 0; i < playoffPathsTeams; i++) {
+        newSlots.push({
+          id: `playoffpaths-${i}`,
+          name: '',
+          flagCode: ''
+        });
+      }
+
+      setTeamSlots(newSlots);
+    }
+  }, [playoffPathsTeams, presetType, initialData]);
+
 
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen w-full">
@@ -380,6 +405,10 @@ const TeamSelectionTab = forwardRef<TeamSelectionTabRef, TeamSelectionTabProps>(
             setHomeAwayPairs={setHomeAwayPairs}
             bracketTeams={bracketTeams}
             setBracketTeams={setBracketTeams}
+            playoffPathsTeams={playoffPathsTeams}
+            setPlayoffPathsTeams={setPlayoffPathsTeams}
+            playoffPaths={playoffPaths}
+            setPlayoffPaths={setPlayoffPaths}
             onCompetitionPresetSelect={handleCompetitionPresetSelect}
           />
           

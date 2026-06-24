@@ -4,6 +4,7 @@ export interface TeamSlot {
   flagCode: string;
   isSelected?: boolean; // For confederation mode
   isHost?: boolean; // For competition mode
+  isHighlighted?: boolean; // For playoff paths mode - right-click to highlight
 }
 
 export interface TeamData {
@@ -15,6 +16,7 @@ export interface TeamData {
   confederationGroups: number;
   homeAwayPairs: number;
   bracketTeams: number;
+  playoffPaths?: number;
   teamSlots: TeamSlot[];
 }
 
@@ -33,5 +35,5 @@ export interface DisplayGroup {
   maxTeams: number;
 }
 
-export type PresetType = 'manual' | 'confederation' | 'competition' | 'homeaway' | 'bracket';
+export type PresetType = 'manual' | 'confederation' | 'competition' | 'homeaway' | 'bracket' | 'playoffpaths';
 export type Confederation = 'AFC' | 'CAF' | 'OFC' | 'UEFA' | 'CONCACAF' | 'CONMEBOL';

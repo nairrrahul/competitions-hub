@@ -11,6 +11,7 @@ interface CountryCellProps {
   onToggleTeamSelection: (slotId: string) => void;
   onClearTeam: (slotId: string) => void;
   onToggleHost: (slotId: string) => void;
+  onToggleHighlight: (slotId: string) => void;
 }
 
 const CountryCell: React.FC<CountryCellProps> = ({
@@ -22,7 +23,8 @@ const CountryCell: React.FC<CountryCellProps> = ({
   onSelectTeam,
   onToggleTeamSelection,
   onClearTeam,
-  onToggleHost
+  onToggleHost,
+  onToggleHighlight
 }) => {
   // Check if this is a playoff slot in competition mode
   const isPlayoffSlot = () => {
@@ -34,10 +36,12 @@ const CountryCell: React.FC<CountryCellProps> = ({
     return isIntlPlayoff || isUEFAPlayoff;
   };
 
-  // Handle right-click for host toggle
+  // Handle right-click for host toggle or highlight toggle
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
-    if ((presetType === 'competition' || presetType === 'manual') && !isPlayoffSlot()) {
+    if (presetType === 'playoffpaths') {
+      onToggleHighlight(team.id);
+    } else if ((presetType === 'competition' || presetType === 'manual') && !isPlayoffSlot()) {
       onToggleHost(team.id);
     }
   };
@@ -68,7 +72,7 @@ const CountryCell: React.FC<CountryCellProps> = ({
 
   return (
     <div 
-      className={`flex items-center gap-2 p-2 relative rounded bg-gray-700`}
+      className="flex items-center gap-2 p-2 relative rounded bg-gray-700"
       onContextMenu={handleContextMenu}
     >
       {/* Flag Box with rectangular mask */}
@@ -135,6 +139,16 @@ const CountryCell: React.FC<CountryCellProps> = ({
           className="absolute inset-0 rounded"
           style={{
             backgroundColor: 'rgba(239, 68, 68, 0.3)' // red-500 with 30% opacity
+          }}
+        />
+      )}
+      
+      {/* Highlight Overlay for Playoff Paths Mode */}
+      {presetType === 'playoffpaths' && team.isHighlighted && (
+        <div 
+          className="absolute inset-0 rounded pointer-events-none"
+          style={{
+            backgroundColor: 'rgba(249, 115, 22, 0.3)' // orange-500 with 30% opacity
           }}
         />
       )}

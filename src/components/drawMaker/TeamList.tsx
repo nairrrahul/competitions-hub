@@ -229,6 +229,16 @@ const TeamList: React.FC<TeamListProps> = ({
     ));
   };
 
+  // Toggle highlight status for playoff paths cells
+  const toggleHighlight = (slotId: string) => {
+    const slot = teamSlots.find(s => s.id === slotId);
+    if (!slot) return;
+
+    setTeamSlots(prev => prev.map(slot => 
+      slot.id === slotId ? { ...slot, isHighlighted: !slot.isHighlighted } : slot
+    ));
+  };
+
   // Handle team selection for competition mode with constraints
   const handleCompetitionTeamChange = (slotId: string, value: string) => {
     const slot = teamSlots.find(s => s.id === slotId);
@@ -317,6 +327,8 @@ const TeamList: React.FC<TeamListProps> = ({
       return [{ title: 'TEAMS', teams: teamSlots }];
     } else if (presetType === 'bracket') {
       return [{ title: 'TEAMS', teams: teamSlots }];
+    } else if (presetType === 'playoffpaths') {
+      return [{ title: 'TEAMS', teams: teamSlots }];
     }
 
     return [];
@@ -388,6 +400,7 @@ const TeamList: React.FC<TeamListProps> = ({
                         onToggleTeamSelection={toggleTeamSelection}
                         onClearTeam={clearTeam}
                         onToggleHost={toggleHost}
+                        onToggleHighlight={toggleHighlight}
                       />
                     ))}
                   </div>

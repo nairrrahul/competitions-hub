@@ -4,6 +4,7 @@ import PotsDisplay from './PotsDisplay';
 import GroupsDisplay from './GroupsDisplay';
 import HomeAwayDrawSimulator from './HomeAwayDrawSimulator';
 import BracketDrawSimulator from './BracketDrawSimulator';
+import PlayoffPathsDrawSimulator from './PlayoffPathsDrawSimulator';
 import {
   performWorldCupDraw,
   performStandardDraw
@@ -416,6 +417,11 @@ const DrawSimulationTab: React.FC<DrawSimulationTabProps> = ({ teamData }) => {
   // Render BracketDrawSimulator for bracket preset type
   if (teamData?.presetType === 'bracket') {
     return <BracketDrawSimulator teamSlots={teamData.teamSlots} />;
+  }
+
+  // Render PlayoffPathsDrawSimulator for playoffpaths preset type
+  if (teamData?.presetType === 'playoffpaths') {
+    return <PlayoffPathsDrawSimulator teamSlots={teamData.teamSlots} playoffPaths={teamData.playoffPaths || 2} />;
   }
 
   return (
