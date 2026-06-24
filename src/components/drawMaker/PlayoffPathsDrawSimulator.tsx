@@ -4,6 +4,7 @@ import PotsDisplay from './PotsDisplay';
 import PathAssignmentsPanel from './PathAssignmentsPanel';
 import PathMatchupsPanel from './PathMatchupsPanel';
 import { generateBracketPositions, roundInfoFromBracket } from '../../utils/BracketGeneration';
+import { formatDateTimeStamp } from '../../utils/MathUtils';
 import type { TeamSlot } from '../../types/DrawMakerTypes';
 
 type MatchEntry = string | number;
@@ -276,6 +277,40 @@ const PlayoffPathsDrawSimulator: React.FC<PlayoffPathsDrawSimulatorProps> = ({ t
     }
   };
 
+  // Export playoffs to JSON file
+  const exportPlayoffs = () => {
+    if (!simulationComplete || Object.keys(pathMatchups).length === 0) {
+      return;
+    }
+
+    const numTeams = pathAssignments.reduce((acc, p) => acc + (p.teams?.length || 0), 0);
+
+    const exportData = {
+      compName: "Playoffs",
+      numTeams,
+      numThrough: -1,
+      compType: "PLAYOFF",
+      isHA: false,
+      playoffs: pathMatchups
+    } as any;
+
+    const now = new Date();
+    const timestamp = formatDateTimeStamp(now);
+    const filename = `${timestamp}-Playoffs.comp.json`;
+
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen">
       <div className="w-full">
@@ -286,6 +321,15 @@ const PlayoffPathsDrawSimulator: React.FC<PlayoffPathsDrawSimulatorProps> = ({ t
             <p className="text-gray-400">Simulate the playoff paths draw</p>
           </div>
           <div className="flex gap-3">
+            {simulationComplete && Object.keys(pathMatchups).length > 0 && (
+              <button
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+                onClick={() => exportPlayoffs()}
+              >
+                Export
+              </button>
+            )}
+
             <button
               className={`font-bold py-3 px-8 rounded-lg transition-colors ${
                 isSimulating
