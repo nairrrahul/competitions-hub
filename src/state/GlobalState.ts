@@ -34,6 +34,7 @@ interface PlayersState {
   // Game state for added players
   numPlayersAdded: number
   highestPlayerID: number
+  copyRankingsCount: number
   
   // Actions
   loadPlayersData: () => void
@@ -69,6 +70,24 @@ interface PlayersState {
   getRoundInfo: (competitionName: string) => any
   getNationInfo: (nationName: string) => any
   updateNationInfo: (nationName: string, newInfo: any) => void
+  setCopyRankingsCount: (count: number) => void
+}
+
+const getStoredCopyRankingsCount = (): number => {
+  if (typeof window === 'undefined') {
+    return 30
+  }
+
+  const storedValue = window.localStorage.getItem('copy-rankings-count')
+  const parsedValue = Number(storedValue)
+
+  if (!Number.isNaN(parsedValue)) {
+    const clampedValue = Math.min(211, Math.max(1, Math.floor(parsedValue)))
+    return clampedValue
+  }
+
+  window.localStorage.setItem('copy-rankings-count', '30')
+  return 30
 }
 
 export const useGlobalStore = create<PlayersState>((set, get) => ({
@@ -97,7 +116,18 @@ export const useGlobalStore = create<PlayersState>((set, get) => ({
   // Game state for added players
   numPlayersAdded: 0,
   highestPlayerID: 0,
+  copyRankingsCount: getStoredCopyRankingsCount(),
   
+  setCopyRankingsCount: (count: number) => {
+    const sanitized = Math.min(211, Math.max(1, Number.isFinite(count) ? Math.floor(count) : 30))
+
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('copy-rankings-count', String(sanitized))
+    }
+
+    set({ copyRankingsCount: sanitized })
+  },
+
   // Load players data from JSON
   loadPlayersData: () => {
     const data = playersData as unknown as PlayersData

@@ -9,8 +9,11 @@ const CONFEDERATIONS = ["All", "AFC", "CAF", "CONCACAF", "CONMEBOL", "OFC", "UEF
 
 const DataEditor: React.FC = () => {
   const nationInfo = useGlobalStore(state => state.nationInfo);
+  const copyRankingsCount = useGlobalStore(state => state.copyRankingsCount);
+  const setCopyRankingsCount = useGlobalStore(state => state.setCopyRankingsCount);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedConfederation, setSelectedConfederation] = useState("All");
+  const [showToast, setShowToast] = useState(false);
 
   // Sort nations by ranking points (descending) - keeps original ranking indices
   const sortedNations = useMemo(() => {
@@ -72,6 +75,25 @@ const DataEditor: React.FC = () => {
     } else if (e.key === 'Escape') {
       cancelEdit();
     }
+  };
+
+  const handleCopyTopN = () => {
+    const topCountries = sortedNations.slice(0, copyRankingsCount).map(([countryName]) => countryName);
+    navigator.clipboard.writeText(topCountries.join('\n'));
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const handleCopyCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const parsedValue = Number(e.target.value);
+
+    if (Number.isNaN(parsedValue)) {
+      setCopyRankingsCount(30);
+      return;
+    }
+
+    const clampedValue = Math.min(211, Math.max(1, Math.floor(parsedValue)));
+    setCopyRankingsCount(clampedValue);
   };
 
   const handleExportData = () => {
@@ -190,26 +212,48 @@ const DataEditor: React.FC = () => {
         {/* World Ranking Section */}
         <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
           {/* Header with Title and Buttons */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-green-400">World Ranking</h2>
-            <div className="flex items-center gap-3">
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-2xl font-bold text-green-400">World Ranking</h2>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleExportData}
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium"
+                >
+                  Export Data
+                </button>
+                <button
+                  onClick={handleImportAllData}
+                  className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors font-medium"
+                >
+                  Import All Data
+                </button>
+                <button
+                  onClick={handleImportRankingDeltas}
+                  className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-medium"
+                >
+                  Import Ranking Deltas
+                </button>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <div className="flex items-center gap-2 rounded-lg border border-gray-600 bg-gray-700/80 px-3 py-2">
+                <label htmlFor="copy-toggle" className="text-sm text-gray-300">Countries Selected</label>
+                <input
+                  id="copy-toggle"
+                  type="number"
+                  min={1}
+                  max={211}
+                  value={copyRankingsCount}
+                  onChange={handleCopyCountChange}
+                  className="w-20 rounded border border-gray-600 bg-gray-800 px-2 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
+              </div>
               <button
-                onClick={handleExportData}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium"
+                onClick={handleCopyTopN}
+                className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors font-medium"
               >
-                Export Data
-              </button>
-              <button
-                onClick={handleImportAllData}
-                className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors font-medium"
-              >
-                Import All Data
-              </button>
-              <button
-                onClick={handleImportRankingDeltas}
-                className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-medium"
-              >
-                Import Ranking Deltas
+                Copy
               </button>
             </div>
           </div>
@@ -316,6 +360,11 @@ const DataEditor: React.FC = () => {
           </div>
         </div>
       </main>
+      {showToast && (
+        <div className="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out">
+          Copied {copyRankingsCount} countries to clipboard
+        </div>
+      )}
     </div>
   );
 };
